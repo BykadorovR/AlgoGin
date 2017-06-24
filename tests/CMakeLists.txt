@@ -9,10 +9,10 @@ FILE(GLOB_RECURSE TEST_SOURCE "src/*.c*")
 source_group("Test\\src" FILES ${TEST_SOURCE})
 
 #include algo headers
-include_directories(../Engine/algo/include)
+include_directories(../engine/algo/include)
 
 #include graphic headers
-include_directories(../Engine/graphic/include)
+include_directories(../engine/graphic/include)
 
 if(NOT CMAKE_VERSION VERSION_LESS 3.1)
     set(CMAKE_CXX_STANDARD 11)
