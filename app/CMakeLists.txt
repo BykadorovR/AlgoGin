@@ -11,6 +11,8 @@ add_definitions(${GLUT_DEFINITIONS})
 if(NOT GLUT_FOUND)
     message(ERROR " GLUT not found. Need to specify path to freeglut folder and to dynamic/static libraries!")
 endif(NOT GLUT_FOUND)
+message(STATUS ${GLUT_INCLUDE_DIRS})
+message(STATUS ${GLUT_LIBRARY_DIRS})
 #########################################################
 # FIND OPENGL
 #########################################################
