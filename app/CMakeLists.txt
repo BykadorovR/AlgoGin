@@ -1,6 +1,27 @@
 cmake_minimum_required(VERSION 3.7)
 project(engine_app)
 
+#########################################################
+# FIND GLUT
+#########################################################
+find_package(GLUT REQUIRED)
+include_directories(${GLUT_INCLUDE_DIRS})
+link_directories(${GLUT_LIBRARY_DIRS})
+add_definitions(${GLUT_DEFINITIONS})
+if(NOT GLUT_FOUND)
+    message(ERROR " GLUT not found. Need to specify path to freeglut folder and to dynamic/static libraries!")
+endif(NOT GLUT_FOUND)
+#########################################################
+# FIND OPENGL
+#########################################################
+find_package(OpenGL REQUIRED)
+include_directories(${OpenGL_INCLUDE_DIRS})
+link_directories(${OpenGL_LIBRARY_DIRS})
+add_definitions(${OpenGL_DEFINITIONS})
+if(NOT OPENGL_FOUND)
+    message(ERROR " OPENGL not found. Need to specify path to glew folder and to dynamic/static libraries!")
+endif(NOT OPENGL_FOUND)
+
 #include app source
 FILE(GLOB_RECURSE APP_SOURCE "src/*.c*")
 source_group("App\\src" FILES ${APP_SOURCE})
