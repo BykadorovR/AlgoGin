@@ -23,6 +23,16 @@ add_definitions(${OpenGL_DEFINITIONS})
 if(NOT OPENGL_FOUND)
     message(ERROR " OPENGL not found. Need to specify path to glew folder and to dynamic/static libraries!")
 endif(NOT OPENGL_FOUND)
+#########################################################
+# FIND OPENGL
+#########################################################
+find_package(GLEW REQUIRED)
+if (GLEW_FOUND)
+    include_directories(${GLEW_INCLUDE_DIRS})
+    link_libraries(${GLEW_LIBRARIES})
+endif()
+
+
 
 #include app source
 FILE(GLOB_RECURSE APP_SOURCE "src/*.c*")
