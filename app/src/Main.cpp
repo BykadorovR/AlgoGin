@@ -1,5 +1,5 @@
 #include <GL/freeglut.h>
-
+#include <GL/glew.h>
 
 static void RenderSceneCB()
 {
@@ -22,7 +22,13 @@ int main(int argc, char** argv)
     glutCreateWindow("Tutorial 01");
 
     InitializeGlutCallbacks();
-
+    
+    // Must be done after glut is initialized!
+    GLenum res = glewInit();
+    if (res != GLEW_OK) {
+      fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
+      return 1;
+    }
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     glutMainLoop();
