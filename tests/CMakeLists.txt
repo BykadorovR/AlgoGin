@@ -20,7 +20,7 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-if(CMAKE_CXX_COMPILER_ID MATCHES GNU)
+if(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 endif()
 
@@ -30,9 +30,16 @@ STRING(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCE})
+#set as startup project in VS
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
-find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+#paths to library are diferent on win and linux
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
+endif()
+
 target_link_libraries(${PROJECT_NAME} gtest gtest_main ${ENGINE_LIBRARY})
 add_test( ${PROJECT_NAME} ${PROJECT_NAME})
