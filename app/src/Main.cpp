@@ -27,7 +27,7 @@ int main(int argc, char** argv)
     // Must be done after glut is initialized!
     GLenum res = glewInit();
     if (res != GLEW_OK) {
-      fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
+      glewGetErrorString(res);
       return 1;
     }
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
