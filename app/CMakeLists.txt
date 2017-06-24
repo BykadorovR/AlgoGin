@@ -23,8 +23,15 @@ else()
 endif()
 
 add_executable(${PROJECT_NAME} ${APP_HEADERS} ${APP_SOURCE})
+
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
 endif()
-find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+
+#paths to library are diferent on win and linux
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
+endif()
 target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY})
