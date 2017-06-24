@@ -39,7 +39,6 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
-    set(ENGINE_LIBRARY "-Wl,--whole-archive ${ENGINE_LIBRARY} -Wl,--no-whole-archive")
 endif()
 
 target_link_libraries(${PROJECT_NAME} gtest gtest_main ${ENGINE_LIBRARY})
