@@ -38,7 +38,7 @@ script:
   - ./engine_tests
 
 after_success:
-  - coveralls --build-root ../build --root ../ --exclude test -E ".*CMakeFiles.*"
+  - coveralls --build-root ../../engine/_build --root ../../ --exclude tests --exclude app -E ".*CMakeFiles.*"
 
 os: 
   - linux
