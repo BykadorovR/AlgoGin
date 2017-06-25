@@ -1,4 +1,2 @@
-dependencies/googletest/build
-app/_build
-engine/_build
-tests/_build
+build
+_build

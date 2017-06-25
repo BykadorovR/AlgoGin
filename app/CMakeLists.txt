@@ -5,22 +5,11 @@ project(engine_app)
 # FIND GLUT
 #########################################################
 find_package(GLUT REQUIRED)
-include_directories(${GLUT_INCLUDE_DIRS})
-link_directories(${GLUT_LIBRARY_DIRS})
+include_directories(${GLUT_INCLUDE_DIR})
 add_definitions(${GLUT_DEFINITIONS})
 if(NOT GLUT_FOUND)
     message(ERROR " GLUT not found. Need to specify path to freeglut folder and to dynamic/static libraries!")
 endif(NOT GLUT_FOUND)
-#########################################################
-# FIND OPENGL
-#########################################################
-find_package(OpenGL REQUIRED)
-include_directories(${OpenGL_INCLUDE_DIRS})
-link_directories(${OpenGL_LIBRARY_DIRS})
-add_definitions(${OpenGL_DEFINITIONS})
-if(NOT OPENGL_FOUND)
-    message(ERROR " OPENGL not found. Need to specify path to glew folder and to dynamic/static libraries!")
-endif(NOT OPENGL_FOUND)
 #########################################################
 # FIND GLEW
 #########################################################
@@ -64,4 +53,4 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
 endif()
-target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY} ${GLEW_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
