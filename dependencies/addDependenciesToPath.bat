@@ -4,8 +4,11 @@ set REL_PATH_GLEW=glew\
 
 set ABS_PATH_DIR=%~dp0
 
-set PATH_LIST_GLUT=%REL_PATH_FREEGLUT% %REL_PATH_FREEGLUT%lib\x64 %REL_PATH_FREEGLUT%lib\Win32 %REL_PATH_FREEGLUT%bin\x64 %REL_PATH_FREEGLUT%bin\Win32
-set PATH_LIST_GLEW=%REL_PATH_GLEW% %REL_PATH_GLEW%lib\Release\x64 %REL_PATH_GLEW%lib\Release\Win32 %REL_PATH_GLEW%bin\Release\x64 %REL_PATH_GLEW%bin\Release\Win32
+REM set PATH_LIST_GLUT=%REL_PATH_FREEGLUT% %REL_PATH_FREEGLUT%lib\x64 %REL_PATH_FREEGLUT%lib\Win32 %REL_PATH_FREEGLUT%bin\x64 %REL_PATH_FREEGLUT%bin\Win32 - with x64
+REM set PATH_LIST_GLEW=%REL_PATH_GLEW% %REL_PATH_GLEW%lib\Release\x64 %REL_PATH_GLEW%lib\Release\Win32 %REL_PATH_GLEW%bin\Release\x64 %REL_PATH_GLEW%bin\Release\Win32 - with x64
+
+set PATH_LIST_GLUT=%REL_PATH_FREEGLUT% %REL_PATH_FREEGLUT%lib\Win32 %REL_PATH_FREEGLUT%bin\Win32
+set PATH_LIST_GLEW=%REL_PATH_GLEW% %REL_PATH_GLEW%lib\Release\Win32 %REL_PATH_GLEW%bin\Release\Win32
 
 for /f "tokens=2*" %%a in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path') do set "system_path=%%b"
 
