@@ -1,6 +1,25 @@
 cmake_minimum_required(VERSION 3.1)
 project(engine)
 
+#########################################################
+# FIND GLUT
+#########################################################
+find_package(GLUT REQUIRED)
+include_directories(${GLUT_INCLUDE_DIR})
+add_definitions(${GLUT_DEFINITIONS})
+if(NOT GLUT_FOUND)
+    message(ERROR " GLUT not found. Need to specify path to freeglut folder and to dynamic/static libraries!")
+endif(NOT GLUT_FOUND)
+#########################################################
+# FIND GLEW
+#########################################################
+find_package(GLEW REQUIRED)
+include_directories(${GLEW_INCLUDE_DIRS})
+link_libraries(${GLEW_LIBRARIES})
+if (NOT GLEW_FOUND)
+    message(ERROR " GLEW not found. Need to specify path to glew folder and to dynamic/static libraries!") 
+endif()
+
 #include algo headers
 include_directories(algo/include)
 FILE(GLOB_RECURSE ALGO_HEADERS "algo/*.h*")
@@ -25,4 +44,4 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS})
+add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
