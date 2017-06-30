@@ -2,42 +2,48 @@
 #include <GL/freeglut.h>
 #include "Primitives.h"
 #include <stdio.h>
-#include <string.h>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <algorithm>
 
 GLuint VBO;
+int a_position;
+const std::string vs_path = "../content/simple.vs";
+const std::string fs_path = "../content/simple.fs";
 
 
-static const char* pVS = "                                                    \n\
-#version 330                                                                  \n\
-                                                                              \n\
-layout (location = 0) in vec3 Position;                                       \n\
-                                                                              \n\
-void main()                                                                   \n\
-{                                                                             \n\
-    gl_Position = vec4(0.5 * Position.x, 0.5 * Position.y, Position.z, 1.0);  \n\
-}";
+std::string readFile(const char *filePath) {
+	std::string content;
+	std::ifstream fileStream(filePath, std::ios::in);
 
-static const char* pFS = "                                                    \n\
-#version 330                                                                  \n\
-                                                                              \n\
-out vec4 FragColor;                                                           \n\
-                                                                              \n\
-void main()                                                                   \n\
-{                                                                             \n\
-    FragColor = vec4(1.0, 0.0, 0.0, 1.0);                                     \n\
-}";
+	if (!fileStream.is_open()) {
+		std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+		return "";
+	}
+
+	std::string line = "";
+	while (!fileStream.eof()) {
+		std::getline(fileStream, line);
+		content.append(line + "\n");
+	}
+
+	fileStream.close();
+	return content;
+}
 
 static void RenderSceneCB()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(a_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glVertexAttribPointer(a_position, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(a_position);
 
 	glutSwapBuffers();
 }
@@ -96,8 +102,14 @@ static void CompileShaders()
 		exit(1);
 	}
 
-	AddShader(ShaderProgram, pVS, GL_VERTEX_SHADER);
-	AddShader(ShaderProgram, pFS, GL_FRAGMENT_SHADER);
+	// Read shaders
+	std::string vertShaderStr = readFile(vs_path.c_str());
+	std::string fragShaderStr = readFile(fs_path.c_str());
+	const char *vertShaderSrc = vertShaderStr.c_str();
+	const char *fragShaderSrc = fragShaderStr.c_str();
+	
+	AddShader(ShaderProgram, vertShaderSrc, GL_VERTEX_SHADER);
+	AddShader(ShaderProgram, fragShaderSrc, GL_FRAGMENT_SHADER);
 
 	GLint Success = 0;
 	GLchar ErrorLog[1024] = { 0 };
@@ -119,6 +131,8 @@ static void CompileShaders()
 	}
 
 	glUseProgram(ShaderProgram);
+
+	a_position = glGetAttribLocation(ShaderProgram, "Position");
 }
 
 int main(int argc, char** argv)
