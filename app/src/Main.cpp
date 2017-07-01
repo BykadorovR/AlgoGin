@@ -61,8 +61,9 @@ int main(int argc, char** argv)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	CreateVertexBuffer();
-
-	CompileShaders(vs_path, fs_path);
+	Shader simpleShader(vs_path, fs_path);
+	simpleShader.compileShaders(); //once
+	simpleShader.useProgram(); //in draw
 
 	glutMainLoop();
 

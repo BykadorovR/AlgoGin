@@ -3,8 +3,12 @@
 #include <fstream>
 #include <cstring>
 
+Shader::Shader(std::string vsPath, std::string fsPath) {
+	_vsPath = vsPath;
+	_fsPath = fsPath;
+}
 
-std::string readFile(std::string filePath) {
+std::string Shader::readFile(std::string filePath) {
 	std::string content;
 	std::ifstream fileStream(filePath, std::ios::in);
 
@@ -24,7 +28,7 @@ std::string readFile(std::string filePath) {
 }
 
 
-void AddShader(GLuint ShaderProgram, std::string pShaderText, GLenum ShaderType)
+void Shader::addShader(std::string pShaderText, GLenum ShaderType)
 {
 	GLuint ShaderObj = glCreateShader(ShaderType);
 
@@ -46,43 +50,52 @@ void AddShader(GLuint ShaderProgram, std::string pShaderText, GLenum ShaderType)
 		exit(1);
 	}
 
-	glAttachShader(ShaderProgram, ShaderObj);
+	glAttachShader(_shaderProgram, ShaderObj);
 }
 
-void CompileShaders(std::string vsText, std::string fsText)
-{
-	GLuint ShaderProgram = glCreateProgram();
+void Shader::createShader() {
+	_shaderProgram = glCreateProgram();
 
-	if (ShaderProgram == 0) {
+	if (_shaderProgram == 0) {
 		fprintf(stderr, "Error creating shader program\n");
 		exit(1);
 	}
+}
 
+void Shader::compileShaders()
+{
+	createShader();
 	// Read shaders
-	std::string vertShaderStr = readFile(vsText);
-	std::string fragShaderStr = readFile(fsText);
+	std::string vertShaderStr = readFile(_vsPath);
+	std::string fragShaderStr = readFile(_fsPath);
 
-	AddShader(ShaderProgram, vertShaderStr, GL_VERTEX_SHADER);
-	AddShader(ShaderProgram, fragShaderStr, GL_FRAGMENT_SHADER);
+	addShader(vertShaderStr, GL_VERTEX_SHADER);
+	addShader(fragShaderStr, GL_FRAGMENT_SHADER);
 
 	GLint Success = 0;
 	GLchar ErrorLog[1024] = { 0 };
 
-	glLinkProgram(ShaderProgram);
-	glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
+	glLinkProgram(_shaderProgram);
+	glGetProgramiv(_shaderProgram, GL_LINK_STATUS, &Success);
 	if (Success == 0) {
-		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
+		glGetProgramInfoLog(_shaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
 		fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
 		exit(1);
 	}
 
-	glValidateProgram(ShaderProgram);
-	glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Success);
+	glValidateProgram(_shaderProgram);
+	glGetProgramiv(_shaderProgram, GL_VALIDATE_STATUS, &Success);
 	if (!Success) {
-		glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
+		glGetProgramInfoLog(_shaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
 		fprintf(stderr, "Invalid shader program: '%s'\n", ErrorLog);
 		exit(1);
 	}
+}
 
-	glUseProgram(ShaderProgram);
+void Shader::useProgram() {
+	glUseProgram(_shaderProgram);
+}
+
+GLuint Shader::getProgram() {
+	return _shaderProgram;
 }
