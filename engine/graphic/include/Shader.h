@@ -1,6 +1,6 @@
 #pragma once
 
-#include "General.h"
+#include "GLIncludes.h"
 #include <string>
 
 class Shader {

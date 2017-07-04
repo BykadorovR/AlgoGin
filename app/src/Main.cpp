@@ -2,7 +2,10 @@
 #include "Shader.h"
 
 GLuint VBO;
-int a_position;
+GLint a_position;
+GLint u_color;
+GLuint u_world;
+GLuint program;
 const std::string vs_path = "../../engine/content/simple.vs";
 const std::string fs_path = "../../engine/content/simple.fs";
 
@@ -10,6 +13,8 @@ const std::string fs_path = "../../engine/content/simple.fs";
 static void RenderSceneCB()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	glUniform4f(u_color, 0.5f, 0.5f, 0.5f, 1);
 
 	glEnableVertexAttribArray(a_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -31,8 +36,8 @@ static void InitializeGlutCallbacks()
 static void CreateVertexBuffer()
 {
 	Vector3f Vertices[3];
-	Vertices[0] = Vector3f(-1.0f, -1.0f, 0.0f);
-	Vertices[1] = Vector3f(1.0f, -1.0f, 0.0f);
+	Vertices[0] = Vector3f(.0f, .0f, 0.0f);
+	Vertices[1] = Vector3f(1.0f, .0f, 0.0f);
 	Vertices[2] = Vector3f(0.0f, 1.0f, 0.0f);
 
 	glGenBuffers(1, &VBO);
@@ -64,7 +69,11 @@ int main(int argc, char** argv)
 	Shader simpleShader(vs_path, fs_path);
 	simpleShader.compileShaders(); //once
 	simpleShader.useProgram(); //in draw
-
+	program = simpleShader.getProgram();
+	
+	a_position = glGetAttribLocation(program, "Position");
+	u_color = glGetUniformLocation(program, "ResultColor");
+	//TODO: add world matrix
 	glutMainLoop();
 
 	return 0;
