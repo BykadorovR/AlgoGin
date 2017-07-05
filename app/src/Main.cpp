@@ -1,5 +1,6 @@
-#include "Primitives.h"
 #include "Shader.h"
+#include "MatrixHelper.h"
+#include "math.h"
 
 GLuint VBO;
 GLint a_position;
@@ -15,6 +16,17 @@ static void RenderSceneCB()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUniform4f(u_color, 0.5f, 0.5f, 0.5f, 1);
+	
+	static float Scale = 0.0f;
+
+	Scale += 0.0001f;
+
+	MatrixHelper p;
+	//p.setScale(Vector3f(sinf(Scale * 0.1f), sinf(Scale * 0.1f), sinf(Scale * 0.1f)));
+	//p.setPosition(Vector3f(sinf(Scale), 0.0f, 0.0f));
+	p.setRotate(Vector3f(sinf(Scale) * 90.0f, sinf(Scale) * 90.0f, sinf(Scale) * 90.0f));
+
+	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)p.getMatrix()[0]);
 
 	glEnableVertexAttribArray(a_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -31,14 +43,15 @@ static void RenderSceneCB()
 static void InitializeGlutCallbacks()
 {
 	glutDisplayFunc(RenderSceneCB);
+	glutIdleFunc(RenderSceneCB);
 }
 
 static void CreateVertexBuffer()
 {
 	Vector3f Vertices[3];
 	Vertices[0] = Vector3f(.0f, .0f, 0.0f);
-	Vertices[1] = Vector3f(1.0f, .0f, 0.0f);
-	Vertices[2] = Vector3f(0.0f, 1.0f, 0.0f);
+	Vertices[1] = Vector3f(0.5f, .0f, 0.0f);
+	Vertices[2] = Vector3f(0.0f, 0.5f, 0.0f);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -73,6 +86,7 @@ int main(int argc, char** argv)
 	
 	a_position = glGetAttribLocation(program, "Position");
 	u_color = glGetUniformLocation(program, "ResultColor");
+	u_world = glGetUniformLocation(program, "gWorld");
 	//TODO: add world matrix
 	glutMainLoop();
 
