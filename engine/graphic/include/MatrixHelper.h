@@ -9,8 +9,8 @@ private:
 	Matrix4f _scale;
 
 public:
-	void setRotate(Vector3f& rotate);
-	void setScale(Vector3f& scale);
-	void setPosition(Vector3f& position);
+	void setRotate(const Vector3f& rotate);
+	void setScale(const Vector3f& scale);
+	void setPosition(const Vector3f& position);
 	Matrix4f& getMatrix();
 };
