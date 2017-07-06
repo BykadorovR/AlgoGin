@@ -2,7 +2,7 @@
 #include "MatrixHelper.h"
 #include "math.h"
 
-GLuint VBO;
+GLuint VBO, IBO;
 GLint a_position;
 GLint u_color;
 GLuint u_world;
@@ -23,7 +23,7 @@ static void RenderSceneCB()
 
 	MatrixHelper p;
 	//p.setScale(Vector3f(sinf(Scale * 0.1f), sinf(Scale * 0.1f), sinf(Scale * 0.1f)));
-	//p.setPosition(Vector3f(sinf(Scale), 0.0f, 0.0f));
+	p.setPosition(Vector3f(sinf(Scale), 0.0f, 0.0f));
 	p.setRotate(Vector3f(sinf(Scale) * 90.0f, sinf(Scale) * 90.0f, sinf(Scale) * 90.0f));
 
 	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)p.getMatrix()[0]);
@@ -31,8 +31,9 @@ static void RenderSceneCB()
 	glEnableVertexAttribArray(a_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(a_position, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(a_position);
 
@@ -48,14 +49,28 @@ static void InitializeGlutCallbacks()
 
 static void CreateVertexBuffer()
 {
-	Vector3f Vertices[3];
-	Vertices[0] = Vector3f(.0f, .0f, 0.0f);
-	Vertices[1] = Vector3f(0.5f, .0f, 0.0f);
-	Vertices[2] = Vector3f(0.0f, 0.5f, 0.0f);
+	Vector3f Vertices[4];
+	Vertices[0] = Vector3f(-.5f, -.5f, 0.0f);
+	Vertices[1] = Vector3f(0.0f, -.5f, .5f);
+	Vertices[2] = Vector3f(.5f, -.5f, 0.0f);
+	Vertices[3] = Vector3f(0.0f, .5f, 0.0f);
 
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+}
+
+static void CreateIndexBuffer()
+{
+	unsigned int Indices[] = 
+	  { 0, 3, 1,
+		1, 3, 2,
+		2, 3, 0,
+		0, 2, 1 };
+
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 }
 
 
@@ -79,6 +94,7 @@ int main(int argc, char** argv)
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	CreateVertexBuffer();
+	CreateIndexBuffer();
 	Shader simpleShader(vs_path, fs_path);
 	simpleShader.compileShaders(); //once
 	simpleShader.useProgram(); //in draw
