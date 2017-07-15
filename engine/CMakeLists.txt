@@ -20,6 +20,16 @@ if (NOT GLEW_FOUND)
     message(ERROR " GLEW not found. Need to specify path to glew folder and to dynamic/static libraries!") 
 endif()
 
+#########################################################
+# FIND DevIL
+#########################################################
+find_package(DEVIL REQUIRED)
+include_directories(${IL_INCLUDE_DIR})
+link_libraries(${IL_LIBRARIES})
+if (NOT IL_FOUND)
+    message(ERROR " IL not found. Need to specify path to il folder and to dynamic/static libraries!") 
+endif()
+
 #include algo headers
 include_directories(algo/include)
 FILE(GLOB_RECURSE ALGO_HEADERS "algo/*.h*")
@@ -44,4 +54,4 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
+add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES} ${IL_LIBRARIES})
