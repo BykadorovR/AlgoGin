@@ -45,7 +45,7 @@ bool Texture::Load()
 void Texture::Bind()
 {
 	//glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_textureObj);
+	glBindTexture(GL_TEXTURE_2D, mGlTextureObject);
 }
 
 GLuint Texture::MakeGlTexture(int Format, ILubyte* pixels, int w, int h)

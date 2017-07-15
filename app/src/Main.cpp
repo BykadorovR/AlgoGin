@@ -78,7 +78,7 @@ static void RenderSceneCB()
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-	//pTexture->Bind();
+	pTexture->Bind();
 	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 	
 	glDisableVertexAttribArray(a_position);
@@ -140,9 +140,9 @@ int main(int argc, char** argv)
 	}
 
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	//glFrontFace(GL_CW);
-	//glCullFace(GL_BACK);
-	//glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+	glCullFace(GL_BACK);
+	glEnable(GL_CULL_FACE);
 
 	CreateVertexBuffer();
 	CreateIndexBuffer();
