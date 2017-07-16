@@ -23,7 +23,7 @@ endif()
 #########################################################
 # FIND DevIL
 #########################################################
-find_package(DEVIL REQUIRED)
+find_package(DevIL REQUIRED)
 include_directories(${IL_INCLUDE_DIR})
 link_libraries(${IL_LIBRARIES})
 if (NOT IL_FOUND)
