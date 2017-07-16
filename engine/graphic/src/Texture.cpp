@@ -4,6 +4,8 @@ Texture::Texture(std::string FileName)
 	m_fileName = FileName;
 	imageId = 0;
 	mGlTextureObject = 0;
+	width = 0;
+	height = 0;
 }
 
 bool Texture::Load()
@@ -16,8 +18,8 @@ bool Texture::Load()
 	// if load is successful
 	if (ilLoadImage(m_fileName.c_str()))
 	{
-		int width = ilGetInteger(IL_IMAGE_WIDTH);
-		int height = ilGetInteger(IL_IMAGE_HEIGHT);
+		width = ilGetInteger(IL_IMAGE_WIDTH);
+		height = ilGetInteger(IL_IMAGE_HEIGHT);
 		int bitspp = ilGetInteger(IL_IMAGE_BITS_PER_PIXEL);
 
 		switch (bitspp)
@@ -40,7 +42,7 @@ bool Texture::Load()
 
 void Texture::Bind()
 {
-	//glActiveTexture(GL_TEXTURE0); it seems like this line is unnesessary
+	//glActiveTexture(GL_TEXTURE0); //it seems like this line is unnesessary
 	glBindTexture(GL_TEXTURE_2D, mGlTextureObject);
 }
 

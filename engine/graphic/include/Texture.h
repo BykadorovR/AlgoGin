@@ -6,6 +6,8 @@
 class Texture
 {
 public:
+	int width;
+	int height;
 	Texture(std::string FileName);
 	bool Load();
 	void Bind();

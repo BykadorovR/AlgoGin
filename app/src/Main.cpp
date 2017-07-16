@@ -4,27 +4,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <Texture.h>
-
-struct Vector2f
-{
-	float x;
-	float y;
-
-	Vector2f() : x(0), y(0)
-	{
-	}
-
-	Vector2f(float _x, float _y) : x(_x), y(_y)
-	{
-	}
-
-	//TODO: add move constructor
-	void operator=(Vector3f right) {
-		x = right.x;
-		y = right.y;
-	}
-
-};
+#include <Sprite.h>
 
 struct Vertex
 {
@@ -38,7 +18,6 @@ struct Vertex
 	}
 };
 
-
 GLuint VBO, IBO;
 GLuint a_position;
 GLuint u_color;
@@ -46,7 +25,11 @@ GLuint a_texcoord;
 GLuint u_world;
 GLuint program;
 GLuint gSampler;
+Sprite* sprite = NULL;
+Sprite* sprite1 = NULL;
 Texture* pTexture = NULL;
+Texture* texture0 = NULL;
+Texture* texture1 = NULL;
 
 const std::string vs_path = "../../engine/content/simple.vs";
 const std::string fs_path = "../../engine/content/simple.fs";
@@ -68,7 +51,7 @@ static void RenderSceneCB()
 	p.setRotate(Vector3f(Scale*414, Scale*100, Scale*154));
 
 	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)p.getMatrix()[0]);
-
+	
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
 
@@ -79,10 +62,14 @@ static void RenderSceneCB()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
 	pTexture->Bind();
+
 	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-	
+
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
+
+	sprite->Draw(program);
+	sprite1->Draw(program);
 
 	glutSwapBuffers();
 }
@@ -96,7 +83,8 @@ static void InitializeGlutCallbacks()
 
 static void CreateVertexBuffer()
 {
-	Vertex Vertices[4] = { Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f)),
+	Vertex Vertices[4] = { 
+		Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f)),
 		Vertex(Vector3f(0.0f, -1.0f, -1.15475f), Vector2f(0.5f, 0.0f)),
 		Vertex(Vector3f(1.0f, -1.0f, 0.5773f),  Vector2f(0.0f, 0.5f)),
 		Vertex(Vector3f(0.0f, 1.0f, 0.0f),      Vector2f(1.0f, 1.0f)) };
@@ -110,10 +98,10 @@ static void CreateVertexBuffer()
 static void CreateIndexBuffer()
 {
 	unsigned int Indices[] = 
-	  { 0, 3, 1,
-		1, 3, 2,
-		2, 3, 0,
-		1, 2, 0 };
+	  { 0, 1, 3,
+		1, 2, 3,
+		2, 0, 3,
+		1, 0, 2 };
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -156,12 +144,23 @@ int main(int argc, char** argv)
 	a_position = glGetAttribLocation(program, "Position");
 	a_texcoord = glGetAttribLocation(program, "TexCoord");
 	u_world = glGetUniformLocation(program, "gWorld");
-	glUniform1i(gSampler, 0);
+	//glUniform1i(gSampler, 0);
 
 	pTexture = new Texture("../resources/claytile.png");
 	if (!pTexture->Load()) {
 		return 1;
 	}
+	texture0 = new Texture("../resources/metal.png");
+	if (!texture0->Load()) {
+		return 1;
+	}
+	texture1 = new Texture("../resources/wood.png");
+	if (!texture1->Load()) {
+		return 1;
+	}
+
+	sprite = new Sprite(760, 760, 512, 384, texture1);
+	sprite1 = new Sprite(512, 512, 200, 512, Vector2f(200,200), Vector2f(300,300), texture0);
 
 	//TODO: add world matrix
 

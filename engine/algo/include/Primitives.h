@@ -6,6 +6,25 @@
 #define ToRadian(x) ((x) * M_PI / 180.0f)
 #define ToDegree(x) ((x) * 180.0f / M_PI)
 
+struct Vector2f
+{
+	float x;
+	float y;
+
+	Vector2f() : x(0), y(0)
+	{
+	}
+
+	Vector2f(float _x, float _y) : x(_x), y(_y)
+	{
+	}
+
+	void operator=(Vector2f right) {
+		x = right.x;
+		y = right.y;
+	}
+
+};
 
 struct Vector3f
 {
