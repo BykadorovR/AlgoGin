@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 	u_world = glGetUniformLocation(program, "gWorld");
 	glUniform1i(gSampler, 0);
 
-	pTexture = new Texture("../claytile.png");
+	pTexture = new Texture("../resources/claytile.png");
 	if (!pTexture->Load()) {
 		return 1;
 	}

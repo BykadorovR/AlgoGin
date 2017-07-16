@@ -1,5 +1,5 @@
 #include "Texture.h"
-Texture::Texture(char* FileName)
+Texture::Texture(std::string FileName)
 {
 	m_fileName = FileName;
 	imageId = 0;
@@ -9,23 +9,19 @@ Texture::Texture(char* FileName)
 bool Texture::Load()
 {
 	ilGenImages(1, &imageId);
-	// делаем изображение текущим 
+
+	// set image to work with
 	ilBindImage(imageId);
 
-	// если загрузка удалась
-	if (ilLoadImage(m_fileName))
+	// if load is successful
+	if (ilLoadImage(m_fileName.c_str()))
 	{
-		// если загрузка прошла успешно 
-		// сохраняем размеры изображения 
 		int width = ilGetInteger(IL_IMAGE_WIDTH);
 		int height = ilGetInteger(IL_IMAGE_HEIGHT);
-
-		// определяем число бит на пиксель 
 		int bitspp = ilGetInteger(IL_IMAGE_BITS_PER_PIXEL);
 
-		switch (bitspp)// в зависимости оп полученного результата 
+		switch (bitspp)
 		{
-			// создаем текстуру используя режим GL_RGB или GL_RGBA 
 		case 24:
 			mGlTextureObject = MakeGlTexture(GL_RGB, ilGetData(), width, height);
 			break;
@@ -34,7 +30,7 @@ bool Texture::Load()
 			break;
 		}
 
-		// очищаем память 
+		// memory clearing 
 		ilBindImage(0);
 		ilDeleteImages(1, &imageId);
 		return true;
@@ -44,32 +40,29 @@ bool Texture::Load()
 
 void Texture::Bind()
 {
-	//glActiveTexture(GL_TEXTURE0);
+	//glActiveTexture(GL_TEXTURE0); it seems like this line is unnesessary
 	glBindTexture(GL_TEXTURE_2D, mGlTextureObject);
 }
 
 GLuint Texture::MakeGlTexture(int Format, ILubyte* pixels, int w, int h)
 {
-	// индетефекатор текстурного объекта 
+	// texture unit id
 	GLuint texObject;
 
-	// генерируем текстурный объект 
 	glGenTextures(1, &texObject);
 
-	// устанавливаем режим упаковки пикселей 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-	// создаем привязку к только что созданной текстуре 
 	glBindTexture(GL_TEXTURE_2D, texObject);
 
-	// устанавливаем режим фильтрации и повторения текстуры 
+	// filter and repeat modes
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-	// создаем RGB или RGBA текстуру 
+	// creating texture
 	switch (Format)
 	{
 	case GL_RGB:
@@ -81,6 +74,6 @@ GLuint Texture::MakeGlTexture(int Format, ILubyte* pixels, int w, int h)
 		break;
 	}
 
-	// возвращаем индетефекатор текстурного объекта 
+	// return texture id
 	return texObject;
 }

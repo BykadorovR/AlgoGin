@@ -8,5 +8,5 @@ out vec4 FragColor;
 
 void main()
 {
-    FragColor = texture2D(gSampler, TexCoord0.xy);
+    FragColor = texture2D(gSampler, TexCoord0);
 }
