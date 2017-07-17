@@ -86,4 +86,30 @@ public:
 		return res;
 	}
 
+	Vector3f operator*(Vector3f& right)
+	{
+		Vector3f res;
+		float scale;
+		res.x = matrix[0][0] * right.x +
+			matrix[0][1] * right.y +
+			matrix[0][2] * right.z +
+			matrix[0][3] * 1;
+		res.y = matrix[1][0] * right.x +
+			matrix[1][1] * right.y +
+			matrix[1][2] * right.z +
+			matrix[1][3] * 1;
+		res.z = matrix[2][0] * right.x +
+			matrix[2][1] * right.y +
+			matrix[2][2] * right.z +
+			matrix[2][3] * 1;
+		scale = matrix[3][0] * right.x +
+			matrix[3][1] * right.y +
+			matrix[3][2] * right.z +
+			matrix[3][3] * 1;
+		res.x /= scale;
+		res.y /= scale;
+		res.z /= scale;
+		return res;
+	}
+
 };

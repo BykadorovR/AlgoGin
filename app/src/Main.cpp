@@ -1,10 +1,9 @@
 #include "Shader.h"
-#include "MatrixHelper.h"
 #include "math.h"
 #include <iostream>
 #include <GL/glew.h>
 #include <Texture.h>
-#include <Sprite.h>
+#include <MatrixHelper.h>
 
 struct Vertex
 {
@@ -25,8 +24,6 @@ GLuint a_texcoord;
 GLuint u_world;
 GLuint program;
 GLuint gSampler;
-Sprite* sprite = NULL;
-Sprite* sprite1 = NULL;
 Texture* pTexture = NULL;
 Texture* texture0 = NULL;
 Texture* texture1 = NULL;
@@ -34,21 +31,23 @@ Texture* texture1 = NULL;
 const std::string vs_path = "../../engine/content/simple.vs";
 const std::string fs_path = "../../engine/content/simple.fs";
 
+Shader* simpleShader = new Shader(vs_path, fs_path);
+
 static void RenderSceneCB()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glUniform4f(u_color, 0.5f, 0.5f, 0.5f, 1);
+	//glUniform4f(u_color, 0.5f, 0.5f, 0.5f, 1);
 	
 	static float Scale = 0.0f;
 
-	Scale += 0.0014f;
+	Scale += 0.0024f;
 
 	MatrixHelper p;
 	//p.setScale(Vector3f(sinf(Scale * 0.1f), sinf(Scale * 0.1f), sinf(Scale * 0.1f)));
 	p.setScale(Vector3f(0.8f, 0.8f, 0.8f));
 	p.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
-	p.setRotate(Vector3f(Scale*414, Scale*100, Scale*154));
+	p.setRotate(Vector3f(Scale*340, Scale*201, Scale*444));
 
 	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)p.getMatrix()[0]);
 	
@@ -67,9 +66,6 @@ static void RenderSceneCB()
 
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
-
-	sprite->Draw(program);
-	sprite1->Draw(program);
 
 	glutSwapBuffers();
 }
@@ -135,16 +131,17 @@ int main(int argc, char** argv)
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 
-	Shader simpleShader(vs_path, fs_path);
-	simpleShader.compileShaders(); //once
-	simpleShader.useProgram(); //in draw
-	program = simpleShader.getProgram();
+	simpleShader->compileShaders(); //once
+	simpleShader->useProgram(); //in draw
+
+
+	program = simpleShader->getProgram();
 
 	gSampler = glGetUniformLocation(program, "gSampler");
 	a_position = glGetAttribLocation(program, "Position");
 	a_texcoord = glGetAttribLocation(program, "TexCoord");
 	u_world = glGetUniformLocation(program, "gWorld");
-	//glUniform1i(gSampler, 0);
+	glUniform1i(gSampler, 0);
 
 	pTexture = new Texture("../resources/claytile.png");
 	if (!pTexture->Load()) {
@@ -158,9 +155,6 @@ int main(int argc, char** argv)
 	if (!texture1->Load()) {
 		return 1;
 	}
-
-	sprite = new Sprite(760, 760, 512, 384, texture1);
-	sprite1 = new Sprite(512, 512, 200, 512, Vector2f(200,200), Vector2f(300,300), texture0);
 
 	//TODO: add world matrix
 
