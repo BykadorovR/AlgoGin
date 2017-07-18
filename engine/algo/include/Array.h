@@ -158,6 +158,34 @@ class Array_cns : public Array_cs<T> {
 };
 
 template <class T>
-class Array_ds : public Array<T> {
+class Array_dns : public Array<T> {
+private:
+	const int batch_size = 10;
+	void reallocate_array(int to) {
+		int new_general_size = (to % batch_size + 1)*batch_size;
+		T* new_data = new T[new_general_size];
+		std::copy(this->data[0], this->data[general_size - 1], new_data[0]);
+		delete[] this->data;
+		this->general_size = new_general_size;
+		this->data = new_data;
+	}
+public:
+	Array_dns(int _general_size) : Array<T>(_general_size) {
+	}
+	~Array_dns() {
+	}
+	l_sts insert(T value, int index = 0) {
+		if (index > this->general_size - 1) {
+			reallocate_array(index);
+		}
+		else if (this->size == this->general_size) {
+			reallocate_array(this->general_size + 1);
+		}
+		if (this->size > 0)
+			this->shift_r(index);
+		this->size++;
+		this->data[index] = value;
+		return SUCCESS;
+	}
 
 };
