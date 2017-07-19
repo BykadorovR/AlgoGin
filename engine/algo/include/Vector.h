@@ -114,7 +114,7 @@ private:
 	void reallocate_Vector(int to) {
 		int new_general_size = (to % batch_size + 1)*batch_size;
 		T* new_data = new T[new_general_size];
-		std::copy(this->data[0], this->data[general_size - 1], new_data[0]);
+		std::copy(this->data[0], this->data[this->general_size - 1], new_data[0]);
 		delete[] this->data;
 		this->general_size = new_general_size;
 		this->data = new_data;
