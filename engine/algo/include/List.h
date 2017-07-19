@@ -543,7 +543,7 @@ public:
     */
     T operator[](int index) {
         typename List2<T>::Node* current;
-        l_sts sts = find(&current, index);
+        l_sts sts = List2<T>::find(&current, index);
         if (sts == SUCCESS)
             return current->data;
         else {
