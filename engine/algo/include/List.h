@@ -233,7 +233,7 @@ public:
         }
     }
 	int getSize() {
-		return size;
+		return this->size;
 	}
 };
 
@@ -291,7 +291,7 @@ public:
 		}
 	}
 	int getSize() {
-		return size;
+		return this->size;
 	}
 
 };
@@ -538,7 +538,7 @@ public:
         }
     }
 	int getSize() {
-		return size;
+		return this->size;
 	}
 };
 
@@ -613,6 +613,6 @@ public:
 		}
 	}
 	int getSize() {
-		return size;
+		return this->size;
 	}
 };
