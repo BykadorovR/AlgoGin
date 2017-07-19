@@ -182,9 +182,6 @@ public:
         head = nullptr;
         tail = nullptr;
     }
-    int getSize() {
-        return size;
-    }
     void print() {
         std::cout << "Printing .." << std::endl;
         Node* cur = head;
@@ -220,10 +217,12 @@ public:
         }
         return  List1<T>::_insert(data, index);
     }
-    /*
-    Get data;
-    Complexity is O(n);
-    */
+	l_sts pop_back() {
+		return List1<T>::pop_back();
+	}
+	l_sts pop_start() {
+		return List1<T>::pop_start();
+	}
     T operator[](int index) {
         typename List1<T>::Node* current;
         l_sts sts = List1<T>::find(&current, index);
@@ -233,12 +232,9 @@ public:
             throw;
         }
     }
-    l_sts pop_back() {
-        return List1<T>::pop_back();
-    }
-    l_sts pop_start() {
-        return List1<T>::pop_start();
-    }
+	int getSize() {
+		return size;
+	}
 };
 
 template <class T> class List1_ns : public Container_ns<T>, public List1<T> {
@@ -269,19 +265,6 @@ public:
 	l_sts insert(T data, int index) {
 		return List1<T>::_insert(data, index);
 	}
-	l_sts replace(int index, T value) {
-		if (index < 0 || index >= List1<T>::size) {
-			return BOUNDS;
-		}
-		typename List1<T>::Node* node;
-		l_sts sts;
-		sts = List1<T>::find(&node, index);
-		if (sts > SUCCESS) {
-			return sts;
-		}
-		node->data = value;
-		return SUCCESS;
-	}
 	l_sts push_back(T data) {
 		return List1<T>::_push_back(data);
 	}
@@ -307,6 +290,10 @@ public:
 			throw;
 		}
 	}
+	int getSize() {
+		return size;
+	}
+
 };
 
 template <class T>
@@ -494,9 +481,6 @@ public:
        head = nullptr;
        tail = nullptr;
    }
-   int getSize() {
-       return size;
-   }
    void print() {
 	   std::cout << "Printing .." << std::endl;
 	   Node* cur = head;
@@ -537,10 +521,13 @@ public:
         }
         return List2<T>::_insert(data, index);
     }
-    /*
-    Get data;
-    Complexity is O(n);
-    */
+	l_sts pop_back() {
+		return List2<T>::pop_back();
+	}
+
+	l_sts pop_start() {
+		return List2<T>::pop_start();
+	}
     T operator[](int index) {
         typename List2<T>::Node* current;
         l_sts sts = List2<T>::find(&current, index);
@@ -550,12 +537,8 @@ public:
             throw;
         }
     }
-	l_sts pop_back() {
-		return List2<T>::pop_back();
-	}
-
-	l_sts pop_start() {
-		return List2<T>::pop_start();
+	int getSize() {
+		return size;
 	}
 };
 
@@ -628,5 +611,8 @@ public:
 		else {
 			throw;
 		}
+	}
+	int getSize() {
+		return size;
 	}
 };

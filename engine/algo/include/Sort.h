@@ -12,8 +12,8 @@ class CSort {
 	void swap(int id1, int id2, Container_ns<T>& l) {
 		T temp;
 		temp = l[id1];
-		l.replace(id1, l[id2]);
-		l.replace(id2, temp);
+		l[id1]= l[id2];
+		l[id2] = temp;
 	}
 };
 

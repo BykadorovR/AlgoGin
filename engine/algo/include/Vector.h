@@ -11,7 +11,7 @@ protected:
 	int size;
 
 	void reallocate_vector(int index) {
-		int new_general_size = (index % batch_size + 1)*batch_size;
+		int new_general_size = (index / batch_size + 1)*batch_size;
 		T* new_data = new T[new_general_size];
 		memcpy(new_data, data, general_size*sizeof(T));
 		delete[] data;
@@ -22,7 +22,7 @@ protected:
 	l_sts shift_r(int index) {
 		int value = 0;
 		//have to reallocate memory in previous code
-		for (int i = index; i < general_size + 1; i++) {
+		for (int i = index; i < size + 1; i++) {
 			T tmp_val = data[i];
 			data[i] = value;
 			value = tmp_val;
@@ -31,7 +31,8 @@ protected:
 	}
 	//for remove
 	l_sts shift_l(int index) {
-		for (int i = index + 1; i < general_size; i++) {
+		//if index == size - 1 so it's corner element and we don't need to do shift
+		for (int i = index + 1; i < size; i++) {
 			T tmp_val = data[i];
 			data[i - 1] = tmp_val;
 		}
@@ -93,11 +94,9 @@ public:
 	}
 
 	l_sts remove(int index) {
-		if (index > size || index < 0)
+		if (index >= size || index < 0)
 			return BOUNDS;
-		//if index == size - 1 so it's corner element and we don't need to do shift
-		if (index < size - 1)
-			shift_l(index);
+		shift_l(index);
 		//Just shift all values to left and remove last element
 		data[size - 1] = 0;
 		size--;
@@ -110,19 +109,11 @@ public:
 			return BOUNDS;
 		if (size == general_size)
 			reallocate_vector(index);
-		if (index > 0)
-			shift_r(index);
+		shift_r(index);
 		data[index] = value;
 		size++;
 		return SUCCESS;
 	}
-
-    l_sts replace(int index, T value) {
-        if (index >= size)
-            return BOUNDS;
-        data[index] = value;
-        return SUCCESS;
-    }
 
 	l_sts push_back(T value) {
 		return insert(value, size);
@@ -140,7 +131,7 @@ public:
 		return remove(0);
 	}
 
-    virtual T& operator[](int index) {
+    T& operator[](int index) {
         if (index >= size || index < 0)
             throw;
         return data[index];

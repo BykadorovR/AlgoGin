@@ -20,6 +20,8 @@ TEST(List1_ns, Insert) {
 	l.insert(3, 1);
 	ASSERT_EQ(l[1], 3);
 	ASSERT_EQ(l.getSize(), 3);
+	l[1] = 42;
+	ASSERT_EQ(l[1], 42);
 }
 
 TEST(List1_ns, Delete) {
@@ -182,11 +184,62 @@ TEST(Vector, Insert) {
 	ASSERT_EQ(v.insert(10, 2), BOUNDS);
 	ASSERT_EQ(v.insert(10, 0), SUCCESS);
 	ASSERT_EQ(v.getSize(), 1);
-	v.print();
+	v.push_back(11);
+	v.push_start(2);
+	for (int i = 3; i < 10; i++)
+		v.push_back(i);
+	ASSERT_EQ(v.getSize(), 10);
+	ASSERT_EQ(v[9], 9);
+	ASSERT_EQ(v[0], 2);
+	v.push_back(10);
+	v.push_start(12);
+	ASSERT_EQ(v[0], 12);
 }
 
 
-/*
+TEST(Vector, Remove) {
+	Vector_ns<int> v(3);
+	v[2] = 2;
+	v.remove(0);
+	ASSERT_EQ(v.getSize(), 2);
+	v.pop_back();
+	ASSERT_EQ(v[0], 0);
+	v.push_back(12);
+	v.pop_start();
+	ASSERT_EQ(v[0], 12);
+	ASSERT_EQ(v.remove(2), BOUNDS);
+	v.remove(0);
+	ASSERT_EQ(v.remove(0), BOUNDS);
+}
+
+TEST(Vector, Remove_Insert) {
+	Vector_ns<int> v(1);
+	v.pop_back();
+	ASSERT_EQ(v.getSize(), 0);
+	ASSERT_EQ(v.insert(2, 2), BOUNDS);
+	ASSERT_EQ(v.pop_back(), BOUNDS);
+	ASSERT_EQ(v.pop_start(), BOUNDS);
+	v.push_start(1);
+	ASSERT_EQ(v.getSize(), 1);
+	ASSERT_EQ(v[0], 1);
+}
+
+TEST(Vector, Max_Min) {
+	Vector_ns<int> v;
+	v.push_back(1);
+	ASSERT_EQ(v.maximum(), 1);
+	ASSERT_EQ(v.minimum(), 1);
+	v.insert(10, 0);
+	ASSERT_EQ(v.maximum(), 10);
+	ASSERT_EQ(v.minimum(), 1);
+	v.push_start(12);
+	v.push_back(3);
+	v.insert(0, 2);
+	ASSERT_EQ(v.maximum(), 12);
+	ASSERT_EQ(v.minimum(), 0);
+}
+
+
 TEST(Bubble, List1_ns) {
 	List1_ns<int> l;
 	l.push_back(12);
@@ -206,24 +259,3 @@ TEST(Bubble, List1_ns) {
 	ASSERT_EQ(l[5], 12);
 	ASSERT_EQ(l[6], 13);
 }
-
-TEST(Bubble, List1_s) {
-	List1_s<int> l;
-	l.insert(12);
-	l.insert(-2);
-	l.insert(3);
-	l.insert(13);
-	l.insert(4);
-	l.insert(0);
-	l.insert(7);
-	Bubble a;
-	a.sort(l);
-	ASSERT_EQ(l[0], -2);
-	ASSERT_EQ(l[1], 0);
-	ASSERT_EQ(l[2], 3);
-	ASSERT_EQ(l[3], 4);
-	ASSERT_EQ(l[4], 7);
-	ASSERT_EQ(l[5], 12);
-	ASSERT_EQ(l[6], 13);
-}
-*/
