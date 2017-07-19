@@ -1,3 +1,5 @@
+#define GMOCK_DEBUG
+
 #include <gtest/gtest.h>
 #include "List.h"
 #include "Vector.h"
@@ -53,7 +55,16 @@ TEST(List1_s, Insert) {
 	ASSERT_EQ(l[l.getSize() -2], 3);
 }
 
-/*
+TEST(List1_ns, Find) {
+	List1_ns<int> l;
+	l.push_back(12);
+	l.push_back(13);
+	l.push_start(0);
+	List1_ns<int>::Node* cur;
+	l.find(&cur, 1);
+	ASSERT_EQ(cur->data, 12);
+}
+
 TEST(List2_s, Insert) {
 	List2_s<int> l;
 	l.insert(1);
@@ -158,7 +169,7 @@ TEST(List2_s, Find) {
 	ASSERT_EQ(n->next->next->next, nullptr);
 
 }
-
+/*
 TEST(Vector_c, Insert) {
 	Vector_c<int> a(3);
 	a.insert(10, 2);
