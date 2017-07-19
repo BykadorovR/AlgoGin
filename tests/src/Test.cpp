@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 #include "List.h"
-#include "Array.h"
+#include "Vector.h"
 #include "Sort.h"
 
 int main(int argc, char *argv[])
 {
 	testing::InitGoogleTest(&argc, argv);
-//	::testing::GTEST_FLAG(filter) = "Array_cns.Insert";
+//	::testing::GTEST_FLAG(filter) = "Vector_cns.Insert";
 	return RUN_ALL_TESTS();
 	std::getchar(); // keep console window open until Return keystroke
 }
@@ -17,7 +17,7 @@ TEST(List1_ns, Insert) {
 	l.push_start(12);
 	l.insert(3, 1);
 	ASSERT_EQ(l[1], 3);
-	ASSERT_EQ(l.size, 3);
+	ASSERT_EQ(l.getSize(), 3);
 }
 
 TEST(List1_ns, Delete) {
@@ -26,11 +26,11 @@ TEST(List1_ns, Delete) {
 	l.push_start(12);
 	l.insert(3, 1);
 	l.pop_back();
-	ASSERT_EQ(l.size, 2);
+	ASSERT_EQ(l.getSize(), 2);
 	l.remove(0);
 	ASSERT_EQ(l[0], 3);
 	l.pop_start();
-	ASSERT_EQ(l.size, 0);
+	ASSERT_EQ(l.getSize(), 0);
 }
 
 TEST(List1_ns, Min_Max) {
@@ -42,16 +42,6 @@ TEST(List1_ns, Min_Max) {
 	ASSERT_EQ(l.minimum(), -1);
 }
 
-TEST(List1_ns, Find) {
-	List1_ns<int> l;
-	l.push_back(12);
-	l.push_back(13);
-	l.push_start(0);
-	List1_ns<int>::Node* cur;
-	l.find(&cur, 1);
-	ASSERT_EQ(cur->data, 12);
-}
-
 TEST(List1_s, Insert) {
 	List1_s<int> l;
 	l.insert(1);
@@ -60,9 +50,10 @@ TEST(List1_s, Insert) {
 	l.insert(-1);
 	l.insert(3);
 	ASSERT_EQ(l[0], -1);
-	ASSERT_EQ(l[l.size-2], 3);
+	ASSERT_EQ(l[l.getSize() -2], 3);
 }
 
+/*
 TEST(List2_s, Insert) {
 	List2_s<int> l;
 	l.insert(1);
@@ -83,6 +74,7 @@ TEST(List2_s, Insert) {
 	ASSERT_EQ(l[0], -1);
 	ASSERT_EQ(l[l.size - 2], 3);
 }
+
 
 TEST(List2_ns, Insert) {
 	List2_ns<int> l;
@@ -167,69 +159,20 @@ TEST(List2_s, Find) {
 
 }
 
-TEST(Array_cs, Insert) {
-	Array_cs<int> a(5);
-	a.insert(12);
-	a.insert(8);
-	a.insert(-1);
-	a.insert(9);
-	a.insert(0);
-	//Checking of overflow handling
-	ASSERT_EQ(a.insert(0), BOUNDS);
-	ASSERT_EQ(a.size, 5);
-	ASSERT_EQ(a[1], 0);
-	ASSERT_EQ(a[3], 9);
-}
-
-TEST(Array_cs, Remove) {
-	Array_cs<int> a(5);
-	a.insert(12);
-	a.insert(8);
-	a.insert(-1);
-	a.insert(9);
-	a.insert(0);
-	a.remove(0);
-	ASSERT_EQ(a.size, 4);
-	ASSERT_EQ(a[0], 0);
-	ASSERT_EQ(a[3], 12);
-	a.remove(2);
-	ASSERT_EQ(a.size, 3);
-	ASSERT_EQ(a[2], 12);
-	ASSERT_EQ(a[1], 8);
-	a.remove(0);
-	a.remove(1);
-	ASSERT_EQ(a[0], 8);
-	a.remove(0);
-	ASSERT_EQ(a.size, 0);
-	ASSERT_EQ(a.remove(0), BOUNDS);
-}
-
-TEST(Array_cs, Min_Max) {
-	Array_cs<int> a(10);
-	a.insert(0);
-	a.insert(-1);
-	a.insert(12);
-	a.insert(8);
-	a.insert(-5);
-	a.insert(4);
-	ASSERT_EQ(a.minimum(), -5);
-	ASSERT_EQ(a.maximum(), 12);
-}
-
-TEST(Array_cns, Insert) {
-	Array_cns<int> a(3);
+TEST(Vector_c, Insert) {
+	Vector_c<int> a(3);
 	a.insert(10, 2);
 	a.insert(10, 0);
 	a.insert(12);
 	a.insert(1, 1);
 	a.insert(12, 1);
-	ASSERT_EQ(a.size, 3);
+	ASSERT_EQ(a.getSize(), 3);
 	ASSERT_EQ(a[1], 1);
 	ASSERT_EQ(a[2], 10);
 }
 
-TEST(Array_cns, Min_Max) {
-	Array_cns<int> a(5);
+TEST(Vector_c, Min_Max) {
+	Vector_c<int> a(5);
 	a.insert(0);
 	a.insert(12);
 	a.insert(-1);
@@ -277,3 +220,4 @@ TEST(Bubble, List1_s) {
 	ASSERT_EQ(l[5], 12);
 	ASSERT_EQ(l[6], 13);
 }
+*/

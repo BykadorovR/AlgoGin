@@ -5,11 +5,11 @@
 class CSort {
 	public:
 	template <class T>
-	void sort(Container<T>& list) {
+	void sort(Container_ns<T>& list) {
 
 	}
 	template <class T>
-	void swap(int id1, int id2, Container<T>& l) {
+	void swap(int id1, int id2, Container_ns<T>& l) {
 		T temp;
 		temp = l[id1];
 		l.replace(id1, l[id2]);
@@ -24,7 +24,7 @@ class Bubble : public CSort {
 	}
 	
 	template <class T>
-	void sort(Container<T>& list) {
+	void sort(Container_ns<T>& list) {
 		//we don't use i here!!! just repeat 
 		//we pushed to end the greatest element with every iteration
 		//so we need n - 1 iteration
