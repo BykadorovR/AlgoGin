@@ -169,29 +169,24 @@ TEST(List2_s, Find) {
 	ASSERT_EQ(n->next->next->next, nullptr);
 
 }
+
+TEST(Vector, Size) {
+	Vector_ns<int> v;
+	ASSERT_EQ(v.getSize(), 0);
+	Vector_ns<int> vc(10);
+	ASSERT_EQ(vc.getSize(), 10);
+}
+
+TEST(Vector, Insert) {
+	Vector_ns<int> v;
+	ASSERT_EQ(v.insert(10, 2), BOUNDS);
+	ASSERT_EQ(v.insert(10, 0), SUCCESS);
+	ASSERT_EQ(v.getSize(), 1);
+	v.print();
+}
+
+
 /*
-TEST(Vector_c, Insert) {
-	Vector_c<int> a(3);
-	a.insert(10, 2);
-	a.insert(10, 0);
-	a.insert(12);
-	a.insert(1, 1);
-	a.insert(12, 1);
-	ASSERT_EQ(a.getSize(), 3);
-	ASSERT_EQ(a[1], 1);
-	ASSERT_EQ(a[2], 10);
-}
-
-TEST(Vector_c, Min_Max) {
-	Vector_c<int> a(5);
-	a.insert(0);
-	a.insert(12);
-	a.insert(-1);
-	a.insert(10);
-	ASSERT_EQ(a.minimum(), -1);
-	ASSERT_EQ(a.maximum(), 12);
-}
-
 TEST(Bubble, List1_ns) {
 	List1_ns<int> l;
 	l.push_back(12);

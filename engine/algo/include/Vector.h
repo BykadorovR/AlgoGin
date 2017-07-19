@@ -3,139 +3,147 @@
 #include "General.h"
 
 template <class T>
-class Vector : public Container_ns<T> {
- protected:
+class Vector_ns : public Container_ns<T> {
+protected:
+	const int batch_size = 10;
 	T* data;
 	int general_size;
+	int size;
+
+	void reallocate_vector(int index) {
+		int new_general_size = (index % batch_size + 1)*batch_size;
+		T* new_data = new T[new_general_size];
+		memcpy(new_data, data, general_size*sizeof(T));
+		delete[] data;
+		general_size = new_general_size;
+		data = new_data;
+	}
+	//for insertion
 	l_sts shift_r(int index) {
 		int value = 0;
-		for (int i = index; i < this->general_size + 1; i++) {
-			T tmp_val = this->data[i];
-			this->data[i] = value;
+		//have to reallocate memory in previous code
+		for (int i = index; i < general_size + 1; i++) {
+			T tmp_val = data[i];
+			data[i] = value;
 			value = tmp_val;
 		}
 		return SUCCESS;
 	}
+	//for remove
 	l_sts shift_l(int index) {
-		for (int i = index + 1; i < this->general_size; i++) {
-			T tmp_val = this->data[i];
-			this->data[i - 1] = tmp_val;
+		for (int i = index + 1; i < general_size; i++) {
+			T tmp_val = data[i];
+			data[i - 1] = tmp_val;
 		}
 		return SUCCESS;
 	}
- public:
-	Vector(int _general_size) {
+public:
+	Vector_ns(int _general_size) {
 		general_size = _general_size;
+		size = general_size;
 		data = new T[general_size];
 		for (int i = 0; i < general_size; i++) {
 			data[i] = 0;
 		}
 	}
-	~Vector() {
-		delete data;
+	Vector_ns() {
+		general_size = batch_size;
+		size = 0;
+		data = new T[general_size];
+		for (int i = 0; i < general_size; i++) {
+			data[i] = 0;
+		}
 	}
+    ~Vector_ns() {
+        delete[] data;
+    }
+    
 	int getSize() {
-		return general_size;
+		return size;
 	}
-	virtual T operator[](int index) {
-		if (index >= this->general_size || index < 0)
-			throw;
-		return this->data[index];
-	}
+
 	void print() {
 		std::cout << "General size: " << this->general_size << std::endl;
-		for (int i = 0; i < this->general_size; i++) {
-			std::cout << this->data[i] << std::endl;
+		std::cout << "size: " << this->size << std::endl;
+		for (int i = 0; i < size; i++) {
+			std::cout << data[i] << std::endl;
 		}
 	}
 
-};
-
-template <class T> 
-class Vector_c : public Vector<T> {
- public:
-	Vector_c(int _general_size) : Vector<T>(_general_size) {
-	}
-	~Vector_c() {
-	}
-
-	l_sts replace(int index, T value) {
-		if (index > this->general_size)
-			return BOUNDS;
-		this->data[index] = value;
-		return SUCCESS;
-	}
-
-	l_sts insert(T value, int index = 0) {
-		if (index > this->general_size)
-			return BOUNDS;
-		if (this->general_size > 0)
-			this->shift_r(index);
-		this->general_size++;
-		this->data[index] = value;
-		return SUCCESS;
-	}
-	virtual l_sts remove(int index) {
-		if (index >= this->general_size || index < 0)
-			return BOUNDS;
-		if (index < this->general_size - 1)
-			Vector<T>::shift_l(index);
-		this->data[this->general_size - 1] = 0;
-		this->general_size--;
-		return SUCCESS;
-	}
 	T minimum() {
-		if (this->general_size == 0)
+		if (size == 0)
 			throw;
-		int min = this->data[0];
-		for (int i = 1; i < this->general_size; i++) {
-			if (this->data[i] < min)
-				min = this->data[i];
+		int min = data[0];
+		for (int i = 1; i < size; i++) {
+			if (data[i] < min)
+				min = data[i];
 		}
 		return min;
 	}
-	
+
 	T maximum() {
-		if (this->general_size == 0)
+		if (size == 0)
 			throw;
-		int max = this->data[0];
-		for (int i = 1; i < this->general_size; i++) {
-			if (this->data[i] > max)
-				max = this->data[i];
+		int max = data[0];
+		for (int i = 1; i < general_size; i++) {
+			if (data[i] > max)
+				max = data[i];
 		}
 		return max;
 	}
-};
 
-template <class T>
-class Vector_dns : public Vector<T> {
-private:
-	const int batch_size = 10;
-	void reallocate_Vector(int to) {
-		int new_general_size = (to % batch_size + 1)*batch_size;
-		T* new_data = new T[new_general_size];
-		std::copy(this->data[0], this->data[this->general_size - 1], new_data[0]);
-		delete[] this->data;
-		this->general_size = new_general_size;
-		this->data = new_data;
-	}
-public:
-	Vector_dns(int _general_size) : Vector<T>(_general_size) {
-	}
-	~Vector_dns() {
-	}
-	l_sts insert(T value, int index = 0) {
-		if (index > this->general_size - 1) {
-			reallocate_Vector(index);
-		}
-		else if (this->general_size == this->general_size) {
-			reallocate_Vector(this->general_size + 1);
-		}
-		if (this->general_size > 0)
-			this->shift_r(index);
-		this->general_size++;
-		this->data[index] = value;
+	l_sts remove(int index) {
+		if (index > size || index < 0)
+			return BOUNDS;
+		//if index == size - 1 so it's corner element and we don't need to do shift
+		if (index < size - 1)
+			shift_l(index);
+		//Just shift all values to left and remove last element
+		data[size - 1] = 0;
+		size--;
 		return SUCCESS;
 	}
 
+	l_sts insert(T value, int index) {
+		//we can't insert to position that isn't initialized
+		if (index > size || index < 0)
+			return BOUNDS;
+		if (size == general_size)
+			reallocate_vector(index);
+		if (index > 0)
+			shift_r(index);
+		data[index] = value;
+		size++;
+		return SUCCESS;
+	}
+
+    l_sts replace(int index, T value) {
+        if (index >= size)
+            return BOUNDS;
+        data[index] = value;
+        return SUCCESS;
+    }
+
+	l_sts push_back(T value) {
+		return insert(value, size);
+	}
+
+	l_sts push_start(T value) {
+		return insert(value, 0);
+	}
+
+	l_sts pop_back() {
+		return remove(size - 1);
+	}
+
+	l_sts pop_start() {
+		return remove(0);
+	}
+
+    virtual T& operator[](int index) {
+        if (index >= size || index < 0)
+            throw;
+        return data[index];
+    }
 };
+
