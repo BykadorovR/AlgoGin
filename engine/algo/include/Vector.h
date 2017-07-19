@@ -79,7 +79,7 @@ class Vector_c : public Vector<T> {
 		if (index >= this->general_size || index < 0)
 			return BOUNDS;
 		if (index < this->general_size - 1)
-			shift_l(index);
+			Vector<T>::shift_l(index);
 		this->data[this->general_size - 1] = 0;
 		this->general_size--;
 		return SUCCESS;

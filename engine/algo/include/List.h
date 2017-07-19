@@ -216,7 +216,7 @@ class List1_s : public Container_s<T>, public List1<T> {
 			 index++;
 			 cur = cur->next;
 		 }
-		 return _insert(data, index);
+		 return  List1<T>::_insert(data, index);
 	 }
 	 /*
 	 Get data;
@@ -224,7 +224,7 @@ class List1_s : public Container_s<T>, public List1<T> {
 	 */
 	 T operator[](int index) {
 		 typename List1<T>::Node* current;
-		 l_sts sts = find(&current, index);
+		 l_sts sts = List1<T>::find(&current, index);
 		 if (sts == SUCCESS)
 			 return current->data;
 		 else {
@@ -300,7 +300,7 @@ template <class T> class List1_ns : public Container_ns<T>, public List1<T> {
 	 */
 	 T& operator[](int index) {
 		 typename List1<T>::Node* current;
-		 l_sts sts = find(&current, index);
+		 l_sts sts = List1<T>::find(&current, index);
 		 if (sts == SUCCESS)
 			 return current->data;
 		 else {

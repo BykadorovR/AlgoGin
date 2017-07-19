@@ -5,6 +5,7 @@ project(engine)
 # FIND GLUT
 #########################################################
 find_package(GLUT REQUIRED)
+message(STATUS asdasd)
 include_directories(${GLUT_INCLUDE_DIR})
 add_definitions(${GLUT_DEFINITIONS})
 if(NOT GLUT_FOUND)
