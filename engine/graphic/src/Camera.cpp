@@ -1,8 +1,5 @@
 #include "Camera.h"
 
-#define STEPSCALE -0.05f
-#define MARGIN 50
-
 void Camera::calcMatrix()
 {
 	cameraM = perspectiveM * rotationM * translationM;
@@ -64,33 +61,6 @@ void Camera::calcAngles()
 	angleV = -M_PI / 2;
 }
 
-void Camera::OnMouse(int x, int y)
-{
-	if (x != width / 2 || y != height / 2) 
-	{
-		const int DeltaX = x - mousePos.x;
-		const int DeltaY = y - mousePos.y;
-		mousePos.x = width / 2;
-		mousePos.y = height / 2;
-		angleH -= (float)DeltaX * 0.001f;
-		angleV -= (float)DeltaY * 0.001f;
-		if (angleV > -M_PI*0.01f) angleV = -M_PI*0.01f;
-		if (angleV < -M_PI*0.99f) angleV = -M_PI*0.99f;
-
-		target.x = sinf(angleV) * cosf(angleH);
-		target.y = cosf(angleV);
-		target.z = sinf(angleV) * sinf(angleH);
-
-		up.x = sinf(M_PI / 2 + angleV) * cosf(angleH);
-		up.y = cosf(M_PI / 2 + angleV);
-		up.z = sinf(M_PI / 2 + angleV) * sinf(angleH);
-
-		rotationM.InitCameraTransform(target, up);
-		calcMatrix();
-		glutWarpPointer(mousePos.x, mousePos.y);
-	}
-}
-
 Matrix4f& Camera::getCameraMatrix() 
 {
 	return cameraM;
@@ -136,5 +106,24 @@ void Camera::setPosition(float _x, float _y, float _z)
 	pos.y = _y;
 	pos.z = _z;
 	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	calcMatrix();
+}
+
+void Camera::rotate(float h, float v)
+{
+	angleH -= h;
+	angleV -= v;
+	if (angleV > -M_PI*0.01f) angleV = -M_PI*0.01f;
+	if (angleV < -M_PI*0.99f) angleV = -M_PI*0.99f;
+
+	target.x = sinf(angleV) * cosf(angleH);
+	target.y = cosf(angleV);
+	target.z = sinf(angleV) * sinf(angleH);
+
+	up.x = sinf(M_PI / 2 + angleV) * cosf(angleH);
+	up.y = cosf(M_PI / 2 + angleV);
+	up.z = sinf(M_PI / 2 + angleV) * sinf(angleH);
+
+	rotationM.InitCameraTransform(target, up);
 	calcMatrix();
 }

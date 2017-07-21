@@ -38,6 +38,7 @@ Shader* simpleShader = new Shader(vs_path, fs_path);
 Shader* hudShader = new Shader(hudvs_path, fs_path);
 
 Camera cam = Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+Vector2f screenCerter = Vector2f(cam.getWidth() / 2, cam.getHeight() / 2);
 
 static void RenderSceneCB()
 {
@@ -152,7 +153,11 @@ static void KeyboardCB(unsigned char Key, int x, int y)
 
 static void PassiveMouseCB(int x, int y)
 {
-	cam.OnMouse(x, y);
+	if (x != screenCerter.x || y != screenCerter.y)
+	{
+		cam.rotate((x - screenCerter.x) * 0.001f, (y - screenCerter.y) * 0.001f);
+		glutWarpPointer(screenCerter.x, screenCerter.y);
+	}
 }
 
 static void InitializeGlutCallbacks()

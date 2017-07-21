@@ -25,7 +25,6 @@ private:
 public:
 	Camera();
 	Camera(float _width, float _height, float _fov, float _znear, float _zfar, Vector3f _pos, Vector3f _target, Vector3f _up);
-	void OnMouse(int x, int y);
 	Matrix4f& getCameraMatrix();
 	float getWidth();
 	float getHeight();
@@ -34,4 +33,5 @@ public:
 	Vector3f& getUp();
 	void translate(float _x, float _y, float _z);
 	void setPosition(float _x, float _y, float _z);
+	void rotate(float h, float v);
 };
