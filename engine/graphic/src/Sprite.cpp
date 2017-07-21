@@ -65,20 +65,10 @@ void Sprite::Draw(GLuint sampler)
 
 	GLuint VBO, IBO;
 	Vertex Vertices[4];
-	/*if (isHUD)
-	{
-		Vertices[0] = Vertex(Vector3f((pos.x - width / 2) / 512 - 1, (pos.y - height / 2) / 384 - 1, 1.0f), texCoords[0]);
-		Vertices[1] = Vertex(Vector3f((pos.x - width / 2) / 512 - 1, (pos.y + height / 2) / 384 - 1, 1.0f), texCoords[1]);
-		Vertices[2] = Vertex(Vector3f((pos.x + width / 2) / 512 - 1, (pos.y + height / 2) / 384 - 1, 1.0f), texCoords[2]);
-		Vertices[3] = Vertex(Vector3f((pos.x + width / 2) / 512 - 1, (pos.y - height / 2) / 384 - 1, 1.0f), texCoords[3]);
-	}
-	else
-	{*/
 	Vertices[0] = Vertex(Vector3f(-width / 2.0f, -height / 2.0f, 0.0f), texCoords[0]);
 	Vertices[1] = Vertex(Vector3f(width / 2.0f, -height / 2.0f, 0.0f), texCoords[1]);
 	Vertices[2] = Vertex(Vector3f(width / 2.0f, height / 2.0f, 0.0f), texCoords[2]);
 	Vertices[3] = Vertex(Vector3f(-width / 2.0f, height / 2.0f, 0.0f), texCoords[3]);
-	//}
 
 	//Scale Vertices:
 	for (int i = 0; i < 4; i++)
@@ -87,35 +77,31 @@ void Sprite::Draw(GLuint sampler)
 		Vertices[i].pos.y *= scale.y;
 	}
 	//Rotate Vertices:
-	MatrixHelper m;
+	Matrix4f m;
 
 	if (isHUD)
 	{
-		m.setScale(Vector3f(1.0f, 1.0f, 1.0f));
-		m.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
-		m.setRotate(Vector3f(rotate.x, rotate.y, 0.0f));
+		m.InitRotateTransform(rotate.x, rotate.y, 0.0f);
 		for (int i = 0; i < 4; i++)
 		{
-			Vertices[i].pos = m.getMatrix()*Vertices[i].pos;
+			Vertices[i].pos = m*Vertices[i].pos;
 		}
-		m.setRotate(Vector3f(0.0f, 0.0f, rotate.z));
+		m.InitRotateTransform(0.0f, 0.0f, rotate.z);
 		for (int i = 0; i < 4; i++)
 		{
 			Vertices[i].pos.x *= CAMERA_WIDTH;
 			Vertices[i].pos.y *= CAMERA_HEIGHT;
-			Vertices[i].pos = m.getMatrix()*Vertices[i].pos;
+			Vertices[i].pos = m*Vertices[i].pos;
 			Vertices[i].pos.x /= CAMERA_WIDTH;
 			Vertices[i].pos.y /= CAMERA_HEIGHT;
 		}
 	}
 	else
 	{
-		m.setScale(Vector3f(1.0f, 1.0f, 1.0f));
-		m.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
-		m.setBackRotate(Vector3f(rotate.x, rotate.y, rotate.z));
+		m.InitRotateTransform(rotate.x, rotate.y, rotate.z);
 		for (int i = 0; i < 4; i++)
 		{
-			Vertices[i].pos = m.getMatrix()*Vertices[i].pos;
+			Vertices[i].pos = m*Vertices[i].pos;
 		}
 	}
 

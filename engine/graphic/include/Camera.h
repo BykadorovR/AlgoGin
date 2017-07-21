@@ -1,6 +1,6 @@
 #pragma once
 #include "Primitives.h"
-#include "GLIncludes.h"
+#include <GL/glut.h>
 
 class Camera
 {

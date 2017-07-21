@@ -6,39 +6,6 @@
 #define ToRadian(x) ((x) * M_PI / 180.0f)
 #define ToDegree(x) ((x) * 180.0f / M_PI)
 
-struct Quaternion
-{
-	float x, y, z, w;
-
-	Quaternion()
-	{
-		x = 0; y = 0; z = 0; w = 0;
-	}
-
-	Quaternion(float _x, float _y, float _z, float _w)
-	{
-		x = _x;
-		y = _y;
-		z = _z;
-		w = _w;
-	}
-
-	void Normalize()
-	{
-		float Length = sqrtf(x * x + y * y + z * z + w * w);
-		x /= Length;
-		y /= Length;
-		z /= Length;
-		w /= Length;
-	}
-
-	Quaternion Conjugate()
-	{
-		Quaternion ret(-x, -y, -z, w);
-		return ret;
-	}
-};
-
 struct Vector2f
 {
 	float x;
@@ -91,34 +58,6 @@ struct Vector3f
 		z /= Length;
 
 		return *this;
-	}
-
-	void Vector3f::Rotate(float Angle, const Vector3f& Axe)
-	{
-		const float SinHalfAngle = sinf(ToRadian(Angle / 2));
-		const float CosHalfAngle = cosf(ToRadian(Angle / 2));
-
-		const float Rx = Axe.x * SinHalfAngle;
-		const float Ry = Axe.y * SinHalfAngle;
-		const float Rz = Axe.z * SinHalfAngle;
-		const float Rw = CosHalfAngle;
-		Quaternion RotationQ(Rx, Ry, Rz, Rw);
-		Quaternion ConjugateQ = RotationQ.Conjugate();
-		//  ConjugateQ.Normalize();
-		Quaternion W;// = RotationQ * (*this) * ConjugateQ;
-
-		W.w = -(RotationQ.x * x) - (RotationQ.y * y) - (RotationQ.z * z);
-		W.x = (RotationQ.w * x) + (RotationQ.y * z) - (RotationQ.z * y);
-		W.y = (RotationQ.w * y) + (RotationQ.z * x) - (RotationQ.x * z);
-		W.z = (RotationQ.w * z) + (RotationQ.x * y) - (RotationQ.y * x);
-		W.w = (W.w * ConjugateQ.w) - (W.x * ConjugateQ.x) - (W.y * ConjugateQ.y) - (W.z * ConjugateQ.z);
-		W.x = (W.x * ConjugateQ.w) + (W.w * ConjugateQ.x) + (W.y * ConjugateQ.z) - (W.z * ConjugateQ.y);
-		W.y = (W.y * ConjugateQ.w) + (W.w * ConjugateQ.y) + (W.z * ConjugateQ.x) - (W.x * ConjugateQ.z);
-		W.z = (W.z * ConjugateQ.w) + (W.w * ConjugateQ.z) + (W.x * ConjugateQ.y) - (W.y * ConjugateQ.x);
-
-		x = W.x;
-		y = W.y;
-		z = W.z;
 	}
 
 	//TODO: add move constructor

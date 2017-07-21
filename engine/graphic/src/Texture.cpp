@@ -55,7 +55,7 @@ GLuint Texture::MakeGlTexture(int Format, ILubyte* pixels, int w, int h)
 	glGenTextures(1, &texObject);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glActiveTexture(GL_TEXTURE0 + 2);
+
 	glBindTexture(GL_TEXTURE_2D, texObject);
 
 	// filter and repeat modes
