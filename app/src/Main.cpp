@@ -201,8 +201,8 @@ int main(int argc, char** argv)
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Tutorial 04");
 
-	glutSetCursor(GLUT_CURSOR_NONE);
-	glutWarpPointer(cam.getWidth()/2, cam.getHeight()/2);
+	glutSetCursor(GLUT_CURSOR_NONE); //hide cursor
+	glutWarpPointer(cam.getWidth()/2, cam.getHeight()/2); //place cursor
 
 	InitializeGlutCallbacks();
 
@@ -212,14 +212,13 @@ int main(int argc, char** argv)
 		fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
 		return 1;
 	}
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glFrontFace(GL_CCW);
-	//glCullFace(GL_BACK);
-	glEnable(GL_DEPTH_TEST);
-
+	glFrontFace(GL_CCW); //front faces are initialized counter clockwise
+	//glCullFace(GL_BACK); 
+	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
 	CreateVertexBuffer();
 	CreateIndexBuffer();

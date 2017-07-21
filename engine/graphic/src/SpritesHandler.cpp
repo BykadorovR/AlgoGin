@@ -15,6 +15,7 @@ void SpritesHandler::DrawSprites()
 }
 void SpritesHandler::DrawHUD()
 {
+	glDisable(GL_DEPTH_TEST);
 	hudShader->useProgram();
 	GLuint gSampler = glGetUniformLocation(hudShader->getProgram(), "gSampler");
 
@@ -22,6 +23,7 @@ void SpritesHandler::DrawHUD()
 	{
 		s->Draw(gSampler);
 	}
+	glEnable(GL_DEPTH_TEST);
 }
 
 void SpritesHandler::CreateSprite(float _width, float _height, float posX, float posY, float posZ, Texture* _t)

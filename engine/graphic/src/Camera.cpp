@@ -1,5 +1,4 @@
 #include "Camera.h"
-#include "MatrixHelper.h"
 
 #define STEPSCALE -0.05f
 #define MARGIN 50

@@ -43,7 +43,7 @@ bool Texture::Load()
 
 void Texture::Bind()
 {
-	glActiveTexture(GL_TEXTURE0+textureUnit); //it seems like this line is unnesessary
+	glActiveTexture(GL_TEXTURE0+textureUnit);
 	glBindTexture(GL_TEXTURE_2D, mGlTextureObject);
 }
 

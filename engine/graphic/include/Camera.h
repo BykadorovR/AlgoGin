@@ -1,5 +1,6 @@
 #pragma once
 #include "Primitives.h"
+#include "GLIncludes.h"
 
 class Camera
 {
