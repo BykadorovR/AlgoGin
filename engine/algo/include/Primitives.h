@@ -68,6 +68,8 @@ struct Vector3f
 		z = right.z;
 	}
 
+
+
 	Vector3f& operator+=(const Vector3f& r)
 	{
 		x += r.x;
@@ -94,6 +96,17 @@ struct Vector3f
 		return *this;
 	}
 };
+
+inline bool operator==(const Vector3f& l, const Vector3f& r)
+{
+	if (l.x != r.x || l.y != r.y || l.z != r.z) return false;
+	return true;
+}
+
+inline bool operator!=(const Vector3f& l, const Vector3f& r) 
+{
+	return !(l == r); 
+}
 
 inline Vector3f operator-(const Vector3f& l, const Vector3f& r)
 {

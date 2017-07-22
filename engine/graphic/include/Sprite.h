@@ -4,7 +4,6 @@
 #include "Primitives.h"
 #include "Texture.h"
 #include "Shader.h"
-#include "MatrixHelper.h"
 
 class Sprite
 {

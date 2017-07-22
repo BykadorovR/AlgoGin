@@ -13,8 +13,6 @@ Camera::Camera() : width(800), height(600), fov(90), znear(0.001f), zfar(1000), 
 	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
 	rotationM.InitCameraTransform(target, up);
 	calcMatrix();
-	mousePos.x = width / 2;
-	mousePos.y = height / 2;
 }
 
 Camera::Camera(float _width, float _height, float _fov, float _znear, float _zfar, Vector3f _pos, Vector3f _target, Vector3f _up) :
@@ -26,39 +24,35 @@ Camera::Camera(float _width, float _height, float _fov, float _znear, float _zfa
 	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
 	rotationM.InitCameraTransform(target, up);
 	calcMatrix();
-	mousePos.x = width / 2;
-	mousePos.y = height / 2;
 }
 
 void Camera::calcAngles()
 {
-	/*Vector3f HTarget(target.x, 0.0, target.z);
+	Vector3f HTarget(target.x, 0.0, target.z);
 	HTarget.Normalize();
 	if (HTarget.z >= 0.0f)
 	{
 		if (HTarget.x >= 0.0f)
 		{
-			angleH = 360.0f - ToDegree(asin(HTarget.z));
+			angleH = 2*M_PI - asin(HTarget.z);
 		}
 		else
 		{
-			angleH = 180.0f + ToDegree(asin(HTarget.z));
+			angleH = M_PI + asin(HTarget.z);
 		}
 	}
 	else
 	{
 		if (HTarget.x >= 0.0f)
 		{
-			angleH = ToDegree(asin(-HTarget.z));
+			angleH = asin(-HTarget.z);
 		}
 		else
 		{
-			angleH = 90.0f + ToDegree(asin(-HTarget.z));
+			angleH = M_PI/2 + asin(-HTarget.z);
 		}
 	}
-	angleV = -ToDegree(asin(target.y));*/
-	angleH = -M_PI / 2;
-	angleV = -M_PI / 2;
+	angleV = -asin(target.y) - M_PI / 2;
 }
 
 Matrix4f& Camera::getCameraMatrix() 

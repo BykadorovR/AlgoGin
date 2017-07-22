@@ -7,7 +7,6 @@ private:
 	Vector3f pos;
 	Vector3f target;
 	Vector3f up;
-	Vector2f mousePos;
 	float fov;
 	float width;
 	float height;
