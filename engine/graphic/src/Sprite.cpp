@@ -1,7 +1,7 @@
 #include "Sprite.h"
 
-#define CAMERA_WIDTH 1024.0f
-#define CAMERA_HEIGHT 768.0f
+#define CAMERA_WIDTH 1024
+#define CAMERA_HEIGHT 768
 
 struct Vertex
 {
@@ -13,12 +13,12 @@ struct Vertex
 	}
 };
 //sprite from texture
-Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t, Shader* _s) : width(_width / (CAMERA_WIDTH / 2)), height(_height / (CAMERA_HEIGHT / 2)), texture(_t), spriteShader(_s)
+Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
 {
-	bool isHUD = true;
+	isHUD = true;
 	rotate = Vector3f(0.0f, 0.0f, 0.0f);
 	scale = Vector2f(1.0f, 1.0f);
-	pos = Vector3f(posX / (CAMERA_WIDTH/2) - 1 , -posY / (CAMERA_HEIGHT/2) + 1, 0.0f);
+	pos = Vector3f(posX, posY, 0.0f);
 	texCoords[0] = Vector2f(0, 0);
 	texCoords[1] = Vector2f(1, 0);
 	texCoords[2] = Vector2f(1, 1);
@@ -26,7 +26,7 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t,
 }
 Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
 {
-	bool isHUD = false;
+	isHUD = false;
 	rotate = Vector3f(0.0f, 0.0f, 0.0f);
 	scale = Vector2f(1.0f, 1.0f);
 	pos = Vector3f(posX, posY, posZ);
@@ -36,12 +36,12 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, 
 	texCoords[3] = Vector2f(0, 1);
 }
 //sprite from atlas
-Sprite::Sprite(float _width, float _height, float posX, float posY, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s) : width(_width/ (CAMERA_WIDTH / 2)), height(_height/ (CAMERA_HEIGHT / 2)), texture(_t), spriteShader(_s)
+Sprite::Sprite(float _width, float _height, float posX, float posY, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
 {
-	bool isHUD = true;
+	isHUD = true;
 	rotate = Vector3f(0.0f, 0.0f, 0.0f);
 	scale = Vector2f(1.0f, 1.0f);
-	pos = Vector3f(posX / (CAMERA_WIDTH / 2) - 1, -posY / (CAMERA_HEIGHT / 2) + 1, 0.0f);
+	pos = Vector3f(posX, posY, 0.0f);
 	texCoords[0] = Vector2f(coord0.x / _t->width, coord0.y / _t->height);
 	texCoords[1] = Vector2f(coord0.x / _t->width, coord1.y / _t->height);
 	texCoords[2] = Vector2f(coord1.x / _t->width, coord1.y / _t->height);
@@ -49,7 +49,7 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Vector2f coo
 }
 Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
 {
-	bool isHUD = false;
+	isHUD = false;
 	rotate = Vector3f(0.0f, 0.0f, 0.0f);
 	scale = Vector2f(1.0f, 1.0f);
 	pos = Vector3f(posX, posY, posZ);
@@ -59,7 +59,7 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, 
 	texCoords[3] = Vector2f(coord1.x / _t->width, coord0.y / _t->height);
 }
 
-void Sprite::Draw(GLuint sampler)
+void Sprite::Draw(GLuint sampler, float camWidth, float camHeight)
 {
 	glUniform1i(sampler, texture->getTextureUnit());
 
@@ -89,11 +89,11 @@ void Sprite::Draw(GLuint sampler)
 		m.InitRotateTransform(0.0f, 0.0f, rotate.z);
 		for (int i = 0; i < 4; i++)
 		{
-			Vertices[i].pos.x *= CAMERA_WIDTH;
-			Vertices[i].pos.y *= CAMERA_HEIGHT;
+			Vertices[i].pos.x *= camWidth;
+			Vertices[i].pos.y *= camHeight;
 			Vertices[i].pos = m*Vertices[i].pos;
-			Vertices[i].pos.x /= CAMERA_WIDTH;
-			Vertices[i].pos.y /= CAMERA_HEIGHT;
+			Vertices[i].pos.x /= camWidth;
+			Vertices[i].pos.y /= camHeight;
 		}
 	}
 	else

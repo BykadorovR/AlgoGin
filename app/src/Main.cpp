@@ -6,6 +6,8 @@
 #include <Texture.h>
 #include <SpritesHandler.h>
 
+#define FLAT true // 2d or 3d
+
 struct Vertex
 {
 	Vector3f m_pos;
@@ -36,14 +38,16 @@ Texture* texture1 = NULL;
 Texture* texture2 = NULL;
 Texture* texture3 = NULL;
 
-const std::string vs_path = "../../engine/content/simple.vs";
-const std::string fs_path = "../../engine/content/simple.fs";
-const std::string hudvs_path = "../../engine/content/hudshader.vs";
+std::string vs_path;
+std::string fs_path;
+std::string hudvs_path;
+std::string hudfs_path;
 
-Shader* simpleShader = new Shader(vs_path, fs_path);
-Shader* hudShader = new Shader(hudvs_path, fs_path);
+Shader* simpleShader;
+Shader* hudShader;
 
-Camera cam = Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 1.5f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+Camera cam = Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+//Camera cam = Camera(1024.0f, 768.0f);
 Vector2f screenCerter = Vector2f(cam.getWidth() / 2, cam.getHeight() / 2);
 
 void MoveCam()
@@ -92,20 +96,9 @@ static void RenderSceneCB()
 {
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_DEPTH_TEST);
+	if (!FLAT) glEnable(GL_DEPTH_TEST);
 
 	//glUniform4f(u_color, 0.5f, 0.5f, 0.5f, 1);
-	
-	static float Scale = 0.0f;
-
-	Scale += 0.0004f;
-
-	/*MatrixHelper p;
-	//p.setScale(Vector3f(sinf(Scale * 0.1f), sinf(Scale * 0.1f), sinf(Scale * 0.1f)));
-	p.setScale(Vector3f(0.8f, 0.8f, 0.8f));
-	p.setPosition(Vector3f(0.0f, 0.0f, 0.0f));
-	p.setRotate(Vector3f(Scale*340, Scale*201, Scale*444));
-	//p.setPerspective(90.0f, 1024.0f, 768.0f, 0.001f, 1000.0f);*/
 
 	simpleShader->useProgram();
 	gSampler = glGetUniformLocation(simpleShader->getProgram(), "gSampler");
@@ -129,14 +122,16 @@ static void RenderSceneCB()
 	glDisableVertexAttribArray(a_texcoord);
 
 	//spr->GetHUDSprite(2)->Translate(-1.0, 1.0, 0);
-	spr->Get3DSprite(0)->Rotate(0.0, 0.0, 1.0);
+	spr->GetSprite(0)->Rotate(0.0, 0.0, 1.0);
 	spr->GetHUDSprite(0)->Rotate(0.0, 0.0, -11.0);
-	spr->GetHUDSprite(0)->Scale(1.0002, 0.999);
+	spr->GetHUDSprite(0)->Scale(0.999, 1.0002);
 	spr->GetHUDSprite(1)->Rotate(0.0, 0.0, -1.0);
 	spr->GetHUDSprite(2)->Rotate(0.0, 0.0, 1.0);
 
 	spr->DrawSprites();
+	if (!FLAT) glDisable(GL_DEPTH_TEST);
 	spr->DrawHUD();
+	if (!FLAT) glEnable(GL_DEPTH_TEST);
 
 	glutSwapBuffers();
 }
@@ -165,10 +160,6 @@ static void SpecialKeyboard_KeyDown(int Key, int x, int y)
 		keyright = true;
 		break;
 	}
-	case 27:
-	{
-		exit(0);
-	}
 	}
 }
 
@@ -195,10 +186,6 @@ static void SpecialKeyboard_KeyUp(int Key, int x, int y)
 	{
 		keyright = false;
 		break;
-	}
-	case 27:
-	{
-		exit(0);
 	}
 	}
 }
@@ -330,7 +317,6 @@ int main(int argc, char** argv)
 	}
 	glFrontFace(GL_CCW); //front faces are initialized counter clockwise
 	//glCullFace(GL_BACK); 
-	glEnable(GL_DEPTH_TEST); 
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -339,12 +325,26 @@ int main(int argc, char** argv)
 	CreateVertexBuffer();
 	CreateIndexBuffer();
 
+	if (FLAT)
+	{
+		vs_path = "../../engine/content/sprites2d.vs";
+		fs_path = "../../engine/content/sprites2d.fs";
+	}
+	else
+	{
+		vs_path = "../../engine/content/simple.vs";
+		fs_path = "../../engine/content/simple.fs";
+	}
+	hudvs_path = "../../engine/content/hudshader.vs";
+	hudfs_path = "../../engine/content/hudshader.fs";
+	simpleShader = new Shader(vs_path, fs_path);
+	hudShader = new Shader(hudvs_path, hudfs_path);
+
 	simpleShader->compileShaders(); //once
 	hudShader->compileShaders(); //once
+
 	simpleShader->useProgram(); //in draw
-
 	program = simpleShader->getProgram();
-
 	a_position = glGetAttribLocation(program, "Position");
 	a_texcoord = glGetAttribLocation(program, "TexCoord");
 	u_world = glGetUniformLocation(program, "gWorld");
@@ -370,13 +370,15 @@ int main(int argc, char** argv)
 	texture2->Bind();
 	texture3->Bind();
 	
-	spr = new SpritesHandler(simpleShader, hudShader, Vector2f(1,1));
-	spr->CreateSprite(1.5f, 2, 0, 0, 1, texture2);
+	spr = new SpritesHandler(simpleShader, hudShader, cam.getWidth(), cam.getHeight());
+	spr->Create2DSprite(768, 768, 0, 384, 1, texture2);
+	spr->Create2DSprite(768, 768, -256, 384, 3, texture2);
+	spr->Create2DSprite(768, 768, 256, 384, 2, texture3);
 	spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
 	spr->CreateHUDSprite(300, 300, 520, 200, texture3);
 	spr->CreateHUDSprite(300, 300, 840, 200, Vector2f(0, 0), Vector2f(50, 50), texture1);
 	spr->GetHUDSprite(0)->SetRotation(0.0, 0.0, 45.0);
-	spr->GetHUDSprite(1)->SetRotation(0.0, 0.0, 45.0);
+	//spr->GetHUDSprite(1)->SetRotation(0.0, 0.0, 45.0);
 	//TODO: add world matrix
 
 	glutMainLoop();

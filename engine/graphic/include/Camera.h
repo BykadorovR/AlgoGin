@@ -22,6 +22,7 @@ private:
 	void calcAngles();
 public:
 	Camera();
+	Camera(float _width, float _height);
 	Camera(float _width, float _height, float _fov, float _znear, float _zfar, Vector3f _pos, Vector3f _target, Vector3f _up);
 	Matrix4f& getCameraMatrix();
 	float getWidth();

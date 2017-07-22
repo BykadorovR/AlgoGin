@@ -24,7 +24,7 @@ public:
 	//sprite from atlas
 	Sprite(float _width, float _height, float posX, float posY, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s);
 	Sprite(float _width, float _height, float posX, float posY, float posZ, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s);
-	void Draw(GLuint sampler);
+	void Draw(GLuint sampler, float camWidth, float camHeight);
 	void Translate(float x, float y, float z);
 	void SetPos(float x, float y, float z);
 	void Scale(float x, float y);

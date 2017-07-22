@@ -5,7 +5,19 @@ void Camera::calcMatrix()
 	cameraM = perspectiveM * rotationM * translationM;
 }
 
-Camera::Camera() : width(800), height(600), fov(90), znear(0.001f), zfar(1000), pos(Vector3f(0,0,0)), target(Vector3f(0,0,-1)), up(Vector3f(0,1,0))
+Camera::Camera() : width(800), height(600), fov(90), znear(0.001f), zfar(1000), pos(Vector3f(0,0,0)),
+target(Vector3f(0,0,-1)), up(Vector3f(0,1,0))
+{
+	calcAngles();
+
+	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
+	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	rotationM.InitCameraTransform(target, up);
+	calcMatrix();
+}
+
+Camera::Camera(float _width, float _height) : width(_width), height(_height), fov(90), znear(0.001f), zfar(1000),
+pos(Vector3f(0, 0, 1)), target(Vector3f(0, 0, 1)), up(Vector3f(0, 1, 0))
 {
 	calcAngles();
 
