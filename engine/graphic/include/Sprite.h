@@ -16,6 +16,9 @@ private:
 	Vector2f scale;
 	Vector2f texCoords[4];
 	Shader* spriteShader;
+	int rows;
+	int cols;
+	int animframe[2];
 	bool isHUD;
 public:
 	//sprite from texture
@@ -31,4 +34,6 @@ public:
 	void SetSize(float x, float y);
 	void Rotate(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
+	void SetAnimation(int _cols, int _rows);
+	void SetAnimationFrame(int i, int j);
 };

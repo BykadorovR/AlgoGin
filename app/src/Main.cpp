@@ -6,7 +6,7 @@
 #include <Texture.h>
 #include <SpritesHandler.h>
 
-#define FLAT true // 2d or 3d
+#define FLAT false // 2d or 3d
 
 struct Vertex
 {
@@ -25,6 +25,7 @@ bool keydown = false;
 bool keyleft = false;
 bool keyright = false;
 
+int animframe, frame, currenttime, timebase;
 GLuint VBO, IBO;
 GLuint a_position;
 GLuint u_color;
@@ -94,6 +95,19 @@ void MoveCam()
 
 static void RenderSceneCB()
 {
+	frame++;
+	//get the current time
+	currenttime = glutGet(GLUT_ELAPSED_TIME);
+	//check if a second has passed
+	if (currenttime - timebase > 1000)
+	{
+		std::string title = std::to_string(frame*1000.0 / (currenttime - timebase));
+		glutSetWindowTitle(title.c_str());
+		timebase = currenttime;
+		frame = 0;
+		animframe++;
+	}
+
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (!FLAT) glEnable(GL_DEPTH_TEST);
@@ -127,6 +141,10 @@ static void RenderSceneCB()
 	spr->GetHUDSprite(0)->Scale(0.999, 1.0002);
 	spr->GetHUDSprite(1)->Rotate(0.0, 0.0, -1.0);
 	spr->GetHUDSprite(2)->Rotate(0.0, 0.0, 1.0);
+
+	spr->GetSprite(0)->SetAnimationFrame(animframe, 0);
+	spr->GetSprite(1)->SetAnimationFrame(animframe, 0);
+	spr->GetHUDSprite(0)->SetAnimationFrame(animframe, 0);
 
 	spr->DrawSprites();
 	if (!FLAT) glDisable(GL_DEPTH_TEST);
@@ -194,21 +212,25 @@ static void Keyboard_KeyDown(unsigned char Key, int x, int y)
 {
 	switch (Key)
 	{
+	case 'W':
 	case 'w':
 	{
 		keyup = true;
 		break;
 	}
+	case 'S':
 	case 's':
 	{
 		keydown = true;
 		break;
 	}
+	case 'A':
 	case 'a':
 	{
 		keyleft = true;
 		break;
 	}
+	case 'D':
 	case 'd':
 	{
 		keyright = true;
@@ -224,21 +246,25 @@ static void Keyboard_KeyDown(unsigned char Key, int x, int y)
 void Keyboard_KeyUp(unsigned char Key, int x, int y)
 {
 	switch (Key) {
+	case 'W':
 	case 'w':
 	{
 		keyup = false;
 		break;
 	}
+	case 'S':
 	case 's':
 	{
 		keydown = false;
 		break;
 	}
+	case 'A':
 	case 'a':
 	{
 		keyleft = false;
 		break;
 	}
+	case 'D':
 	case 'd':
 	{
 		keyright = false;
@@ -357,7 +383,7 @@ int main(int argc, char** argv)
 	if (!texture1->Load()) {
 		return 1;
 	}
-	texture2 = new Texture("../resources/wood.png", 2);
+	texture2 = new Texture("../resources/animtest.png", 2);
 	if (!texture2->Load()) {
 		return 1;
 	}
@@ -374,12 +400,16 @@ int main(int argc, char** argv)
 	spr->Create2DSprite(768, 768, 0, 384, 1, texture2);
 	spr->Create2DSprite(768, 768, -256, 384, 3, texture2);
 	spr->Create2DSprite(768, 768, 256, 384, 2, texture3);
-	spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
+	//spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
+	spr->CreateHUDSprite(300, 300, 200, 200, texture2);
 	spr->CreateHUDSprite(300, 300, 520, 200, texture3);
 	spr->CreateHUDSprite(300, 300, 840, 200, Vector2f(0, 0), Vector2f(50, 50), texture1);
 	spr->GetHUDSprite(0)->SetRotation(0.0, 0.0, 45.0);
 	//spr->GetHUDSprite(1)->SetRotation(0.0, 0.0, 45.0);
 	//TODO: add world matrix
+	spr->GetSprite(0)->SetAnimation(5, 1);
+	spr->GetSprite(1)->SetAnimation(5, 1);
+	spr->GetHUDSprite(0)->SetAnimation(5, 1);
 
 	glutMainLoop();
 

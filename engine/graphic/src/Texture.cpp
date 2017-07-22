@@ -32,7 +32,6 @@ bool Texture::Load()
 			mGlTextureObject = MakeGlTexture(GL_RGBA, ilGetData(), width, height);
 			break;
 		}
-
 		// memory clearing 
 		ilBindImage(0);
 		ilDeleteImages(1, &imageId);

@@ -20,9 +20,13 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t,
 	scale = Vector2f(1.0f, 1.0f);
 	pos = Vector3f(posX, posY, 0.0f);
 	texCoords[0] = Vector2f(0, 0);
-	texCoords[1] = Vector2f(1, 0);
+	texCoords[1] = Vector2f(0, 1);
 	texCoords[2] = Vector2f(1, 1);
-	texCoords[3] = Vector2f(0, 1);
+	texCoords[3] = Vector2f(1, 0);
+	rows = 1;
+	cols = 1;
+	animframe[0] = 0;
+	animframe[1] = 0;
 }
 Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
 {
@@ -31,9 +35,13 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, 
 	scale = Vector2f(1.0f, 1.0f);
 	pos = Vector3f(posX, posY, posZ);
 	texCoords[0] = Vector2f(0, 0);
-	texCoords[1] = Vector2f(1, 0);
+	texCoords[1] = Vector2f(0, 1);
 	texCoords[2] = Vector2f(1, 1);
-	texCoords[3] = Vector2f(0, 1);
+	texCoords[3] = Vector2f(1, 0);
+	rows = 1;
+	cols = 1;
+	animframe[0] = 0;
+	animframe[1] = 0;
 }
 //sprite from atlas
 Sprite::Sprite(float _width, float _height, float posX, float posY, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
@@ -46,6 +54,10 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Vector2f coo
 	texCoords[1] = Vector2f(coord0.x / _t->width, coord1.y / _t->height);
 	texCoords[2] = Vector2f(coord1.x / _t->width, coord1.y / _t->height);
 	texCoords[3] = Vector2f(coord1.x / _t->width, coord0.y / _t->height);
+	rows = 1;
+	cols = 1;
+	animframe[0] = 0;
+	animframe[1] = 0;
 }
 Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, Vector2f coord0, Vector2f coord1, Texture* _t, Shader* _s) : width(_width), height(_height), texture(_t), spriteShader(_s)
 {
@@ -57,6 +69,10 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, float posZ, 
 	texCoords[1] = Vector2f(coord0.x / _t->width, coord1.y / _t->height);
 	texCoords[2] = Vector2f(coord1.x / _t->width, coord1.y / _t->height);
 	texCoords[3] = Vector2f(coord1.x / _t->width, coord0.y / _t->height);
+	rows = 1;
+	cols = 1;
+	animframe[0] = 0;
+	animframe[1] = 0;
 }
 
 void Sprite::Draw(GLuint sampler, float camWidth, float camHeight)
@@ -65,10 +81,13 @@ void Sprite::Draw(GLuint sampler, float camWidth, float camHeight)
 
 	GLuint VBO, IBO;
 	Vertex Vertices[4];
-	Vertices[0] = Vertex(Vector3f(-width / 2.0f, -height / 2.0f, 0.0f), texCoords[0]);
-	Vertices[1] = Vertex(Vector3f(width / 2.0f, -height / 2.0f, 0.0f), texCoords[1]);
-	Vertices[2] = Vertex(Vector3f(width / 2.0f, height / 2.0f, 0.0f), texCoords[2]);
-	Vertices[3] = Vertex(Vector3f(-width / 2.0f, height / 2.0f, 0.0f), texCoords[3]);
+
+	Vector2f texCoordOffset = Vector2f(animframe[0] * (texCoords[2].x - texCoords[0].x), animframe[1] * (texCoords[2].y - texCoords[0].y));
+
+	Vertices[0] = Vertex(Vector3f(-width / 2.0f, height / 2.0f, 0.0f), texCoords[0] + texCoordOffset);
+	Vertices[1] = Vertex(Vector3f(-width / 2.0f, -height / 2.0f, 0.0f), texCoords[1] + texCoordOffset);
+	Vertices[2] = Vertex(Vector3f(width / 2.0f, -height / 2.0f, 0.0f), texCoords[2] + texCoordOffset);
+	Vertices[3] = Vertex(Vector3f(width / 2.0f, height / 2.0f, 0.0f), texCoords[3] + texCoordOffset);
 
 	//Scale Vertices:
 	for (int i = 0; i < 4; i++)
@@ -198,4 +217,23 @@ void Sprite::SetRotation(float x, float y, float z)
 	rotate.x = x;
 	rotate.y = y;
 	rotate.z = z;
+}
+
+void Sprite::SetAnimation(int _cols, int _rows)
+{
+	cols = _cols;
+	rows = _rows;
+	float texSizeX = texCoords[2].x - texCoords[0].x;
+	float texSizeY = texCoords[2].y - texCoords[0].y;
+	texCoords[1].y = texCoords[0].y + texSizeY / rows;
+	texCoords[3].x = texCoords[0].x + texSizeX / cols;
+
+	texCoords[2].x = texCoords[3].x;
+	texCoords[2].y = texCoords[1].y;
+}
+
+void Sprite::SetAnimationFrame(int i, int j)
+{
+	animframe[0] = i % cols;
+	animframe[1] = j % rows;
 }

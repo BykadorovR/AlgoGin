@@ -26,6 +26,27 @@ struct Vector2f
 
 };
 
+inline Vector2f operator-(const Vector2f& l, const Vector2f& r)
+{
+	Vector2f Ret(l.x - r.x,
+		l.y - r.y);
+	return Ret;
+}
+
+inline Vector2f operator+(const Vector2f& l, const Vector2f& r)
+{
+	Vector2f Ret(l.x + r.x,
+		l.y + r.y);
+	return Ret;
+}
+
+inline Vector2f operator*(const Vector2f& l, float f)
+{
+	Vector2f Ret(l.x * f,
+		l.y * f);
+	return Ret;
+}
+
 struct Vector3f
 {
 	float x;
@@ -113,6 +134,14 @@ inline Vector3f operator-(const Vector3f& l, const Vector3f& r)
 	Vector3f Ret(l.x - r.x,
 		l.y - r.y,
 		l.z - r.z);
+	return Ret;
+}
+
+inline Vector3f operator+(const Vector3f& l, const Vector3f& r)
+{
+	Vector3f Ret(l.x + r.x,
+		l.y + r.y,
+		l.z + r.z);
 	return Ret;
 }
 
