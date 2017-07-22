@@ -97,7 +97,6 @@ void Sprite::Draw(GLuint sampler, float camWidth, float camHeight)
 	}
 	//Rotate Vertices:
 	Matrix4f m;
-
 	if (isHUD)
 	{
 		m.InitRotateTransform(rotate.x, rotate.y, 0.0f);
@@ -159,6 +158,9 @@ void Sprite::Draw(GLuint sampler, float camWidth, float camHeight)
 
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
+
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &IBO);
 }
 
 void Sprite::Translate(float x, float y, float z)
