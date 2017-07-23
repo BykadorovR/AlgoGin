@@ -1,9 +1,10 @@
 #include "Texture.h"
-Texture::Texture(std::string FileName)
+Texture::Texture(std::string FileName, GLuint _textureUnit)
 {
 	m_fileName = FileName;
 	imageId = 0;
 	mGlTextureObject = 0;
+	textureUnit = _textureUnit;
 	width = 0;
 	height = 0;
 }
@@ -31,18 +32,17 @@ bool Texture::Load()
 			mGlTextureObject = MakeGlTexture(GL_RGBA, ilGetData(), width, height);
 			break;
 		}
-
 		// memory clearing 
 		ilBindImage(0);
 		ilDeleteImages(1, &imageId);
 		return true;
 	}
-	else return false;
+	return false;
 }
 
 void Texture::Bind()
 {
-	//glActiveTexture(GL_TEXTURE0); //it seems like this line is unnesessary
+	glActiveTexture(GL_TEXTURE0+textureUnit);
 	glBindTexture(GL_TEXTURE_2D, mGlTextureObject);
 }
 
@@ -78,4 +78,9 @@ GLuint Texture::MakeGlTexture(int Format, ILubyte* pixels, int w, int h)
 
 	// return texture id
 	return texObject;
+}
+
+GLuint Texture::getTextureUnit()
+{
+	return textureUnit;
 }

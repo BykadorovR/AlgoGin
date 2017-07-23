@@ -1,5 +1,5 @@
 #pragma once
-
+#include <math.h>
 
 #define M_PI       3.14159265358979323846   // pi
 
@@ -26,6 +26,27 @@ struct Vector2f
 
 };
 
+inline Vector2f operator-(const Vector2f& l, const Vector2f& r)
+{
+	Vector2f Ret(l.x - r.x,
+		l.y - r.y);
+	return Ret;
+}
+
+inline Vector2f operator+(const Vector2f& l, const Vector2f& r)
+{
+	Vector2f Ret(l.x + r.x,
+		l.y + r.y);
+	return Ret;
+}
+
+inline Vector2f operator*(const Vector2f& l, float f)
+{
+	Vector2f Ret(l.x * f,
+		l.y * f);
+	return Ret;
+}
+
 struct Vector3f
 {
 	float x;
@@ -40,13 +61,106 @@ struct Vector3f
 	{
 	}
 
+	Vector3f Vector3f::Cross(const Vector3f& v) const
+	{
+		const float _x = y * v.z - z * v.y;
+		const float _y = z * v.x - x * v.z;
+		const float _z = x * v.y - y * v.x;
+
+		return Vector3f(_x, _y, _z);
+	}
+
+	Vector3f& Vector3f::Normalize()
+	{
+		const float Length = sqrtf(x * x + y * y + z * z);
+
+		x /= Length;
+		y /= Length;
+		z /= Length;
+
+		return *this;
+	}
+
 	//TODO: add move constructor
-	void operator=(Vector3f right) {
+	void operator=(Vector3f right) 
+	{
 		x = right.x;
 		y = right.y;
 		z = right.z;
 	}
 
+
+
+	Vector3f& operator+=(const Vector3f& r)
+	{
+		x += r.x;
+		y += r.y;
+		z += r.z;
+
+		return *this;
+	}
+
+	Vector3f& operator-=(const Vector3f& r)
+	{
+		x -= r.x;
+		y -= r.y;
+		z -= r.z;
+		return *this;
+	}
+
+	Vector3f& operator*=(float f)
+	{
+		x *= f;
+		y *= f;
+		z *= f;
+
+		return *this;
+	}
+};
+
+inline bool operator==(const Vector3f& l, const Vector3f& r)
+{
+	if (l.x != r.x || l.y != r.y || l.z != r.z) return false;
+	return true;
+}
+
+inline bool operator!=(const Vector3f& l, const Vector3f& r) 
+{
+	return !(l == r); 
+}
+
+inline Vector3f operator-(const Vector3f& l, const Vector3f& r)
+{
+	Vector3f Ret(l.x - r.x,
+		l.y - r.y,
+		l.z - r.z);
+	return Ret;
+}
+
+inline Vector3f operator+(const Vector3f& l, const Vector3f& r)
+{
+	Vector3f Ret(l.x + r.x,
+		l.y + r.y,
+		l.z + r.z);
+	return Ret;
+}
+
+inline Vector3f operator*(const Vector3f& l, float f)
+{
+	Vector3f Ret(l.x * f,
+		l.y * f,
+		l.z * f);
+	return Ret;
+}
+
+struct Vertex
+{
+	Vector3f pos;
+	Vector2f tex;
+	Vertex() {}
+	Vertex(Vector3f _pos, Vector2f _tex) : pos(_pos), tex(_tex)
+	{
+	}
 };
 
 struct Matrix4f {
@@ -112,4 +226,84 @@ public:
 		return res;
 	}
 
+	void Matrix4f::InitScaleTransform(float ScaleX, float ScaleY, float ScaleZ)
+	{
+		matrix[0][0] = ScaleX; matrix[0][1] = 0.0f;   matrix[0][2] = 0.0f;   matrix[0][3] = 0.0f;
+		matrix[1][0] = 0.0f;   matrix[1][1] = ScaleY; matrix[1][2] = 0.0f;   matrix[1][3] = 0.0f;
+		matrix[2][0] = 0.0f;   matrix[2][1] = 0.0f;   matrix[2][2] = ScaleZ; matrix[2][3] = 0.0f;
+		matrix[3][0] = 0.0f;   matrix[3][1] = 0.0f;   matrix[3][2] = 0.0f;   matrix[3][3] = 1.0f;
+	}
+
+	void Matrix4f::InitRotateTransform(float RotateX, float RotateY, float RotateZ)
+	{
+		Matrix4f rx, ry, rz;
+		const float x = ToRadian(RotateX);
+		const float y = ToRadian(RotateY);
+		const float z = ToRadian(RotateZ);
+		rx[0][0] = 1.0f; rx[0][1] = 0.0f; rx[0][2] = 0.0f; rx[0][3] = 0.0f;
+		rx[1][0] = 0.0f; rx[1][1] = cosf(x); rx[1][2] = -sinf(x); rx[1][3] = 0.0f;
+		rx[2][0] = 0.0f; rx[2][1] = sinf(x); rx[2][2] = cosf(x); rx[2][3] = 0.0f;
+		rx[3][0] = 0.0f; rx[3][1] = 0.0f; rx[3][2] = 0.0f; rx[3][3] = 1.0f;
+
+		ry[0][0] = cosf(y); ry[0][1] = 0.0f; ry[0][2] = -sinf(y); ry[0][3] = 0.0f;
+		ry[1][0] = 0.0f; ry[1][1] = 1.0f; ry[1][2] = 0.0f; ry[1][3] = 0.0f;
+		ry[2][0] = sinf(y); ry[2][1] = 0.0f; ry[2][2] = cosf(y); ry[2][3] = 0.0f;
+		ry[3][0] = 0.0f; ry[3][1] = 0.0f; ry[3][2] = 0.0f; ry[3][3] = 1.0f;
+
+		rz[0][0] = cosf(z); rz[0][1] = -sinf(z); rz[0][2] = 0.0f; rz[0][3] = 0.0f;
+		rz[1][0] = sinf(z); rz[1][1] = cosf(z); rz[1][2] = 0.0f; rz[1][3] = 0.0f;
+		rz[2][0] = 0.0f; rz[2][1] = 0.0f; rz[2][2] = 1.0f; rz[2][3] = 0.0f;
+		rz[3][0] = 0.0f; rz[3][1] = 0.0f; rz[3][2] = 0.0f; rz[3][3] = 1.0f;
+		*this = rz * ry * rx;
+	}
+
+
+
+	void Matrix4f::InitTranslationTransform(float x, float y, float z)
+	{
+		matrix[0][0] = 1.0f; matrix[0][1] = 0.0f; matrix[0][2] = 0.0f; matrix[0][3] = x;
+		matrix[1][0] = 0.0f; matrix[1][1] = 1.0f; matrix[1][2] = 0.0f; matrix[1][3] = y;
+		matrix[2][0] = 0.0f; matrix[2][1] = 0.0f; matrix[2][2] = 1.0f; matrix[2][3] = z;
+		matrix[3][0] = 0.0f; matrix[3][1] = 0.0f; matrix[3][2] = 0.0f; matrix[3][3] = 1.0f;
+	}
+
+	void Matrix4f::InitCameraTransform(const Vector3f& Target, const Vector3f& Up)
+	{
+		Vector3f N = Target;
+		N.Normalize();
+		Vector3f U = Up;
+		U.Normalize();
+		U = U.Cross(N);
+		Vector3f V = N.Cross(U);
+		matrix[0][0] = U.x;   matrix[0][1] = U.y;   matrix[0][2] = U.z;   matrix[0][3] = 0.0f;
+		matrix[1][0] = V.x;   matrix[1][1] = V.y;   matrix[1][2] = V.z;   matrix[1][3] = 0.0f;
+		matrix[2][0] = N.x;   matrix[2][1] = N.y;   matrix[2][2] = N.z;   matrix[2][3] = 0.0f;
+		matrix[3][0] = 0.0f;  matrix[3][1] = 0.0f;  matrix[3][2] = 0.0f;  matrix[3][3] = 1.0f;
+	}
+
+	void Matrix4f::InitPersProjTransform(float FOV, float Width, float Height, float zNear, float zFar)
+	{
+		const float ar = Width / Height;
+		const float zRange = zNear - zFar;
+		const float tanHalfFOV = tanf(ToRadian(FOV / 2.0f));
+		matrix[0][0] = 1.0f / (tanHalfFOV * ar); 
+		matrix[0][1] = 0.0f;            
+		matrix[0][2] = 0.0f;          
+		matrix[0][3] = 0.0;
+
+		matrix[1][0] = 0.0f;                  
+		matrix[1][1] = 1.0f / tanHalfFOV;
+		matrix[1][2] = 0.0f;         
+		matrix[1][3] = 0.0;
+
+		matrix[2][0] = 0.0f;                   
+		matrix[2][1] = 0.0f;            
+		matrix[2][2] = (-zNear - zFar) / zRange;
+		matrix[2][3] = 2.0f * zFar*zNear / zRange;
+
+		matrix[3][0] = 0.0f;                  
+		matrix[3][1] = 0.0f;          
+		matrix[3][2] = 1.0f;        
+		matrix[3][3] = 0.0;
+	}
 };
