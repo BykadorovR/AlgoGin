@@ -8,18 +8,6 @@
 
 #define FLAT false // 2d or 3d
 
-struct Vertex
-{
-	Vector3f m_pos;
-	Vector2f m_tex;
-	Vertex() {}
-	Vertex(Vector3f pos, Vector2f tex)
-	{
-		m_pos = pos;
-		m_tex = tex;
-	}
-};
-
 bool keyup = false;
 bool keydown = false;
 bool keyleft = false;
@@ -56,7 +44,7 @@ void MoveCam()
 	const float STEPSCALE = -0.05f;
 	Vector3f newpos = cam.getPosition();
 	Vector3f target = cam.getTarget();
-	target.y = 0.0f; //comment this line to fly
+	//target.y = 0.0f; //comment this line to fly
 
 	if (keyup)
 	{
@@ -92,6 +80,14 @@ void MoveCam()
 	}
 }
 
+static void PassiveMouseCB(int x, int y)
+{
+	if (x != screenCerter.x || y != screenCerter.y)
+	{
+		cam.rotate((x - screenCerter.x) * 0.001f, (y - screenCerter.y) * 0.001f);
+		glutWarpPointer(screenCerter.x, screenCerter.y);
+	}
+}
 
 static void RenderSceneCB()
 {
@@ -273,15 +269,6 @@ void Keyboard_KeyUp(unsigned char Key, int x, int y)
 	}
 }
 
-static void PassiveMouseCB(int x, int y)
-{
-	if (x != screenCerter.x || y != screenCerter.y)
-	{
-		cam.rotate((x - screenCerter.x) * 0.001f, (y - screenCerter.y) * 0.001f);
-		glutWarpPointer(screenCerter.x, screenCerter.y);
-	}
-}
-
 static void InitializeGlutCallbacks()
 {
 	glutDisplayFunc(RenderSceneCB);
@@ -396,7 +383,7 @@ int main(int argc, char** argv)
 	texture2->Bind();
 	texture3->Bind();
 	
-	spr = new SpritesHandler(simpleShader, hudShader, cam.getWidth(), cam.getHeight());
+	spr = new SpritesHandler(simpleShader, hudShader, &cam);
 	spr->Create2DSprite(768, 768, 0, 384, 1, texture2);
 	spr->Create2DSprite(768, 768, -256, 384, 3, texture2);
 	spr->Create2DSprite(768, 768, 256, 384, 2, texture3);
@@ -405,11 +392,13 @@ int main(int argc, char** argv)
 	spr->CreateHUDSprite(300, 300, 520, 200, texture3);
 	spr->CreateHUDSprite(300, 300, 840, 200, Vector2f(0, 0), Vector2f(50, 50), texture1);
 	spr->GetHUDSprite(0)->SetRotation(0.0, 0.0, 45.0);
-	//spr->GetHUDSprite(1)->SetRotation(0.0, 0.0, 45.0);
+	spr->GetHUDSprite(1)->SetRotation(0.0, 0.0, 45.0);
 	//TODO: add world matrix
 	spr->GetSprite(0)->SetAnimation(5, 1);
 	spr->GetSprite(1)->SetAnimation(5, 1);
 	spr->GetHUDSprite(0)->SetAnimation(5, 1);
+	spr->GetSprite(0)->FollowCamera(true);
+	spr->GetSprite(1)->FollowCamera(true);
 
 	glutMainLoop();
 

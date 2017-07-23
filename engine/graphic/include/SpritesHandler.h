@@ -5,6 +5,7 @@
 #include "Texture.h"
 #include "Shader.h"
 #include "Sprite.h"
+#include "Camera.h"
 #include <vector>
 
 class SpritesHandler
@@ -14,10 +15,9 @@ private:
 	std::vector <Sprite*> spritesHUD;
 	Shader* spritesShader;
 	Shader* hudShader;
-	float camWidth;
-	float camHeight;
+	Camera* camera;
 public:
-	SpritesHandler(Shader* _spritesShader, Shader* _hudShader, float width, float height);
+	SpritesHandler(Shader* _spritesShader, Shader* _hudShader, Camera* cam);
 	void DrawSprites();
 	void DrawHUD();
 

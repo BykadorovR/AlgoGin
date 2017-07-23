@@ -1,25 +1,7 @@
-#include "Sprite.h"
+#include "AnimatedSprite.h"
 
 #define CAMERA_WIDTH 1024
-#define CAMERA_HEIGHT 768
-
-//sprite from texture
-Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t) : width(_width), height(_height), texture(_t)
-{
-	isHUD = true;
-	isFollowingCamera = false;
-	rotate = Vector3f(0.0f, 0.0f, 0.0f);
-	scale = Vector2f(1.0f, 1.0f);
-	pos = Vector3f(posX, posY, 0.0f);
-	texCoords[0] = Vector2f(0, 0);
-	texCoords[1] = Vector2f(0, 1);
-	texCoords[2] = Vector2f(1, 1);
-	texCoords[3] = Vector2f(1, 0);
-	rows = 1;
-	cols = 1;
-	animframe[0] = 0;
-	animframe[1] = 0;
-}
+//#define CAMERA_HEIGHT 768
 
 void Sprite::Draw(GLuint program, float camWidth, float camHeight)
 {
@@ -107,69 +89,6 @@ void Sprite::Draw(GLuint program, float camWidth, float camHeight)
 	glDeleteBuffers(1, &IBO);
 }
 
-GLuint Sprite::GetTextureUnit()
-{
-	return texture->getTextureUnit();
-}
-
-void Sprite::Translate(float x, float y, float z)
-{
-	if (!isHUD)
-	{
-		pos.x += x;
-		pos.y += y;
-		pos.z += z;
-	}
-	else
-	{
-		pos.x += x/(CAMERA_WIDTH/2);
-		pos.y -= y/(CAMERA_HEIGHT/2);
-		pos.z += z;
-	}
-}
-
-void Sprite::SetPos(float x, float y, float z)
-{
-	if (!isHUD)
-	{
-		pos.x = x;
-		pos.y = y;
-		pos.z = z;
-	}
-	else
-	{
-		pos.x = x / (CAMERA_WIDTH / 2) - 1;
-		pos.y = y / (CAMERA_HEIGHT / 2) + 1;
-		pos.z = z;
-	}
-}
-
-void Sprite::Scale(float x, float y)
-{
-	scale.x *= x;
-	scale.y *= y;
-}
-
-void Sprite::SetSize(float x, float y)
-{
-	scale.x = x;
-	scale.y = y;
-}
-
-void Sprite::Rotate(float x, float y, float z)
-{
-	rotate.x += x;
-	rotate.y += y;
-	rotate.z += z;
-}
-
-void Sprite::SetRotation(float x, float y, float z)
-{
-	rotate.x = x;
-	rotate.y = y;
-	rotate.z = z;
-}
-
 void Sprite::SetAnimation(int _cols, int _rows)
 {
 	cols = _cols;
@@ -187,9 +106,4 @@ void Sprite::SetAnimationFrame(int i, int j)
 {
 	animframe[0] = i % cols;
 	animframe[1] = j % rows;
-}
-
-void Sprite::FollowCamera(bool t)
-{
-	isFollowingCamera = t;
 }

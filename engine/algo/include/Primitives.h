@@ -153,6 +153,16 @@ inline Vector3f operator*(const Vector3f& l, float f)
 	return Ret;
 }
 
+struct Vertex
+{
+	Vector3f pos;
+	Vector2f tex;
+	Vertex() {}
+	Vertex(Vector3f _pos, Vector2f _tex) : pos(_pos), tex(_tex)
+	{
+	}
+};
+
 struct Matrix4f {
 private:
 	float matrix[4][4];

@@ -18,12 +18,12 @@ private:
 	Matrix4f translationM;
 	Matrix4f rotationM;
 	Matrix4f cameraM;
-	void calcMatrix();
-	void calcAngles();
 public:
 	Camera();
 	Camera(float _width, float _height);
 	Camera(float _width, float _height, float _fov, float _znear, float _zfar, Vector3f _pos, Vector3f _target, Vector3f _up);
+	void calcMatrix();
+	void calcAngles();
 	Matrix4f& getCameraMatrix();
 	float getWidth();
 	float getHeight();
@@ -33,4 +33,6 @@ public:
 	void translate(float _x, float _y, float _z);
 	void setPosition(float _x, float _y, float _z);
 	void rotate(float h, float v);
+	float getAngleH();
+	float getAngleV();
 };
