@@ -9,11 +9,6 @@ void MatrixHelper::setPosition(const Vector3f& position) {
 	_position[3][0] = 0.0f; _position[3][1] = 0.0f; _position[3][2] = 0.0f; _position[3][3] = 1.0f;
 }
 
-Matrix4f& MatrixHelper::getTranslation()
-{
-	return _position;
-}
-
 void MatrixHelper::setRotate(const Vector3f& rotate) {
 	Matrix4f rx, ry, rz;
 
@@ -39,36 +34,6 @@ void MatrixHelper::setRotate(const Vector3f& rotate) {
 	_rotate = rz * ry * rx;
 }
 
-Matrix4f& MatrixHelper::getRotation()
-{
-	return _rotate;
-}
-
-void MatrixHelper::setBackRotate(const Vector3f& rotate) {
-	Matrix4f rx, ry, rz;
-
-	const float x = -static_cast<float>(ToRadian(rotate.x));
-	const float y = -static_cast<float>(ToRadian(rotate.y));
-	const float z = -static_cast<float>(ToRadian(rotate.z));
-
-	rx[0][0] = 1.0f; rx[0][1] = 0.0f; rx[0][2] = 0.0f; rx[0][3] = 0.0f;
-	rx[1][0] = 0.0f; rx[1][1] = cosf(x); rx[1][2] = -sinf(x); rx[1][3] = 0.0f;
-	rx[2][0] = 0.0f; rx[2][1] = sinf(x); rx[2][2] = cosf(x); rx[2][3] = 0.0f;
-	rx[3][0] = 0.0f; rx[3][1] = 0.0f; rx[3][2] = 0.0f; rx[3][3] = 1.0f;
-
-	ry[0][0] = cosf(y); ry[0][1] = 0.0f; ry[0][2] = -sinf(y); ry[0][3] = 0.0f;
-	ry[1][0] = 0.0f; ry[1][1] = 1.0f; ry[1][2] = 0.0f; ry[1][3] = 0.0f;
-	ry[2][0] = sinf(y); ry[2][1] = 0.0f; ry[2][2] = cosf(y); ry[2][3] = 0.0f;
-	ry[3][0] = 0.0f; ry[3][1] = 0.0f; ry[3][2] = 0.0f; ry[3][3] = 1.0f;
-
-	rz[0][0] = cosf(z); rz[0][1] = -sinf(z); rz[0][2] = 0.0f; rz[0][3] = 0.0f;
-	rz[1][0] = sinf(z); rz[1][1] = cosf(z); rz[1][2] = 0.0f; rz[1][3] = 0.0f;
-	rz[2][0] = 0.0f; rz[2][1] = 0.0f; rz[2][2] = 1.0f; rz[2][3] = 0.0f;
-	rz[3][0] = 0.0f; rz[3][1] = 0.0f; rz[3][2] = 0.0f; rz[3][3] = 1.0f;
-
-	_rotate = rx * ry * rz;
-}
-
 void MatrixHelper::setScale(const Vector3f& scale) {
 	_scale[0][0] = scale.x; _scale[0][1] = 0.0f; _scale[0][2] = 0.0f; _scale[0][3] = 0.0f;
 	_scale[1][0] = 0.0f; _scale[1][1] = scale.y; _scale[1][2] = 0.0f; _scale[1][3] = 0.0f;
@@ -76,47 +41,7 @@ void MatrixHelper::setScale(const Vector3f& scale) {
 	_scale[3][0] = 0.0f; _scale[3][1] = 0.0f; _scale[3][2] = 0.0f; _scale[3][3] = 1.0f;
 }
 
-Matrix4f& MatrixHelper::getScale()
-{
-	return _scale;
-}
-
-void MatrixHelper::setPerspective(float FOV, float width, float height, float znear, float zfar)
-{
-	const float ar = width / height;
-	const float zNear = znear;
-	const float zFar = zfar;
-	const float zRange = znear - zfar;
-	const float tanHalfFOV = tanf(ToRadian(FOV / 2.0f));
-
-	_persProj[0][0] = 1.0f / (tanHalfFOV * ar);
-	_persProj[0][1] = 0.0f;
-	_persProj[0][2] = 0.0f;
-	_persProj[0][3] = 0.0f;
-
-	_persProj[1][0] = 0.0f;
-	_persProj[1][1] = 1.0f / tanHalfFOV;
-	_persProj[1][2] = 0.0f;
-	_persProj[1][3] = 0.0f;
-
-	_persProj[2][0] = 0.0f;
-	_persProj[2][1] = 0.0f;
-	_persProj[2][2] = (-zNear - zFar) / zRange;
-	_persProj[2][3] = 2.0f * zFar * zNear / zRange;
-
-	_persProj[3][0] = 0.0f;
-	_persProj[3][1] = 0.0f;
-	_persProj[3][2] = 1.0f;
-	_persProj[3][3] = 0.0f;
-}
-
-Matrix4f& MatrixHelper::getPerspective() 
-{
-	return _persProj;
-}
-
-Matrix4f& MatrixHelper::getMatrix() 
-{
-	_matrix = _persProj * _position * _rotate * _scale;
+Matrix4f& MatrixHelper::getMatrix() {
+	_matrix = _position * _rotate * _scale;
 	return _matrix;
 }

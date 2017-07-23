@@ -8,14 +8,12 @@ class Texture
 public:
 	int width;
 	int height;
-	Texture(std::string FileName, GLuint textureUnit);
+	Texture(std::string FileName);
 	bool Load();
 	void Bind();
-	GLuint getTextureUnit();
 private:
 	std::string m_fileName;
 	ILuint imageId;
 	GLuint mGlTextureObject;
-	GLuint textureUnit;
 	GLuint MakeGlTexture(int Format, ILubyte* pixels, int w, int h);
 };
