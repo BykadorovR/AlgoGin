@@ -11,8 +11,9 @@ void SpritesHandler::DrawSprites()
 {
 	spritesShader->useProgram();
 	GLuint gSampler = glGetUniformLocation(spritesShader->getProgram(), "gSampler");
-	for each (Sprite* s in sprites)
+	for (int i = 0; i < sprites.size(); i++)
 	{
+		Sprite* s = sprites[i];
 		glUniform1i(gSampler, s->GetTextureUnit());
 		if (s->isFollowingCamera)
 		{
@@ -34,8 +35,9 @@ void SpritesHandler::DrawHUD()
 {
 	hudShader->useProgram();
 	GLuint gSampler = glGetUniformLocation(hudShader->getProgram(), "gSampler");
-	for each (Sprite* s in spritesHUD)
+	for (int i = 0; i < spritesHUD.size(); i++)
 	{
+		Sprite* s = spritesHUD[i];
 		glUniform1i(gSampler, s->GetTextureUnit());
 		s->Draw(hudShader->getProgram());
 	}
