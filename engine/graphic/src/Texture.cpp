@@ -7,6 +7,10 @@ Texture::Texture(std::string FileName, GLuint _textureUnit)
 	textureUnit = _textureUnit;
 	width = 0;
 	height = 0;
+	if (!Load()) 
+	{
+		std::cout << "Cannot load texture: " << FileName.c_str() << std::endl;
+	}
 }
 
 bool Texture::Load()

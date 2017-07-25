@@ -8,7 +8,7 @@
 
 class AnimatedSprite : public Sprite
 {
-private:
+/*private:
 	int rows;
 	int cols;
 	int animframe[2];
@@ -43,7 +43,7 @@ public:
 		animframe[0] = 0;
 		animframe[1] = 0;
 	}
-	void Draw(GLuint program, float camWidth, float camHeight);
+	void Draw(GLuint program);
 	void SetAnimation(int _cols, int _rows);
-	void SetAnimationFrame(int i, int j);
+	void SetAnimationFrame(int i, int j);*/
 };

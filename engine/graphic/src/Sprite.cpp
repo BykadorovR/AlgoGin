@@ -17,16 +17,17 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t)
 	texCoords[3] = Vector2f(1, 0);
 	rows = 1;
 	cols = 1;
-	animframe[0] = 0;
-	animframe[1] = 0;
+	currentFrame = 0;
+	animationId = 0;
+	frameId = 0;
 }
 
-void Sprite::Draw(GLuint program, float camWidth, float camHeight)
+void Sprite::Draw(GLuint program)
 {
 	GLuint VBO, IBO;
 	Vertex Vertices[4];
 
-	Vector2f texCoordOffset = Vector2f(animframe[0] * (texCoords[2].x - texCoords[0].x), animframe[1] * (texCoords[2].y - texCoords[0].y));
+	Vector2f texCoordOffset = Vector2f((currentFrame%cols) * (texCoords[2].x - texCoords[0].x), (currentFrame/cols) * (texCoords[2].y - texCoords[0].y));
 
 	Vertices[0] = Vertex(Vector3f(-width / 2.0f, height / 2.0f, 0.0f), texCoords[0] + texCoordOffset);
 	Vertices[1] = Vertex(Vector3f(-width / 2.0f, -height / 2.0f, 0.0f), texCoords[1] + texCoordOffset);
@@ -41,30 +42,10 @@ void Sprite::Draw(GLuint program, float camWidth, float camHeight)
 	}
 	//Rotate Vertices:
 	Matrix4f m;
-	if (isHUD)
+	m.InitRotateTransform(rotate.x, rotate.y, rotate.z);
+	for (int i = 0; i < 4; i++)
 	{
-		m.InitRotateTransform(rotate.x, rotate.y, 0.0f);
-		for (int i = 0; i < 4; i++)
-		{
-			Vertices[i].pos = m*Vertices[i].pos;
-		}
-		m.InitRotateTransform(0.0f, 0.0f, rotate.z);
-		for (int i = 0; i < 4; i++)
-		{
-			Vertices[i].pos.x *= camWidth;
-			Vertices[i].pos.y *= camHeight;
-			Vertices[i].pos = m*Vertices[i].pos;
-			Vertices[i].pos.x /= camWidth;
-			Vertices[i].pos.y /= camHeight;
-		}
-	}
-	else
-	{
-		m.InitRotateTransform(rotate.x, rotate.y, rotate.z);
-		for (int i = 0; i < 4; i++)
-		{
-			Vertices[i].pos = m*Vertices[i].pos;
-		}
+		Vertices[i].pos = m*Vertices[i].pos;
 	}
 
 	//Translate Vertices:
@@ -114,34 +95,21 @@ GLuint Sprite::GetTextureUnit()
 
 void Sprite::Translate(float x, float y, float z)
 {
-	if (!isHUD)
-	{
-		pos.x += x;
-		pos.y += y;
-		pos.z += z;
-	}
-	else
-	{
-		pos.x += x/(CAMERA_WIDTH/2);
-		pos.y -= y/(CAMERA_HEIGHT/2);
-		pos.z += z;
-	}
+	pos.x += x;
+	pos.y += y;
+	pos.z += z;
 }
 
-void Sprite::SetPos(float x, float y, float z)
+void Sprite::SetPosition(float x, float y, float z)
 {
-	if (!isHUD)
-	{
-		pos.x = x;
-		pos.y = y;
-		pos.z = z;
-	}
-	else
-	{
-		pos.x = x / (CAMERA_WIDTH / 2) - 1;
-		pos.y = y / (CAMERA_HEIGHT / 2) + 1;
-		pos.z = z;
-	}
+	pos.x = x;
+	pos.y = y;
+	pos.z = z;
+}
+
+Vector3f Sprite::GetPosition()
+{
+	return pos;
 }
 
 void Sprite::Scale(float x, float y)
@@ -170,7 +138,12 @@ void Sprite::SetRotation(float x, float y, float z)
 	rotate.z = z;
 }
 
-void Sprite::SetAnimation(int _cols, int _rows)
+void Sprite::FollowCamera(bool t)
+{
+	isFollowingCamera = t;
+}
+
+void Sprite::MakeAnimated(int _cols, int _rows)
 {
 	cols = _cols;
 	rows = _rows;
@@ -183,13 +156,37 @@ void Sprite::SetAnimation(int _cols, int _rows)
 	texCoords[2].y = texCoords[1].y;
 }
 
-void Sprite::SetAnimationFrame(int i, int j)
+void Sprite::SetAnimationFrame(int i)
 {
-	animframe[0] = i % cols;
-	animframe[1] = j % rows;
+	currentFrame = i%(rows*cols);
 }
 
-void Sprite::FollowCamera(bool t)
+void Sprite::CreateAnimation(int n, int* frames)
 {
-	isFollowingCamera = t;
+	std::vector<int> newAnim;
+	for (int i = 0; i < n; i++)
+	{
+		newAnim.push_back(frames[i]);
+	}
+	animations.push_back(newAnim);
+	SetAnimation(animations.size() - 1);
+}
+
+void Sprite::CreateAnimation(std::vector<int> frames)
+{
+	animations.push_back(frames);
+	SetAnimation(animations.size() - 1);
+}
+
+void Sprite::SetAnimation(int i)
+{
+	frameId = 0;
+	animationId = i;
+	currentFrame = animations[animationId][0];
+}
+
+void Sprite::NextAnimationFrame()
+{
+	frameId = (frameId + 1) % animations[animationId].size();
+	currentFrame = animations[animationId][frameId];
 }

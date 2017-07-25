@@ -6,7 +6,7 @@ target(Vector3f(0,0,1)), up(Vector3f(0,1,0))
 	calcAngles();
 
 	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
-	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
 	rotationM.InitCameraTransform(target, up);
 	calcMatrix();
 }
@@ -17,7 +17,7 @@ pos(Vector3f(0, 0, 1)), target(Vector3f(0, 0, 1)), up(Vector3f(0, 1, 0))
 	calcAngles();
 
 	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
-	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
 	rotationM.InitCameraTransform(target, up);
 	calcMatrix();
 }
@@ -28,7 +28,7 @@ Camera::Camera(float _width, float _height, float _fov, float _znear, float _zfa
 	calcAngles();
 
 	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
-	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
 	rotationM.InitCameraTransform(target, up);
 	calcMatrix();
 }
@@ -102,7 +102,7 @@ void Camera::translate(float _x, float _y, float _z)
 	pos.x += _x;
 	pos.y += _y;
 	pos.z += _z;
-	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
 	calcMatrix();
 }
 
@@ -111,7 +111,7 @@ void Camera::setPosition(float _x, float _y, float _z)
 	pos.x = _x;
 	pos.y = _y;
 	pos.z = _z;
-	translationM.InitTranslationTransform(pos.x, pos.y, pos.z);
+	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
 	calcMatrix();
 }
 
@@ -141,4 +141,9 @@ float Camera::getAngleH()
 float Camera::getAngleV()
 {
 	return angleV;
+}
+
+float Camera::getRatio()
+{
+	return width / height;
 }

@@ -61,7 +61,7 @@ struct Vector3f
 	{
 	}
 
-	Vector3f Vector3f::Cross(const Vector3f& v) const
+	Vector3f Cross(const Vector3f& v) const
 	{
 		const float _x = y * v.z - z * v.y;
 		const float _y = z * v.x - x * v.z;
@@ -70,7 +70,7 @@ struct Vector3f
 		return Vector3f(_x, _y, _z);
 	}
 
-	Vector3f& Vector3f::Normalize()
+	Vector3f& Normalize()
 	{
 		const float Length = sqrtf(x * x + y * y + z * z);
 
@@ -226,7 +226,7 @@ public:
 		return res;
 	}
 
-	void Matrix4f::InitScaleTransform(float ScaleX, float ScaleY, float ScaleZ)
+	void InitScaleTransform(float ScaleX, float ScaleY, float ScaleZ)
 	{
 		matrix[0][0] = ScaleX; matrix[0][1] = 0.0f;   matrix[0][2] = 0.0f;   matrix[0][3] = 0.0f;
 		matrix[1][0] = 0.0f;   matrix[1][1] = ScaleY; matrix[1][2] = 0.0f;   matrix[1][3] = 0.0f;
@@ -234,7 +234,7 @@ public:
 		matrix[3][0] = 0.0f;   matrix[3][1] = 0.0f;   matrix[3][2] = 0.0f;   matrix[3][3] = 1.0f;
 	}
 
-	void Matrix4f::InitRotateTransform(float RotateX, float RotateY, float RotateZ)
+	void InitRotateTransform(float RotateX, float RotateY, float RotateZ)
 	{
 		Matrix4f rx, ry, rz;
 		const float x = ToRadian(RotateX);
@@ -259,7 +259,7 @@ public:
 
 
 
-	void Matrix4f::InitTranslationTransform(float x, float y, float z)
+	void InitTranslationTransform(float x, float y, float z)
 	{
 		matrix[0][0] = 1.0f; matrix[0][1] = 0.0f; matrix[0][2] = 0.0f; matrix[0][3] = x;
 		matrix[1][0] = 0.0f; matrix[1][1] = 1.0f; matrix[1][2] = 0.0f; matrix[1][3] = y;
@@ -267,7 +267,7 @@ public:
 		matrix[3][0] = 0.0f; matrix[3][1] = 0.0f; matrix[3][2] = 0.0f; matrix[3][3] = 1.0f;
 	}
 
-	void Matrix4f::InitCameraTransform(const Vector3f& Target, const Vector3f& Up)
+	void InitCameraTransform(const Vector3f& Target, const Vector3f& Up)
 	{
 		Vector3f N = Target;
 		N.Normalize();
@@ -281,7 +281,7 @@ public:
 		matrix[3][0] = 0.0f;  matrix[3][1] = 0.0f;  matrix[3][2] = 0.0f;  matrix[3][3] = 1.0f;
 	}
 
-	void Matrix4f::InitPersProjTransform(float FOV, float Width, float Height, float zNear, float zFar)
+	void InitPersProjTransform(float FOV, float Width, float Height, float zNear, float zFar)
 	{
 		const float ar = Width / Height;
 		const float zRange = zNear - zFar;

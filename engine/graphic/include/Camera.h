@@ -18,6 +18,7 @@ private:
 	Matrix4f translationM;
 	Matrix4f rotationM;
 	Matrix4f cameraM;
+
 public:
 	Camera();
 	Camera(float _width, float _height);
@@ -35,4 +36,5 @@ public:
 	void rotate(float h, float v);
 	float getAngleH();
 	float getAngleV();
+	float getRatio();
 };

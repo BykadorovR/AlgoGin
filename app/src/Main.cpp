@@ -26,6 +26,7 @@ Texture* texture0 = NULL;
 Texture* texture1 = NULL;
 Texture* texture2 = NULL;
 Texture* texture3 = NULL;
+Texture* texture4 = NULL;
 
 std::string vs_path;
 std::string fs_path;
@@ -35,16 +36,16 @@ std::string hudfs_path;
 Shader* simpleShader;
 Shader* hudShader;
 
-Camera cam = Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+Camera* cam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 //Camera cam = Camera(1024.0f, 768.0f);
-Vector2f screenCerter = Vector2f(cam.getWidth() / 2, cam.getHeight() / 2);
+Vector2f screenCerter = Vector2f(cam->getWidth() / 2, cam->getHeight() / 2);
 
 void MoveCam()
 {
-	const float STEPSCALE = -0.05f;
-	Vector3f newpos = cam.getPosition();
-	Vector3f target = cam.getTarget();
-	//target.y = 0.0f; //comment this line to fly
+	const float STEPSCALE = 0.05f;
+	Vector3f newpos = cam->getPosition();
+	Vector3f target = cam->getTarget();
+	target.y = 0.0f; //comment this line to fly
 
 	if (keyup)
 	{
@@ -74,9 +75,9 @@ void MoveCam()
 		Right *= STEPSCALE;
 		newpos += Right;
 	}
-	if (newpos != cam.getPosition())
+	if (newpos != cam->getPosition())
 	{
-		cam.setPosition(newpos.x, newpos.y, newpos.z);
+		cam->setPosition(newpos.x, newpos.y, newpos.z);
 	}
 }
 
@@ -84,7 +85,7 @@ static void PassiveMouseCB(int x, int y)
 {
 	if (x != screenCerter.x || y != screenCerter.y)
 	{
-		cam.rotate((x - screenCerter.x) * 0.001f, (y - screenCerter.y) * 0.001f);
+		cam->rotate((x - screenCerter.x) * 0.001f, (y - screenCerter.y) * 0.001f);
 		glutWarpPointer(screenCerter.x, screenCerter.y);
 	}
 }
@@ -95,13 +96,14 @@ static void RenderSceneCB()
 	//get the current time
 	currenttime = glutGet(GLUT_ELAPSED_TIME);
 	//check if a second has passed
-	if (currenttime - timebase > 1000)
+	if (currenttime - timebase > 100)
 	{
 		std::string title = std::to_string(frame*1000.0 / (currenttime - timebase));
 		glutSetWindowTitle(title.c_str());
 		timebase = currenttime;
 		frame = 0;
 		animframe++;
+		spr->GetSprite(0)->NextAnimationFrame();
 	}
 
 
@@ -115,7 +117,7 @@ static void RenderSceneCB()
 	glUniform1i(gSampler, 0);
 
 	MoveCam();
-	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)(cam.getCameraMatrix())[0]);
+	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)(cam->getCameraMatrix())[0]);
 
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
@@ -136,11 +138,10 @@ static void RenderSceneCB()
 	spr->GetHUDSprite(0)->Rotate(0.0, 0.0, -11.0);
 	spr->GetHUDSprite(0)->Scale(0.999, 1.0002);
 	spr->GetHUDSprite(1)->Rotate(0.0, 0.0, -1.0);
-	spr->GetHUDSprite(2)->Rotate(0.0, 0.0, 1.0);
+	//spr->GetHUDSprite(2)->Rotate(0.0, 0.0, 1.0);
 
-	spr->GetSprite(0)->SetAnimationFrame(animframe, 0);
-	spr->GetSprite(1)->SetAnimationFrame(animframe, 0);
-	spr->GetHUDSprite(0)->SetAnimationFrame(animframe, 0);
+	spr->GetSprite(1)->SetAnimationFrame(animframe);
+	spr->GetHUDSprite(0)->SetAnimationFrame(animframe);
 
 	spr->DrawSprites();
 	if (!FLAT) glDisable(GL_DEPTH_TEST);
@@ -313,12 +314,12 @@ int main(int argc, char** argv)
 	glutInit(&argc, argv);
 	ilInit();
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-	glutInitWindowSize(cam.getWidth(), cam.getHeight());
+	glutInitWindowSize(cam->getWidth(), cam->getHeight());
 	glutInitWindowPosition(100, 100);
 	glutCreateWindow("Tutorial 04");
 
 	glutSetCursor(GLUT_CURSOR_NONE); //hide cursor
-	glutWarpPointer(cam.getWidth()/2, cam.getHeight()/2); //place cursor
+	glutWarpPointer(cam->getWidth()/2, cam->getHeight()/2); //place cursor
 
 	InitializeGlutCallbacks();
 
@@ -363,40 +364,32 @@ int main(int argc, char** argv)
 	u_world = glGetUniformLocation(program, "gWorld");
 
 	texture0 = new Texture("../resources/claytile.png", 0);
-	if (!texture0->Load()) {
-		return 1;
-	}
 	texture1 = new Texture("../resources/metal.png", 1);
-	if (!texture1->Load()) {
-		return 1;
-	}
 	texture2 = new Texture("../resources/animtest.png", 2);
-	if (!texture2->Load()) {
-		return 1;
-	}
 	texture3 = new Texture("../resources/alphatest.png", 3);
-	if (!texture3->Load()) {
-		return 1;
-	}
+	texture4 = new Texture("../resources/wood.png", 4);
+
 	texture0->Bind();
 	texture1->Bind();
 	texture2->Bind();
 	texture3->Bind();
+	texture4->Bind();
 	
-	spr = new SpritesHandler(simpleShader, hudShader, &cam);
-	spr->Create2DSprite(768, 768, 0, 384, 1, texture2);
-	spr->Create2DSprite(768, 768, -256, 384, 3, texture2);
-	spr->Create2DSprite(768, 768, 256, 384, 2, texture3);
+	spr = new SpritesHandler(simpleShader, hudShader, cam);
+	spr->CreateSprite(2, 2, 0, 0, 1, texture2);
+	spr->CreateSprite(2, 2, 0, 0, 3, texture4);
+	spr->CreateSprite(2, 2, 1, 0, 2, texture3);
 	//spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
-	spr->CreateHUDSprite(300, 300, 200, 200, texture2);
-	spr->CreateHUDSprite(300, 300, 520, 200, texture3);
-	spr->CreateHUDSprite(300, 300, 840, 200, Vector2f(0, 0), Vector2f(50, 50), texture1);
-	spr->GetHUDSprite(0)->SetRotation(0.0, 0.0, 45.0);
-	spr->GetHUDSprite(1)->SetRotation(0.0, 0.0, 45.0);
+	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, 0.7, texture2);
+	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, -0.7, texture3);
+	spr->CreateHUDSprite(0.5, 0.5, cam->getRatio() - 0.3, -0.7, Vector2f(0, 0), Vector2f(50, 50), texture1);
 	//TODO: add world matrix
-	spr->GetSprite(0)->SetAnimation(5, 1);
-	spr->GetSprite(1)->SetAnimation(5, 1);
-	spr->GetHUDSprite(0)->SetAnimation(5, 1);
+	spr->GetSprite(0)->MakeAnimated(5, 1);
+	spr->GetSprite(1)->MakeAnimated(5, 5);
+	spr->GetHUDSprite(0)->MakeAnimated(5, 1);
+	int anim[] = { 0,1,2,3,4,3,2,1 };
+	spr->GetSprite(0)->CreateAnimation(8, anim);
+	spr->GetSprite(0)->SetAnimation(0);
 	spr->GetSprite(0)->FollowCamera(true);
 	spr->GetSprite(1)->FollowCamera(true);
 

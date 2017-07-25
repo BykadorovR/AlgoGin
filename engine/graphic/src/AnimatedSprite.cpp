@@ -1,9 +1,9 @@
 #include "AnimatedSprite.h"
 
-#define CAMERA_WIDTH 1024
+/*#define CAMERA_WIDTH 1024
 //#define CAMERA_HEIGHT 768
 
-void Sprite::Draw(GLuint program, float camWidth, float camHeight)
+void AnimatedSprite::Draw(GLuint program)
 {
 	GLuint VBO, IBO;
 	Vertex Vertices[4];
@@ -23,30 +23,10 @@ void Sprite::Draw(GLuint program, float camWidth, float camHeight)
 	}
 	//Rotate Vertices:
 	Matrix4f m;
-	if (isHUD)
+	m.InitRotateTransform(rotate.x, rotate.y, rotate.z);
+	for (int i = 0; i < 4; i++)
 	{
-		m.InitRotateTransform(rotate.x, rotate.y, 0.0f);
-		for (int i = 0; i < 4; i++)
-		{
-			Vertices[i].pos = m*Vertices[i].pos;
-		}
-		m.InitRotateTransform(0.0f, 0.0f, rotate.z);
-		for (int i = 0; i < 4; i++)
-		{
-			Vertices[i].pos.x *= camWidth;
-			Vertices[i].pos.y *= camHeight;
-			Vertices[i].pos = m*Vertices[i].pos;
-			Vertices[i].pos.x /= camWidth;
-			Vertices[i].pos.y /= camHeight;
-		}
-	}
-	else
-	{
-		m.InitRotateTransform(rotate.x, rotate.y, rotate.z);
-		for (int i = 0; i < 4; i++)
-		{
-			Vertices[i].pos = m*Vertices[i].pos;
-		}
+		Vertices[i].pos = m*Vertices[i].pos;
 	}
 
 	//Translate Vertices:
@@ -89,7 +69,7 @@ void Sprite::Draw(GLuint program, float camWidth, float camHeight)
 	glDeleteBuffers(1, &IBO);
 }
 
-void Sprite::SetAnimation(int _cols, int _rows)
+void AnimatedSprite::SetAnimation(int _cols, int _rows)
 {
 	cols = _cols;
 	rows = _rows;
@@ -102,8 +82,8 @@ void Sprite::SetAnimation(int _cols, int _rows)
 	texCoords[2].y = texCoords[1].y;
 }
 
-void Sprite::SetAnimationFrame(int i, int j)
+void AnimatedSprite::SetAnimationFrame(int i, int j)
 {
 	animframe[0] = i % cols;
 	animframe[1] = j % rows;
-}
+}*/

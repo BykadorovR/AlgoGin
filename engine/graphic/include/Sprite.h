@@ -4,6 +4,7 @@
 #include "Primitives.h"
 #include "Texture.h"
 #include "Shader.h"
+#include <vector>
 
 class Sprite
 {
@@ -15,9 +16,13 @@ private:
 	Vector3f rotate;
 	Vector2f scale;
 	Vector2f texCoords[4];
+
 	int rows;
 	int cols;
-	int animframe[2];
+	int currentFrame;
+	std::vector<std::vector<int>> animations;
+	int animationId;
+	int frameId;
 public:
 	bool isHUD;
 	bool isFollowingCamera;
@@ -41,15 +46,21 @@ public:
 		pos.z = posZ;
 		isHUD = false;
 	}
-	void Draw(GLuint program, float camWidth, float camHeight);
+	void Draw(GLuint program);
 	GLuint GetTextureUnit();
 	void Translate(float x, float y, float z);
-	void SetPos(float x, float y, float z);
+	void SetPosition(float x, float y, float z);
+	Vector3f GetPosition();
 	void Scale(float x, float y);
 	void SetSize(float x, float y);
 	void Rotate(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
-	void SetAnimation(int _cols, int _rows);
-	void SetAnimationFrame(int i, int j);
 	void FollowCamera(bool t);
+
+	void MakeAnimated(int _cols, int _rows);
+	void SetAnimationFrame(int i);
+	void CreateAnimation(int n, int* frames);
+	void CreateAnimation(std::vector<int> frames);
+	void SetAnimation(int i);
+	void NextAnimationFrame();
 };
