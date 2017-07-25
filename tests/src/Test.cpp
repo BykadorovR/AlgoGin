@@ -4,6 +4,7 @@
 #include "List.h"
 #include "Vector.h"
 #include "Sort.h"
+#include "Map.h"
 
 int main(int argc, char *argv[])
 {
@@ -258,4 +259,13 @@ TEST(Bubble, List1_ns) {
 	ASSERT_EQ(l[4], 7);
 	ASSERT_EQ(l[5], 12);
 	ASSERT_EQ(l[6], 13);
+}
+
+TEST(BTree_nb, insert) {
+	BTree_nb<int> t;
+	t.insert(12, 4);
+	t.insert(12, 1);
+	t.insert(12, 2);
+	t.insert(12, 3);
+	t.insert(12, 5);
 }

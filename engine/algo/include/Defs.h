@@ -8,5 +8,6 @@ enum l_sts {
 	NOT_FOUND,
 	EMPTY,
 	BOUNDS,
-	UNKNOWN
+	UNKNOWN,
+	WRONG_ARGS
 };
