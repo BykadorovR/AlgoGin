@@ -1,10 +1,23 @@
 #include "SpritesHandler.h"
 #include <math.h>
 
-SpritesHandler::SpritesHandler(Shader* _spritesShader, Shader* _hudShader, Camera* cam) : spritesShader(_spritesShader), hudShader(_hudShader), camera(cam)
+void SpritesHandler::Init(Shader* _spritesShader, Shader* _hudShader, Camera* cam)
 {
+	spritesShader = _spritesShader;
+	hudShader = _hudShader;
+	camera = cam;
 	hudShader->useProgram();
 	glUniform1f(glGetUniformLocation(hudShader->getProgram(), "ratio"), camera->getRatio());
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		sprites[i]->CreateIndexBuffer();
+		sprites[i]->CreateVertexBuffer();
+	}
+	for (int i = 0; i < spritesHUD.size(); i++)
+	{
+		spritesHUD[i]->CreateIndexBuffer();
+		spritesHUD[i]->CreateVertexBuffer();
+	}
 }
 
 void SpritesHandler::DrawSprites()

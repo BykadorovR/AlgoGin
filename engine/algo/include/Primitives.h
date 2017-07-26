@@ -6,6 +6,35 @@
 #define ToRadian(x) ((x) * M_PI / 180.0f)
 #define ToDegree(x) ((x) * 180.0f / M_PI)
 
+struct Vector3f;
+
+struct Quaternion
+{
+	float x, y, z, w;
+	Quaternion(float _x, float _y, float _z, float _w)
+	{
+		x = _x;
+		y = _y;
+		z = _z;
+		w = _w;
+	}
+
+	void Normalize()
+	{
+		float Length = sqrtf(x * x + y * y + z * z + w * w);
+		x /= Length;
+		y /= Length;
+		z /= Length;
+		w /= Length;
+	}
+
+	Quaternion Conjugate()
+	{
+		Quaternion ret(-x, -y, -z, w);
+		return ret;
+	}
+};
+
 struct Vector2f
 {
 	float x;
@@ -22,6 +51,27 @@ struct Vector2f
 	void operator=(Vector2f right) {
 		x = right.x;
 		y = right.y;
+	}
+
+	Vector2f& operator+=(const Vector2f& r)
+	{
+		x += r.x;
+		y += r.y;
+		return *this;
+	}
+
+	Vector2f& operator-=(const Vector2f& r)
+	{
+		x -= r.x;
+		y -= r.y;
+		return *this;
+	}
+
+	Vector2f& operator*=(float f)
+	{
+		x *= f;
+		y *= f;
+		return *this;
 	}
 
 };
@@ -44,6 +94,13 @@ inline Vector2f operator*(const Vector2f& l, float f)
 {
 	Vector2f Ret(l.x * f,
 		l.y * f);
+	return Ret;
+}
+
+inline Vector2f operator/(const Vector2f& l, float f)
+{
+	Vector2f Ret(l.x / f,
+		l.y / f);
 	return Ret;
 }
 
@@ -81,6 +138,36 @@ struct Vector3f
 		return *this;
 	}
 
+	void Vector3f::Rotate(float Angle, const Vector3f& Axe)
+	{
+		const float SinHalfAngle = sinf(ToRadian(Angle / 2));
+		const float CosHalfAngle = cosf(ToRadian(Angle / 2));
+		const float Rx = Axe.x * SinHalfAngle;
+		const float Ry = Axe.y * SinHalfAngle;
+		const float Rz = Axe.z * SinHalfAngle;
+		const float Rw = CosHalfAngle;
+		Quaternion RotationQ(Rx, Ry, Rz, Rw);
+
+		Quaternion ConjugateQ = RotationQ.Conjugate();
+		//  ConjugateQ.Normalize();
+		//Quaternion W = RotationQ * (*this) * ConjugateQ;
+		Quaternion W = Quaternion(0,0,0,0);
+
+		W.w = -(RotationQ.x * (*this).x) - (RotationQ.y * (*this).y) - (RotationQ.z * (*this).z);
+		W.x = (RotationQ.w * (*this).x) + (RotationQ.y * (*this).z) - (RotationQ.z * (*this).y);
+		W.y = (RotationQ.w * (*this).y) + (RotationQ.z * (*this).x) - (RotationQ.x * (*this).z);
+		W.z = (RotationQ.w * (*this).z) + (RotationQ.x * (*this).y) - (RotationQ.y * (*this).x);
+
+		W.w = (W.w * ConjugateQ.w) - (W.x * ConjugateQ.x) - (W.y * ConjugateQ.y) - (W.z * ConjugateQ.z);
+		W.x = (W.x * ConjugateQ.w) + (W.w * ConjugateQ.x) + (W.y * ConjugateQ.z) - (W.z * ConjugateQ.y);
+		W.y = (W.y * ConjugateQ.w) + (W.w * ConjugateQ.y) + (W.z * ConjugateQ.x) - (W.x * ConjugateQ.z);
+		W.z = (W.z * ConjugateQ.w) + (W.w * ConjugateQ.z) + (W.x * ConjugateQ.y) - (W.y * ConjugateQ.x);
+
+		x = W.x;
+		y = W.y;
+		z = W.z;
+	}
+
 	//TODO: add move constructor
 	void operator=(Vector3f right) 
 	{
@@ -88,8 +175,6 @@ struct Vector3f
 		y = right.y;
 		z = right.z;
 	}
-
-
 
 	Vector3f& operator+=(const Vector3f& r)
 	{

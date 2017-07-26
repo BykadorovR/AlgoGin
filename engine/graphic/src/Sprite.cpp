@@ -11,28 +11,42 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t)
 	rotate = Vector3f(0.0f, 0.0f, 0.0f);
 	scale = Vector2f(1.0f, 1.0f);
 	pos = Vector3f(posX, posY, 0.0f);
-	texCoords[0] = Vector2f(0, 0);
-	texCoords[1] = Vector2f(0, 1);
-	texCoords[2] = Vector2f(1, 1);
-	texCoords[3] = Vector2f(1, 0);
+	texCoord[0] = Vector2f(0, 0);
+	texCoord[1] = Vector2f(1, 1);
+	Vertices[0].tex = Vector2f(0, 0);
+	Vertices[1].tex = Vector2f(0, 1);
+	Vertices[2].tex = Vector2f(1, 1);
+	Vertices[3].tex = Vector2f(1, 0);
 	rows = 1;
 	cols = 1;
 	currentFrame = 0;
 	animationId = 0;
 	frameId = 0;
+	timer = 0;
+	CreateIndexBuffer();
+	CreateVertexBuffer();
 }
 
-void Sprite::Draw(GLuint program)
+void Sprite::CreateIndexBuffer()
 {
-	GLuint VBO, IBO;
-	Vertex Vertices[4];
+	glDeleteBuffers(1, &IBO);
+	unsigned int Indices[] =
+	{ 0, 1, 2,
+		2, 3, 0 };
 
-	Vector2f texCoordOffset = Vector2f((currentFrame%cols) * (texCoords[2].x - texCoords[0].x), (currentFrame/cols) * (texCoords[2].y - texCoords[0].y));
+	glGenBuffers(1, &IBO);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+}
 
-	Vertices[0] = Vertex(Vector3f(-width / 2.0f, height / 2.0f, 0.0f), texCoords[0] + texCoordOffset);
-	Vertices[1] = Vertex(Vector3f(-width / 2.0f, -height / 2.0f, 0.0f), texCoords[1] + texCoordOffset);
-	Vertices[2] = Vertex(Vector3f(width / 2.0f, -height / 2.0f, 0.0f), texCoords[2] + texCoordOffset);
-	Vertices[3] = Vertex(Vector3f(width / 2.0f, height / 2.0f, 0.0f), texCoords[3] + texCoordOffset);
+void Sprite::CreateVertexBuffer()
+{
+	glDeleteBuffers(1, &VBO);
+
+	Vertices[0].pos = Vector3f(-width / 2.0f, height / 2.0f, 0.0f);
+	Vertices[1].pos = Vector3f(-width / 2.0f, -height / 2.0f, 0.0f);
+	Vertices[2].pos = Vector3f(width / 2.0f, -height / 2.0f, 0.0f);
+	Vertices[3].pos = Vector3f(width / 2.0f, height / 2.0f, 0.0f);
 
 	//Scale Vertices:
 	for (int i = 0; i < 4; i++)
@@ -59,14 +73,10 @@ void Sprite::Draw(GLuint program)
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-	unsigned int Indices[] =
-	{ 0, 1, 2,
-		2, 3, 0 };
+}
 
-	glGenBuffers(1, &IBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
+void Sprite::Draw(GLuint program)
+{
 	GLuint a_position = glGetAttribLocation(program, "Position");
 	GLuint a_texcoord = glGetAttribLocation(program, "TexCoord");
 
@@ -74,6 +84,7 @@ void Sprite::Draw(GLuint program)
 	glEnableVertexAttribArray(a_texcoord);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+
 	glVertexAttribPointer(a_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(a_texcoord, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
 
@@ -83,9 +94,6 @@ void Sprite::Draw(GLuint program)
 
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
-
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &IBO);
 }
 
 GLuint Sprite::GetTextureUnit()
@@ -98,6 +106,7 @@ void Sprite::Translate(float x, float y, float z)
 	pos.x += x;
 	pos.y += y;
 	pos.z += z;
+	CreateVertexBuffer();
 }
 
 void Sprite::SetPosition(float x, float y, float z)
@@ -105,6 +114,7 @@ void Sprite::SetPosition(float x, float y, float z)
 	pos.x = x;
 	pos.y = y;
 	pos.z = z;
+	CreateVertexBuffer();
 }
 
 Vector3f Sprite::GetPosition()
@@ -116,12 +126,14 @@ void Sprite::Scale(float x, float y)
 {
 	scale.x *= x;
 	scale.y *= y;
+	CreateVertexBuffer();
 }
 
 void Sprite::SetSize(float x, float y)
 {
 	scale.x = x;
 	scale.y = y;
+	CreateVertexBuffer();
 }
 
 void Sprite::Rotate(float x, float y, float z)
@@ -129,6 +141,7 @@ void Sprite::Rotate(float x, float y, float z)
 	rotate.x += x;
 	rotate.y += y;
 	rotate.z += z;
+	CreateVertexBuffer();
 }
 
 void Sprite::SetRotation(float x, float y, float z)
@@ -136,6 +149,7 @@ void Sprite::SetRotation(float x, float y, float z)
 	rotate.x = x;
 	rotate.y = y;
 	rotate.z = z;
+	CreateVertexBuffer();
 }
 
 void Sprite::FollowCamera(bool t)
@@ -147,21 +161,30 @@ void Sprite::MakeAnimated(int _cols, int _rows)
 {
 	cols = _cols;
 	rows = _rows;
-	float texSizeX = texCoords[2].x - texCoords[0].x;
-	float texSizeY = texCoords[2].y - texCoords[0].y;
-	texCoords[1].y = texCoords[0].y + texSizeY / rows;
-	texCoords[3].x = texCoords[0].x + texSizeX / cols;
+	float texSizeX = (texCoord[1].x - texCoord[0].x) / cols;
+	float texSizeY = (texCoord[1].y - texCoord[0].y) / rows;
+	texCoord[1].x = texCoord[0].x + texSizeX;
+	texCoord[1].y = texCoord[0].y + texSizeY;
+	Vertices[3].tex.x = texCoord[1].x;
+	Vertices[1].tex.y = texCoord[1].y;
 
-	texCoords[2].x = texCoords[3].x;
-	texCoords[2].y = texCoords[1].y;
+	Vertices[2].tex = texCoord[1];
 }
 
 void Sprite::SetAnimationFrame(int i)
 {
 	currentFrame = i%(rows*cols);
+
+	Vector2f texCoordOffset = Vector2f((currentFrame%cols) * (texCoord[1].x - texCoord[0].x), (currentFrame / cols) * (texCoord[1].y - texCoord[0].y));
+	Vertices[0].tex = texCoord[0] + texCoordOffset;
+	Vertices[1].tex.x = texCoord[0].x + texCoordOffset.x;
+	Vertices[1].tex.y = texCoord[1].y + texCoordOffset.y;
+	Vertices[2].tex = texCoord[1] + texCoordOffset;
+	Vertices[3].tex.x = texCoord[1].x + texCoordOffset.x;
+	Vertices[3].tex.y = texCoord[0].y + texCoordOffset.y;
 }
 
-void Sprite::CreateAnimation(int n, int* frames)
+void Sprite::CreateAnimation(int n, int* frames, int l)
 {
 	std::vector<int> newAnim;
 	for (int i = 0; i < n; i++)
@@ -169,12 +192,14 @@ void Sprite::CreateAnimation(int n, int* frames)
 		newAnim.push_back(frames[i]);
 	}
 	animations.push_back(newAnim);
+	latency.push_back(l);
 	SetAnimation(animations.size() - 1);
 }
 
-void Sprite::CreateAnimation(std::vector<int> frames)
+void Sprite::CreateAnimation(std::vector<int> frames, int l)
 {
 	animations.push_back(frames);
+	latency.push_back(l);
 	SetAnimation(animations.size() - 1);
 }
 
@@ -182,11 +207,15 @@ void Sprite::SetAnimation(int i)
 {
 	frameId = 0;
 	animationId = i;
-	currentFrame = animations[animationId][0];
+	SetAnimationFrame(animations[animationId][0]);
 }
 
-void Sprite::NextAnimationFrame()
+void Sprite::NextAnimationFrame(int currenttime)
 {
-	frameId = (frameId + 1) % animations[animationId].size();
-	currentFrame = animations[animationId][frameId];
+	if (currenttime - timer > latency[animationId])
+	{
+		timer += latency[animationId]*((currenttime - timer)/latency[animationId]);
+		frameId = (frameId + 1) % animations[animationId].size();
+		SetAnimationFrame(animations[animationId][frameId]);
+	}
 }

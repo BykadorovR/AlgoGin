@@ -17,7 +17,8 @@ private:
 	Shader* hudShader;
 	Camera* camera;
 public:
-	SpritesHandler(Shader* _spritesShader, Shader* _hudShader, Camera* cam);
+	void Init(Shader* _spritesShader, Shader* _hudShader, Camera* cam);
+
 	void DrawSprites();
 	void DrawHUD();
 
