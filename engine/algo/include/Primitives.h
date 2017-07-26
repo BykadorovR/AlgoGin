@@ -138,7 +138,7 @@ struct Vector3f
 		return *this;
 	}
 
-	void Vector3f::Rotate(float Angle, const Vector3f& Axe)
+	void Rotate(float Angle, const Vector3f& Axe)
 	{
 		const float SinHalfAngle = sinf(ToRadian(Angle / 2));
 		const float CosHalfAngle = cosf(ToRadian(Angle / 2));
