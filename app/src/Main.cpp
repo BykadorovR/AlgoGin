@@ -138,7 +138,7 @@ static void CreateIndexBuffer()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
 }
 
-void InitGLContext()
+static void InitGLContext()
 {
 	// Must be done after glut is initialized!
 	GLenum res = glewInit();

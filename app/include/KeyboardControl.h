@@ -1,8 +1,8 @@
 #pragma once
 #include <GL/glew.h>
 
-void InitializeGlutCallbacks();
-void InitGLContext();
+static void InitializeGlutCallbacks();
+static void InitGLContext();
 
 class KeyboardControl
 {
