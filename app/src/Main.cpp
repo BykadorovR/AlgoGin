@@ -5,15 +5,11 @@
 #include <GL/glew.h>
 #include <Texture.h>
 #include <SpritesHandler.h>
+#include "KeyboardControl.h"
 
 #define FLAT false // 2d or 3d
 
-bool keyup = false;
-bool keydown = false;
-bool keyleft = false;
-bool keyright = false;
 bool windowed = true;
-
 int frame, currenttime, timebase;
 GLuint VBO, IBO;
 GLuint a_position;
@@ -39,7 +35,7 @@ Shader* hudShader;
 
 Camera* cam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 //Camera cam = Camera(1024.0f, 768.0f);
-Vector2f screenCerter = Vector2f(cam->getWidth() / 2, cam->getHeight() / 2);
+KeyboardControl KC;
 
 static void InitializeGlutCallbacks();
 
@@ -50,28 +46,28 @@ void MoveCam()
 	Vector3f target = cam->getTarget();
 	target.y = 0.0f; //comment this line to fly
 
-	if (keyup)
+	if (KC.KeyUp())
 	{
 		Vector3f Forw = target;
 		Forw.Normalize();
 		Forw *= STEPSCALE;
 		newpos += Forw;
 	}
-	if (keydown)
+	if (KC.KeyDown())
 	{
 		Vector3f Backw = target;
 		Backw.Normalize();
 		Backw *= STEPSCALE;
 		newpos -= Backw;
 	}
-	if (keyleft)
+	if (KC.KeyLeft())
 	{
 		Vector3f Left = target.Cross(Vector3f(0.0f, 1.0f, 0.0f));
 		Left.Normalize();
 		Left *= STEPSCALE;
 		newpos += Left;
 	}
-	if (keyright)
+	if (KC.KeyRight())
 	{
 		Vector3f Right = Vector3f(0.0f, 1.0f, 0.0f).Cross(target);
 		Right.Normalize();
@@ -86,12 +82,34 @@ void MoveCam()
 
 static void PassiveMouseCB(int x, int y)
 {
-	if (x != screenCerter.x || y != screenCerter.y)
+	if (x != (glutGet(GLUT_WINDOW_WIDTH) / 2) || y != (glutGet(GLUT_WINDOW_HEIGHT) / 2))
 	{
-		cam->rotate((x - screenCerter.x) * 0.001f, (y - screenCerter.y) * 0.001f);
-		glutWarpPointer(screenCerter.x, screenCerter.y);
+		cam->rotate((x - glutGet(GLUT_WINDOW_WIDTH) / 2) * 0.001f, (y - glutGet(GLUT_WINDOW_HEIGHT) / 2) * 0.001f);
+		glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);
 	}
 }
+
+static void SpecialKeyboard_KeyDown(int Key, int x, int y)
+{
+	KC.SpecialKeyboard_KeyDown(Key, x, y);
+}
+
+static void SpecialKeyboard_KeyUp(int Key, int x, int y)
+{
+	KC.SpecialKeyboard_KeyUp(Key, x, y);
+}
+
+static void Keyboard_KeyDown(unsigned char Key, int x, int y)
+{
+	KC.Keyboard_KeyDown(Key, x, y);
+}
+
+static void Keyboard_KeyUp(unsigned char Key, int x, int y)
+{
+	KC.Keyboard_KeyUp(Key, x, y);
+}
+
+
 
 static void CreateVertexBuffer()
 {
@@ -122,8 +140,6 @@ static void CreateIndexBuffer()
 
 void InitGLContext()
 {
-	glutSetCursor(GLUT_CURSOR_NONE); //hide cursor
-	glutWarpPointer(screenCerter.x, screenCerter.y);//move cursor
 	// Must be done after glut is initialized!
 	GLenum res = glewInit();
 	if (res != GLEW_OK) {
@@ -135,6 +151,9 @@ void InitGLContext()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+
+	glutSetCursor(GLUT_CURSOR_NONE); //hide cursor
+	glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);//move cursor
 
 	CreateVertexBuffer();
 	CreateIndexBuffer();
@@ -165,7 +184,7 @@ void InitGLContext()
 	spr->Init(simpleShader, hudShader, cam);
 }
 
-static void RenderSceneCB()
+void countFPS()
 {
 	frame++;
 	//get the current time
@@ -178,6 +197,11 @@ static void RenderSceneCB()
 		timebase += 1000;
 		frame = 0;
 	}
+}
+
+static void RenderSceneCB()
+{
+	countFPS();
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (!FLAT) glEnable(GL_DEPTH_TEST);
@@ -217,150 +241,6 @@ static void RenderSceneCB()
 	if (!FLAT) glEnable(GL_DEPTH_TEST);
 
 	glutSwapBuffers();
-}
-
-static void SpecialKeyboard_KeyDown(int Key, int x, int y)
-{
-	switch (Key)
-	{
-	case GLUT_KEY_UP:
-	{
-		keyup = true;
-		break;
-	}
-	case GLUT_KEY_DOWN:
-	{
-		keydown = true;
-		break;
-	}
-	case GLUT_KEY_LEFT:
-	{
-		keyleft = true;
-		break;
-	}
-	case GLUT_KEY_RIGHT:
-	{
-		keyright = true;
-		break;
-	}
-	}
-}
-
-static void SpecialKeyboard_KeyUp(int Key, int x, int y)
-{
-	switch (Key)
-	{
-	case GLUT_KEY_UP:
-	{
-		keyup = false;
-		break;
-	}
-	case GLUT_KEY_DOWN:
-	{
-		keydown = false;
-		break;
-	}
-	case GLUT_KEY_LEFT:
-	{
-		keyleft = false;
-		break;
-	}
-	case GLUT_KEY_RIGHT:
-	{
-		keyright = false;
-		break;
-	}
-	}
-}
-
-static void Keyboard_KeyDown(unsigned char Key, int x, int y)
-{
-	switch (Key)
-	{
-	case 'W':
-	case 'w':
-	{
-		keyup = true;
-		break;
-	}
-	case 'S':
-	case 's':
-	{
-		keydown = true;
-		break;
-	}
-	case 'A':
-	case 'a':
-	{
-		keyleft = true;
-		break;
-	}
-	case 'D':
-	case 'd':
-	{
-		keyright = true;
-		break;
-	}
-	case 13:
-	{
-
-		if (windowed)
-		{
-			//fullscreen
-			glutGameModeString("1280x1024:32@60");
-			if (glutGameModeGet(GLUT_GAME_MODE_POSSIBLE)) 
-			{
-				windowed = false;
-				glutEnterGameMode();
-				InitializeGlutCallbacks();
-				InitGLContext();
-			}
-		}
-		else
-		{
-			//windowed
-			windowed = true;
-			glutLeaveGameMode();
-			glutSetWindow(1);
-			glutWarpPointer(screenCerter.x, screenCerter.y);
-		}
-		break;
-	}
-	case 27:
-	{
-		exit(0);
-	}
-	}
-}
-
-void Keyboard_KeyUp(unsigned char Key, int x, int y)
-{
-	switch (Key) {
-	case 'W':
-	case 'w':
-	{
-		keyup = false;
-		break;
-	}
-	case 'S':
-	case 's':
-	{
-		keydown = false;
-		break;
-	}
-	case 'A':
-	case 'a':
-	{
-		keyleft = false;
-		break;
-	}
-	case 'D':
-	case 'd':
-	{
-		keyright = false;
-		break;
-	}
-	}
 }
 
 static void InitializeGlutCallbacks()
