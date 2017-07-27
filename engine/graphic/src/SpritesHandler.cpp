@@ -24,10 +24,12 @@ void SpritesHandler::DrawSprites()
 {
 	spritesShader->useProgram();
 	GLuint gSampler = glGetUniformLocation(spritesShader->getProgram(), "gSampler");
+	GLuint transp = glGetUniformLocation(spritesShader->getProgram(), "transparency");
 	for (int i = 0; i < sprites.size(); i++)
 	{
 		Sprite* s = sprites[i];
 		glUniform1i(gSampler, s->GetTextureUnit());
+		glUniform1f(transp, s->GetTransparency());
 		if (s->isFollowingCamera)
 		{
 			/*float a = s->GetPosition().x - camera->getPosition().x;
@@ -48,10 +50,12 @@ void SpritesHandler::DrawHUD()
 {
 	hudShader->useProgram();
 	GLuint gSampler = glGetUniformLocation(hudShader->getProgram(), "gSampler");
+	GLuint transp = glGetUniformLocation(spritesShader->getProgram(), "transparency");
 	for (int i = 0; i < spritesHUD.size(); i++)
 	{
 		Sprite* s = spritesHUD[i];
 		glUniform1i(gSampler, s->GetTextureUnit());
+		glUniform1f(transp, s->GetTransparency());
 		s->Draw(hudShader->getProgram());
 	}
 }

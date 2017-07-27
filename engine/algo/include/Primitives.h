@@ -242,8 +242,12 @@ struct Vertex
 {
 	Vector3f pos;
 	Vector2f tex;
+	Vector3f norm;
 	Vertex() {}
 	Vertex(Vector3f _pos, Vector2f _tex) : pos(_pos), tex(_tex)
+	{
+	}
+	Vertex(Vector3f _pos, Vector2f _tex, Vector3f _norm) : pos(_pos), tex(_tex), norm(_norm)
 	{
 	}
 };

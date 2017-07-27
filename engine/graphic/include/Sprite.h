@@ -17,6 +17,7 @@ private:
 	Vector2f scale;
 	Vector2f texCoord[2];
 	Vertex Vertices[4];
+	float transparency;
 
 	int rows;
 	int cols;
@@ -48,6 +49,7 @@ public:
 		Vertices[1].tex = Vector2f(texCoord[0].x, texCoord[1].y);
 		Vertices[2].tex = texCoord[1];
 		Vertices[3].tex = Vector2f(texCoord[1].x, texCoord[0].y);
+		CreateVertexBuffer();
 	}
 	Sprite(float _width, float _height, float posX, float posY, float posZ, Vector2f coord0, Vector2f coord1, Texture* _t) : Sprite(_width, _height, posX, posY, coord0, coord1, _t)
 	{
@@ -67,7 +69,8 @@ public:
 	void Rotate(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
 	void FollowCamera(bool t);
-
+	void SetTransparency(float _transparency);
+	float GetTransparency();
 	void MakeAnimated(int _cols, int _rows);
 	void SetAnimationFrame(int i);
 	void CreateAnimation(int n, int* frames, int l);

@@ -17,6 +17,7 @@ Sprite::Sprite(float _width, float _height, float posX, float posY, Texture* _t)
 	Vertices[1].tex = Vector2f(0, 1);
 	Vertices[2].tex = Vector2f(1, 1);
 	Vertices[3].tex = Vector2f(1, 0);
+	transparency = 1.0f;
 	rows = 1;
 	cols = 1;
 	currentFrame = 0;
@@ -155,6 +156,26 @@ void Sprite::SetRotation(float x, float y, float z)
 void Sprite::FollowCamera(bool t)
 {
 	isFollowingCamera = t;
+}
+
+void Sprite::SetTransparency(float _transparency)
+{
+	if (_transparency < 0)
+	{
+		transparency = 0.0f;
+	}
+	else
+		if (_transparency > 1)
+		{
+			transparency = 1.0f;
+		}
+		else
+			transparency = _transparency;
+}
+
+float Sprite::GetTransparency()
+{
+	return transparency;
 }
 
 void Sprite::MakeAnimated(int _cols, int _rows)

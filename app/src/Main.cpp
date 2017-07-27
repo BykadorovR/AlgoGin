@@ -208,7 +208,9 @@ static void RenderSceneCB()
 
 	simpleShader->useProgram();
 	gSampler = glGetUniformLocation(simpleShader->getProgram(), "gSampler");
+	GLuint transp = glGetUniformLocation(simpleShader->getProgram(), "transparency");
 	glUniform1i(gSampler, 0);
+	glUniform1f(transp, 1.0f);
 
 	MoveCam();
 	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)(cam->getCameraMatrix())[0]);
@@ -284,8 +286,8 @@ int main(int argc, char** argv)
 	InitGLContext();
 
 	spr->CreateSprite(2, 2, 0, 0, 1, texture2);
-	spr->CreateSprite(2, 2, 0, 0, 3, texture4);
-	spr->CreateSprite(2, 2, 0, 0, 2, texture3);
+	spr->CreateSprite(2, 2, 0, 0, 2, texture4);
+	spr->CreateSprite(2, 2, 0, 0, 3, texture3);
 	//spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
 	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, 0.7, texture2);
 	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, -0.7, texture3);
@@ -301,7 +303,8 @@ int main(int argc, char** argv)
 	spr->GetHUDSprite(0)->CreateAnimation(8, anim, 1000);
 	spr->GetSprite(0)->FollowCamera(true);
 	spr->GetSprite(1)->FollowCamera(true);
-
+	spr->GetSprite(2)->SetTransparency(0.5f);
+	spr->GetHUDSprite(2)->SetTransparency(0.5f);
 	glutMainLoop();
 
 	return 0;
