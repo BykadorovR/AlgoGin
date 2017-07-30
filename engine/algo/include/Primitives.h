@@ -244,13 +244,38 @@ struct Vertex
 	Vector2f tex;
 	Vector3f norm;
 	Vertex() {}
-	Vertex(Vector3f _pos, Vector2f _tex) : pos(_pos), tex(_tex)
-	{
-	}
-	Vertex(Vector3f _pos, Vector2f _tex, Vector3f _norm) : pos(_pos), tex(_tex), norm(_norm)
+	Vertex(Vector3f _pos, Vector2f _tex) : pos(_pos), tex(_tex), norm(Vector3f(0.0f, 0.0f, 0.0f))
 	{
 	}
 };
+
+inline void CalcNormals(const unsigned int* pIndices, unsigned int IndexCount, Vertex* pVertices, unsigned int VertexCount)
+{
+	for (unsigned int i = 0; i < VertexCount; i++)
+	{
+		pVertices[i].norm.x = 0.0f;
+		pVertices[i].norm.y = 0.0f;
+		pVertices[i].norm.z = 0.0f;
+	}
+	for (unsigned int i = 0; i < IndexCount; i += 3) 
+	{
+		unsigned int Index0 = pIndices[i];
+		unsigned int Index1 = pIndices[i + 1];
+		unsigned int Index2 = pIndices[i + 2];
+		Vector3f v1 = pVertices[Index1].pos - pVertices[Index0].pos;
+		Vector3f v2 = pVertices[Index2].pos - pVertices[Index0].pos;
+		Vector3f Normal = v1.Cross(v2);
+		Normal.Normalize();
+
+		pVertices[Index0].norm += Normal;
+		pVertices[Index1].norm += Normal;
+		pVertices[Index2].norm += Normal;
+	}
+
+	for (unsigned int i = 0; i < VertexCount; i++) {
+		pVertices[i].norm.Normalize();
+	}
+}
 
 struct Matrix4f {
 private:

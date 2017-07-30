@@ -16,7 +16,7 @@ private:
 	Vector3f rotate;
 	Vector2f scale;
 	Vector2f texCoord[2];
-	Vertex Vertices[4];
+	Vertex Vertices[8];
 	float transparency;
 
 	int rows;

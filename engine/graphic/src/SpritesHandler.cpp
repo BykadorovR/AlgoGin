@@ -50,7 +50,7 @@ void SpritesHandler::DrawHUD()
 {
 	hudShader->useProgram();
 	GLuint gSampler = glGetUniformLocation(hudShader->getProgram(), "gSampler");
-	GLuint transp = glGetUniformLocation(spritesShader->getProgram(), "transparency");
+	GLuint transp = glGetUniformLocation(hudShader->getProgram(), "transparency");
 	for (int i = 0; i < spritesHUD.size(); i++)
 	{
 		Sprite* s = spritesHUD[i];

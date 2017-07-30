@@ -32,8 +32,10 @@ void Sprite::CreateIndexBuffer()
 {
 	glDeleteBuffers(1, &IBO);
 	unsigned int Indices[] =
-	{ 0, 1, 2,
-		2, 3, 0 };
+	{   0, 1, 2,
+		2, 3, 0,
+		4, 7, 6,
+		6, 5, 4 };
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -71,6 +73,17 @@ void Sprite::CreateVertexBuffer()
 		Vertices[i].pos.z += pos.z;
 	}
 
+	Vertices[4] = Vertices[0];
+	Vertices[5] = Vertices[1];
+	Vertices[6] = Vertices[2];
+	Vertices[7] = Vertices[3];
+
+	unsigned int Indices[] =
+	{   0, 1, 2,
+		2, 3, 0,
+		4, 7, 6,
+		6, 5, 4 };
+	CalcNormals(Indices, 12, Vertices, 8);
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
@@ -78,23 +91,28 @@ void Sprite::CreateVertexBuffer()
 
 void Sprite::Draw(GLuint program)
 {
+	CreateVertexBuffer();
 	GLuint a_position = glGetAttribLocation(program, "Position");
 	GLuint a_texcoord = glGetAttribLocation(program, "TexCoord");
+	GLuint a_normal = glGetAttribLocation(program, "Normal");
 
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
+	glEnableVertexAttribArray(a_normal);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
 	glVertexAttribPointer(a_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(a_texcoord, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
+	glVertexAttribPointer(a_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
+	glDisableVertexAttribArray(a_normal);
 }
 
 GLuint Sprite::GetTextureUnit()

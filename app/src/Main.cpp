@@ -1,10 +1,11 @@
 #include "Shader.h"
 #include "math.h"
 #include "Camera.h"
+#include "Texture.h"
+#include "Lighting.h"
+#include "SpritesHandler.h"
 #include <iostream>
 #include <GL/glew.h>
-#include <Texture.h>
-#include <SpritesHandler.h>
 #include "KeyboardControl.h"
 
 #define FLAT false // 2d or 3d
@@ -15,10 +16,12 @@ GLuint VBO, IBO;
 GLuint a_position;
 GLuint u_color;
 GLuint a_texcoord;
+GLuint a_normal;
 GLuint u_world;
 GLuint program;
 GLuint gSampler;
 SpritesHandler* spr = new SpritesHandler();
+Lighting* lighting = new Lighting();
 Texture* texture0 = NULL;
 Texture* texture1 = NULL;
 Texture* texture2 = NULL;
@@ -37,14 +40,12 @@ Camera* cam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f,
 //Camera cam = Camera(1024.0f, 768.0f);
 KeyboardControl KC;
 
-static void InitializeGlutCallbacks();
-
 void MoveCam()
 {
 	const float STEPSCALE = 0.05f;
 	Vector3f newpos = cam->getPosition();
 	Vector3f target = cam->getTarget();
-	target.y = 0.0f; //comment this line to fly
+	//target.y = 0.0f; //comment this line to fly
 
 	if (KC.KeyUp())
 	{
@@ -109,33 +110,53 @@ static void Keyboard_KeyUp(unsigned char Key, int x, int y)
 	KC.Keyboard_KeyUp(Key, x, y);
 }
 
-
-
-static void CreateVertexBuffer()
+static void CreateTetraBuffers()
 {
-	Vertex Vertices[4] = {
-		Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f)),
-		Vertex(Vector3f(0.0f, -1.0f, -1.15475f), Vector2f(0.5f, 0.0f)),
-		Vertex(Vector3f(1.0f, -1.0f, 0.5773f),  Vector2f(0.0f, 0.5f)),
-		Vertex(Vector3f(0.0f, 1.0f, 0.0f),      Vector2f(1.0f, 1.0f)) };
-
-
-	glGenBuffers(1, &VBO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-}
-
-static void CreateIndexBuffer()
-{
-	unsigned int Indices[] =
+	/*unsigned int Indices[] =
 	{ 1, 3, 0,
-		2, 3, 1,
-		0, 3, 2,
-		2, 1, 0 };
-
+	2, 3, 1,
+	0, 3, 2,
+	2, 1, 0 };*/
+	unsigned int Indices[] =
+	{ 0, 1, 2,
+		3, 4, 5,
+		6, 7, 8,
+		9, 10, 11 };
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+
+	Vertex Vertices[12] = {
+		/*0	Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f)),
+		1	Vertex(Vector3f(0.0f, -1.0f, -1.15475f), Vector2f(0.5f, 0.0f)),
+		2	Vertex(Vector3f(1.0f, -1.0f, 0.5773f),  Vector2f(0.0f, 0.5f)),
+		3	Vertex(Vector3f(0.0f, 1.0f, 0.0f),      Vector2f(1.0f, 1.0f)),*/
+		Vertex(Vector3f(0.0f, -1.0f, -1.15475f), Vector2f(0.5f, 0.0f)),
+		Vertex(Vector3f(0.0f, 1.0f, 0.0f),      Vector2f(1.0f, 1.0f)),
+		Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f)),
+
+		Vertex(Vector3f(1.0f, -1.0f, 0.5773f),  Vector2f(0.0f, 0.5f)),
+		Vertex(Vector3f(0.0f, 1.0f, 0.0f),      Vector2f(1.0f, 1.0f)),
+		Vertex(Vector3f(0.0f, -1.0f, -1.15475f), Vector2f(0.5f, 0.0f)),
+
+		Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f)),
+		Vertex(Vector3f(0.0f, 1.0f, 0.0f),      Vector2f(1.0f, 1.0f)),
+		Vertex(Vector3f(1.0f, -1.0f, 0.5773f),  Vector2f(0.0f, 0.5f)),
+
+		Vertex(Vector3f(1.0f, -1.0f, 0.5773f),  Vector2f(0.0f, 0.5f)),
+		Vertex(Vector3f(0.0f, -1.0f, -1.15475f), Vector2f(0.5f, 0.0f)),
+		Vertex(Vector3f(-1.0f, -1.0f, 0.5773f), Vector2f(0.0f, 0.0f))
+	};
+	Matrix4f m;
+	m.InitRotateTransform(0, currenttime/10, currenttime / 10);
+	for (int i = 0; i < 12; i++)
+	{
+		Vertices[i].pos = m*Vertices[i].pos;
+	}
+	CalcNormals(Indices, 12, Vertices, 12);
+	glGenBuffers(1, &VBO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 }
 
 static void InitGLContext()
@@ -148,6 +169,7 @@ static void InitGLContext()
 
 	//glFrontFace(GL_CW); //front faces are initialized clockwise
 	//glCullFace(GL_BACK); 
+	glEnable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -155,8 +177,7 @@ static void InitGLContext()
 	glutSetCursor(GLUT_CURSOR_NONE); //hide cursor
 	glutWarpPointer(glutGet(GLUT_WINDOW_WIDTH) / 2, glutGet(GLUT_WINDOW_HEIGHT) / 2);//move cursor
 
-	CreateVertexBuffer();
-	CreateIndexBuffer();
+	//========
 
 	simpleShader = new Shader(vs_path, fs_path);
 	hudShader = new Shader(hudvs_path, hudfs_path);
@@ -164,10 +185,6 @@ static void InitGLContext()
 	simpleShader->compileShaders(); //once
 	hudShader->compileShaders(); //once
 	simpleShader->useProgram(); //in draw
-	program = simpleShader->getProgram();
-	a_position = glGetAttribLocation(program, "Position");
-	a_texcoord = glGetAttribLocation(program, "TexCoord");
-	u_world = glGetUniformLocation(program, "gWorld");
 
 	texture0 = new Texture("../resources/claytile.png", 0);
 	texture1 = new Texture("../resources/metal.png", 1);
@@ -182,6 +199,9 @@ static void InitGLContext()
 	texture4->Bind();
 
 	spr->Init(simpleShader, hudShader, cam);
+	lighting->InitLighting(simpleShader);
+
+	//delete(Indices);
 }
 
 void countFPS()
@@ -202,7 +222,6 @@ void countFPS()
 static void RenderSceneCB()
 {
 	countFPS();
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (!FLAT) glEnable(GL_DEPTH_TEST);
 
@@ -211,16 +230,20 @@ static void RenderSceneCB()
 	GLuint transp = glGetUniformLocation(simpleShader->getProgram(), "transparency");
 	glUniform1i(gSampler, 0);
 	glUniform1f(transp, 1.0f);
-
+	
 	MoveCam();
 	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)(cam->getCameraMatrix())[0]);
 
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
+	glEnableVertexAttribArray(a_normal);
+
+	CreateTetraBuffers();
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glVertexAttribPointer(a_position, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
 	glVertexAttribPointer(a_texcoord, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)12);
+	glVertexAttribPointer(a_normal, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const GLvoid*)20);
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 
@@ -228,14 +251,17 @@ static void RenderSceneCB()
 
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
+	glDisableVertexAttribArray(a_normal);
 
 	spr->GetSprite(0)->Rotate(0.0, 0.0, 1.0);
-	spr->GetHUDSprite(0)->Rotate(0.0, 0.0, -11.0);
-	spr->GetHUDSprite(0)->Scale(0.999, 1.0002);
+	spr->GetHUDSprite(0)->Rotate(0.0, 1.0, 0.0);
+	//spr->GetHUDSprite(0)->Scale(0.999, 1.0002);
 	spr->GetHUDSprite(1)->Rotate(0.0, 0.0, -1.0);
 	spr->GetSprite(0)->NextAnimationFrame(currenttime);
 	spr->GetSprite(1)->NextAnimationFrame(currenttime);
 	spr->GetHUDSprite(0)->NextAnimationFrame(currenttime);
+	spr->GetSprite(2)->SetRotation(90, 0, 0);
+	spr->GetSprite(3)->SetRotation(0, 90, 0);
 
 	spr->DrawSprites();
 	if (!FLAT) glDisable(GL_DEPTH_TEST);
@@ -285,27 +311,41 @@ int main(int argc, char** argv)
 
 	InitGLContext();
 
-	spr->CreateSprite(2, 2, 0, 0, 1, texture2);
-	spr->CreateSprite(2, 2, 0, 0, 2, texture4);
-	spr->CreateSprite(2, 2, 0, 0, 3, texture3);
+	program = simpleShader->getProgram();
+	a_position = glGetAttribLocation(program, "Position");
+	a_texcoord = glGetAttribLocation(program, "TexCoord");
+	a_normal = glGetAttribLocation(program, "Normal");
+	u_world = glGetUniformLocation(program, "gWorld");
+
+	spr->CreateSprite(2, 2, 1, 0, 1, texture2);
+	spr->CreateSprite(2, 2, -1, 0, 2, texture4);
+	spr->CreateSprite(30, 30, 0, -1.1, 0, Vector2f(0, 0), Vector2f(20000, 20000), texture4);
+	spr->CreateSprite(2, 2, 4, 0, 3, texture3);
 	//spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
-	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, 0.7, texture2);
+	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, 0.7, texture4);
 	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, -0.7, texture3);
 	spr->CreateHUDSprite(0.5, 0.5, cam->getRatio() - 0.3, -0.7, Vector2f(0, 0), Vector2f(50, 50), texture1);
 	//TODO: add world matrix
 	spr->GetSprite(0)->MakeAnimated(5, 1);
 	spr->GetSprite(1)->MakeAnimated(5, 5);
-	spr->GetHUDSprite(0)->MakeAnimated(5, 1);
+	spr->GetHUDSprite(0)->MakeAnimated(5, 5);
 	int anim[] = { 0,1,2,3,4,3,2,1 };
 	int anim1[] = { 0,1,2,3,4,5,6,7,8,9 };
 	spr->GetSprite(0)->CreateAnimation(8, anim, 1000);
 	spr->GetSprite(1)->CreateAnimation(10, anim1, 100);
-	spr->GetHUDSprite(0)->CreateAnimation(8, anim, 1000);
+	spr->GetHUDSprite(0)->CreateAnimation(8, anim1, 100);
 	spr->GetSprite(0)->FollowCamera(true);
 	spr->GetSprite(1)->FollowCamera(true);
-	spr->GetSprite(2)->SetTransparency(0.5f);
 	spr->GetHUDSprite(2)->SetTransparency(0.5f);
-	glutMainLoop();
 
+	lighting->AddOmniLightSource(Vector3f(1, 1, 0), Vector3f(5, 1, 3), false);
+	lighting->AddOmniLightSource(Vector3f(1, 0, 1), Vector3f(-5, 1, 3), false);
+	lighting->AddOmniLightSource(Vector3f(0, 1, 1), Vector3f(0, 1, -6), false);
+
+	lighting->AddDirectLightSource(Vector3f(1, 1, 1), Vector3f(1, -1, -1), false);
+
+	lighting->InitLighting(simpleShader);
+	
+	glutMainLoop();
 	return 0;
 }

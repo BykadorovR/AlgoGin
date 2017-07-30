@@ -2,6 +2,7 @@
 
 in vec3 Position; 
 in vec2 TexCoord;
+in vec3 Normal; 
 
 uniform float ratio;
 
