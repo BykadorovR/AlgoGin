@@ -123,6 +123,15 @@ void Camera::setPosition(float _x, float _y, float _z)
 	calcMatrix();
 }
 
+void Camera::setTarget(float _x, float _y, float _z)
+{
+	target.x = _x;
+	target.y = _y;
+	target.z = _z;
+	calcAngles();
+	rotate(0, 0);
+}
+
 void Camera::rotate(float h, float v)
 {
 	angleH -= h;

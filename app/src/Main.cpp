@@ -45,6 +45,7 @@ Shader* shadowShader;
 Camera* cam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 Camera* lightcam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 3.0f), Vector3f(1.0f, -1.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
+Matrix4f BiasMatrix;
 Matrix4f lightBiasedMatrix;
 
 KeyboardControl KC;
@@ -297,6 +298,9 @@ void DrawShadowMap()
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &IBO);
+
 }
 
 void DrawScene()
@@ -334,6 +338,9 @@ void DrawScene()
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
 	glDisableVertexAttribArray(a_normal);
+	
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &IBO);
 
 	spr->DrawSprites();
 	if (!FLAT) glDisable(GL_DEPTH_TEST);
@@ -345,18 +352,12 @@ static void RenderSceneCB()
 {
 	countFPS();
 
-	char str[20];
-	sprintf(str, "%d : %d", GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT);
-	glutSetWindowTitle(str);
-
 	lighting->GetOmniLightSource(0)->SetPosition(6 * cosf(currenttime / 1000.0f), 1, 6 * sinf(currenttime / 1000.0f));
 	lighting->GetOmniLightSource(1)->SetPosition(6 * cosf(currenttime / 1000.0f + 2 * M_PI / 3), 1, 6 * sinf(currenttime / 1000.0f + 2 * M_PI / 3));
 	lighting->GetOmniLightSource(2)->SetPosition(6 * cosf(currenttime / 1000.0f + 4 * M_PI / 3), 1, 6 * sinf(currenttime / 1000.0f + 4 * M_PI / 3));
 	lighting->GetDirectLightSource(0)->SetDirection(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f));
-	lightcam = new Camera(1024, 768, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 3.0f), Vector3f(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f)), Vector3f(0.0f, 1.0f, 0.0f));
+	lightcam->setTarget(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f));
 	lightcam->MakeOrthogonal(14.0f);
-	Matrix4f BiasMatrix;
-	BiasMatrix.InitBiasMatrix();
 	lightBiasedMatrix = BiasMatrix*lightcam->getCameraMatrix();
 
 	lighting->Reposition(simpleShader);
@@ -462,7 +463,6 @@ int main(int argc, char** argv)
 	
 	lightcam->MakeOrthogonal(10.0f);
 
-	Matrix4f BiasMatrix;
 	BiasMatrix.InitBiasMatrix();
 
 	lightBiasedMatrix = BiasMatrix*lightcam->getCameraMatrix();

@@ -34,6 +34,7 @@ public:
 	void resize(int width, int height);
 	void translate(float _x, float _y, float _z);
 	void setPosition(float _x, float _y, float _z);
+	void setTarget(float _x, float _y, float _z);
 	void rotate(float h, float v);
 	float getAngleH();
 	float getAngleV();
