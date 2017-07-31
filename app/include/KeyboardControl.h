@@ -38,6 +38,10 @@ public:
 	{
 		return keyright;
 	}
+	bool Windowed()
+	{
+		return windowed;
+	}
 
 	void SpecialKeyboard_KeyDown(int Key, int x, int y)
 	{

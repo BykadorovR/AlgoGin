@@ -14,11 +14,11 @@ private:
 	float zfar;
 	float angleH;
 	float angleV;
-	Matrix4f perspectiveM;
+	Matrix4f projectionM;
 	Matrix4f translationM;
 	Matrix4f rotationM;
 	Matrix4f cameraM;
-
+	bool isOrthogonal;
 public:
 	Camera();
 	Camera(float _width, float _height);
@@ -31,10 +31,12 @@ public:
 	Vector3f& getPosition();
 	Vector3f& getTarget();
 	Vector3f& getUp();
+	void resize(int width, int height);
 	void translate(float _x, float _y, float _z);
 	void setPosition(float _x, float _y, float _z);
 	void rotate(float h, float v);
 	float getAngleH();
 	float getAngleV();
 	float getRatio();
+	void MakeOrthogonal(float scale);
 };

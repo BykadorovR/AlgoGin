@@ -1,41 +1,43 @@
 #include "Camera.h"
 
 Camera::Camera() : width(800), height(600), fov(90), znear(0.001f), zfar(1000), pos(Vector3f(0,0,1)),
-target(Vector3f(0,0,1)), up(Vector3f(0,1,0))
+target(Vector3f(0,0,1)), up(Vector3f(0,1,0)), isOrthogonal(false)
 {
 	calcAngles();
 
-	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
+	projectionM.InitPersProjTransform(fov, width, height, znear, zfar);
 	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
-	rotationM.InitCameraTransform(target, up);
-	calcMatrix();
+	rotate(0, 0);
 }
 
 Camera::Camera(float _width, float _height) : width(_width), height(_height), fov(90), znear(0.001f), zfar(1000),
-pos(Vector3f(0, 0, 1)), target(Vector3f(0, 0, 1)), up(Vector3f(0, 1, 0))
+pos(Vector3f(0, 0, 1)), target(Vector3f(0, 0, 1)), up(Vector3f(0, 1, 0)), isOrthogonal(false)
 {
 	calcAngles();
 
-	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
+	projectionM.InitPersProjTransform(fov, width, height, znear, zfar);
 	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
-	rotationM.InitCameraTransform(target, up);
-	calcMatrix();
+	rotate(0, 0);
 }
 
 Camera::Camera(float _width, float _height, float _fov, float _znear, float _zfar, Vector3f _pos, Vector3f _target, Vector3f _up) :
-	width(_width), height(_height), fov(_fov), znear(_znear), zfar(_zfar), pos(_pos), target(_target), up(_up)
+	width(_width), height(_height), fov(_fov), znear(_znear), zfar(_zfar), pos(_pos), target(_target), up(_up), isOrthogonal(false)
 {
 	calcAngles();
 
-	perspectiveM.InitPersProjTransform(fov, width, height, znear, zfar);
+	projectionM.InitPersProjTransform(fov, width, height, znear, zfar);
 	translationM.InitTranslationTransform(-pos.x, -pos.y, -pos.z);
-	rotationM.InitCameraTransform(target, up);
-	calcMatrix();
+	rotate(0, 0);
 }
 
 void Camera::calcMatrix()
 {
-	cameraM = perspectiveM * rotationM * translationM;
+	Matrix4f m;
+	if (isOrthogonal)
+	{
+		m.InitScaleTransform(1/fov, 1 / fov, 1 / fov);
+	}	
+	cameraM = m * projectionM * rotationM * translationM;
 }
 
 void Camera::calcAngles()
@@ -61,10 +63,10 @@ void Camera::calcAngles()
 		}
 		else
 		{
-			angleH = M_PI/2 + asin(-HTarget.z);
+			angleH = M_PI -asin(-HTarget.z);
 		}
 	}
-	angleV = -asin(target.y) - M_PI / 2;
+	angleV = -asin(target.Normalize().y) - M_PI / 2;
 }
 
 Matrix4f& Camera::getCameraMatrix() 
@@ -97,6 +99,12 @@ Vector3f& Camera::getUp()
 	return up;
 }
 
+void Camera::resize(int _width, int _height)
+{
+	width = _width;
+	height = _height;
+}
+
 void Camera::translate(float _x, float _y, float _z)
 {
 	pos.x += _x;
@@ -119,9 +127,8 @@ void Camera::rotate(float h, float v)
 {
 	angleH -= h;
 	angleV -= v;
-	if (angleV > -M_PI*0.01f) angleV = -M_PI*0.01f;
-	if (angleV < -M_PI*0.99f) angleV = -M_PI*0.99f;
-
+	if (angleV > -M_PI*0.01f && !isOrthogonal) angleV = -M_PI*0.01f;
+	if (angleV < -M_PI*0.99f && !isOrthogonal) angleV = -M_PI*0.99f;
 	target.x = sinf(angleV) * cosf(angleH);
 	target.y = cosf(angleV);
 	target.z = sinf(angleV) * sinf(angleH);
@@ -146,4 +153,15 @@ float Camera::getAngleV()
 float Camera::getRatio()
 {
 	return width / height;
+}
+
+void Camera::MakeOrthogonal(float scale)
+{
+	isOrthogonal = true;
+	zfar = 2.0f;
+	fov = scale;
+	projectionM.InitOrthoProjTransform(width, height, znear, zfar);
+	angleH = -angleH + M_PI;
+	angleV = -angleV;
+	rotate(0, 0);
 }

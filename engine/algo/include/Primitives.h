@@ -395,6 +395,31 @@ public:
 		matrix[3][0] = 0.0f;  matrix[3][1] = 0.0f;  matrix[3][2] = 0.0f;  matrix[3][3] = 1.0f;
 	}
 
+	void InitOrthoProjTransform(float Width, float Height, float zNear, float zFar)
+	{
+		const float ar = Width / Height;
+		const float zRange = zNear - zFar;
+		matrix[0][0] = 2.0f / ar;
+		matrix[0][1] = 0.0f;
+		matrix[0][2] = 0.0f;
+		matrix[0][3] = -1.0f;
+
+		matrix[1][0] = 0.0f;
+		matrix[1][1] = -2.0f;
+		matrix[1][2] = 0.0f;
+		matrix[1][3] = 1.0f;
+
+		matrix[2][0] = 0.0f;
+		matrix[2][1] = 0.0f;
+		matrix[2][2] = 2.0f / zRange;
+		matrix[2][3] = 0.0f;
+
+		matrix[3][0] = 0.0f;
+		matrix[3][1] = 0.0f;
+		matrix[3][2] = 0.0f;
+		matrix[3][3] = 1.0f;
+	}
+
 	void InitPersProjTransform(float FOV, float Width, float Height, float zNear, float zFar)
 	{
 		const float ar = Width / Height;
@@ -403,12 +428,12 @@ public:
 		matrix[0][0] = 1.0f / (tanHalfFOV * ar); 
 		matrix[0][1] = 0.0f;            
 		matrix[0][2] = 0.0f;          
-		matrix[0][3] = 0.0;
+		matrix[0][3] = 0.0f;
 
 		matrix[1][0] = 0.0f;                  
 		matrix[1][1] = 1.0f / tanHalfFOV;
 		matrix[1][2] = 0.0f;         
-		matrix[1][3] = 0.0;
+		matrix[1][3] = 0.0f;
 
 		matrix[2][0] = 0.0f;                   
 		matrix[2][1] = 0.0f;            
@@ -418,6 +443,29 @@ public:
 		matrix[3][0] = 0.0f;                  
 		matrix[3][1] = 0.0f;          
 		matrix[3][2] = 1.0f;        
-		matrix[3][3] = 0.0;
+		matrix[3][3] = 0.0f;
+	}
+
+	void InitBiasMatrix()
+	{
+		matrix[0][0] = 0.5f;
+		matrix[0][1] = 0.0f;
+		matrix[0][2] = 0.0f;
+		matrix[0][3] = 0.5f;
+
+		matrix[1][0] = 0.0f;
+		matrix[1][1] = 0.5f;
+		matrix[1][2] = 0.0f;
+		matrix[1][3] = 0.5f;
+
+		matrix[2][0] = 0.0f;
+		matrix[2][1] = 0.0f;
+		matrix[2][2] = 0.5f;
+		matrix[2][3] = 0.5f;
+
+		matrix[3][0] = 0.0f;
+		matrix[3][1] = 0.0f;
+		matrix[3][2] = 0.0f;
+		matrix[3][3] = 1.0f;
 	}
 };

@@ -10,10 +10,10 @@
 
 #define FLAT false // 2d or 3d
 
-bool windowed = true;
 int frame, currenttime, timebase;
 GLuint VBO, IBO;
 GLuint a_position;
+GLuint a_position_shadow;
 GLuint u_color;
 GLuint a_texcoord;
 GLuint a_normal;
@@ -32,12 +32,21 @@ std::string vs_path;
 std::string fs_path;
 std::string hudvs_path;
 std::string hudfs_path;
+std::string shadowvs_path;
+std::string shadowfs_path;
+
+GLuint depthTexture;
+GLuint FramebufferName = 0;
 
 Shader* simpleShader;
 Shader* hudShader;
+Shader* shadowShader;
 
 Camera* cam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-//Camera cam = Camera(1024.0f, 768.0f);
+Camera* lightcam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 3.0f), Vector3f(1.0f, -1.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+
+Matrix4f lightBiasedMatrix;
+
 KeyboardControl KC;
 
 void MoveCam()
@@ -78,6 +87,7 @@ void MoveCam()
 	if (newpos != cam->getPosition())
 	{
 		cam->setPosition(newpos.x, newpos.y, newpos.z);
+		glUniform3f(glGetUniformLocation(program, "eyePos"), newpos.x, newpos.y, newpos.z);
 	}
 }
 
@@ -159,6 +169,32 @@ static void CreateTetraBuffers()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
 }
 
+
+bool ShadowMapBuffer(int width, int height)
+{
+	glGenFramebuffers(1, &FramebufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+
+	// Depth texture. Slower than a depth buffer, but you can sample it later in your shader
+	glGenTextures(1, &depthTexture);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, depthTexture, 0);
+
+	glDrawBuffer(GL_NONE); // No color buffer is drawn to.
+						   // Always check that our framebuffer is ok
+	glActiveTexture(GL_TEXTURE0 + 15);
+	glBindTexture(GL_TEXTURE_2D, depthTexture);
+
+	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		return false;
+}
+
 static void InitGLContext()
 {
 	// Must be done after glut is initialized!
@@ -181,16 +217,29 @@ static void InitGLContext()
 
 	simpleShader = new Shader(vs_path, fs_path);
 	hudShader = new Shader(hudvs_path, hudfs_path);
+	shadowShader = new Shader(shadowvs_path, shadowfs_path);
 
 	simpleShader->compileShaders(); //once
 	hudShader->compileShaders(); //once
+	shadowShader->compileShaders();
+
 	simpleShader->useProgram(); //in draw
+	program = simpleShader->getProgram();
 
 	texture0 = new Texture("../resources/claytile.png", 0);
 	texture1 = new Texture("../resources/metal.png", 1);
 	texture2 = new Texture("../resources/animtest.png", 2);
 	texture3 = new Texture("../resources/alphatest.png", 3);
 	texture4 = new Texture("../resources/wood.png", 4);
+
+	if (KC.Windowed())
+	{
+		ShadowMapBuffer(1024, 768); // Find out how to get window size and screen resolution
+	}
+	else
+	{
+		ShadowMapBuffer(1280, 1024);
+	}
 
 	texture0->Bind();
 	texture1->Bind();
@@ -201,6 +250,7 @@ static void InitGLContext()
 	spr->Init(simpleShader, hudShader, cam);
 	lighting->InitLighting(simpleShader);
 
+	glUniform3f(glGetUniformLocation(program, "eyePos"), cam->getPosition().x, cam->getPosition().y, cam->getPosition().z);
 	//delete(Indices);
 }
 
@@ -219,20 +269,52 @@ void countFPS()
 	}
 }
 
-static void RenderSceneCB()
+//========================================DRAWING========================================
+
+void DrawShadowMap()
 {
-	countFPS();
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	shadowShader->useProgram();
+
+	glUniformMatrix4fv(glGetUniformLocation(shadowShader->getProgram(), "lightWorld"), 1, GL_TRUE, (const GLfloat*)(lightcam->getCameraMatrix())[0]);
+
+	glEnableVertexAttribArray(a_position_shadow);
+
+	CreateTetraBuffers();
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glVertexAttribPointer(a_position_shadow, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
+
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+
+	glDisableVertexAttribArray(a_position_shadow);
+
+	spr->DrawSprites(shadowShader);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+}
+
+void DrawScene()
+{
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if (!FLAT) glEnable(GL_DEPTH_TEST);
 
 	simpleShader->useProgram();
-	gSampler = glGetUniformLocation(simpleShader->getProgram(), "gSampler");
-	GLuint transp = glGetUniformLocation(simpleShader->getProgram(), "transparency");
+	gSampler = glGetUniformLocation(program, "gSampler");
+	GLuint transp = glGetUniformLocation(program, "transparency");
+
 	glUniform1i(gSampler, 0);
+	glUniform1i(glGetUniformLocation(program, "shadowMap"), 15);
 	glUniform1f(transp, 1.0f);
-	
+
 	MoveCam();
 	glUniformMatrix4fv(u_world, 1, GL_TRUE, (const GLfloat*)(cam->getCameraMatrix())[0]);
+	glUniformMatrix4fv(glGetUniformLocation(program, "lightBiasedMatrix"), 1, GL_TRUE, (const GLfloat*)(lightBiasedMatrix)[0]);
 
 	glEnableVertexAttribArray(a_position);
 	glEnableVertexAttribArray(a_texcoord);
@@ -253,8 +335,34 @@ static void RenderSceneCB()
 	glDisableVertexAttribArray(a_texcoord);
 	glDisableVertexAttribArray(a_normal);
 
+	spr->DrawSprites();
+	if (!FLAT) glDisable(GL_DEPTH_TEST);
+	spr->DrawHUD();
+	if (!FLAT) glEnable(GL_DEPTH_TEST);
+}
+
+static void RenderSceneCB()
+{
+	countFPS();
+
+	char str[20];
+	sprintf(str, "%d : %d", GLUT_WINDOW_WIDTH, GLUT_WINDOW_HEIGHT);
+	glutSetWindowTitle(str);
+
+	lighting->GetOmniLightSource(0)->SetPosition(6 * cosf(currenttime / 1000.0f), 1, 6 * sinf(currenttime / 1000.0f));
+	lighting->GetOmniLightSource(1)->SetPosition(6 * cosf(currenttime / 1000.0f + 2 * M_PI / 3), 1, 6 * sinf(currenttime / 1000.0f + 2 * M_PI / 3));
+	lighting->GetOmniLightSource(2)->SetPosition(6 * cosf(currenttime / 1000.0f + 4 * M_PI / 3), 1, 6 * sinf(currenttime / 1000.0f + 4 * M_PI / 3));
+	lighting->GetDirectLightSource(0)->SetDirection(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f));
+	lightcam = new Camera(1024, 768, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 3.0f), Vector3f(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f)), Vector3f(0.0f, 1.0f, 0.0f));
+	lightcam->MakeOrthogonal(14.0f);
+	Matrix4f BiasMatrix;
+	BiasMatrix.InitBiasMatrix();
+	lightBiasedMatrix = BiasMatrix*lightcam->getCameraMatrix();
+
+	lighting->Reposition(simpleShader);
+
 	spr->GetSprite(0)->Rotate(0.0, 0.0, 1.0);
-	spr->GetHUDSprite(0)->Rotate(0.0, 1.0, 0.0);
+	//spr->GetHUDSprite(0)->Rotate(0.0, 1.0, 0.0);
 	//spr->GetHUDSprite(0)->Scale(0.999, 1.0002);
 	spr->GetHUDSprite(1)->Rotate(0.0, 0.0, -1.0);
 	spr->GetSprite(0)->NextAnimationFrame(currenttime);
@@ -263,13 +371,14 @@ static void RenderSceneCB()
 	spr->GetSprite(2)->SetRotation(90, 0, 0);
 	spr->GetSprite(3)->SetRotation(0, 90, 0);
 
-	spr->DrawSprites();
-	if (!FLAT) glDisable(GL_DEPTH_TEST);
-	spr->DrawHUD();
-	if (!FLAT) glEnable(GL_DEPTH_TEST);
+	DrawShadowMap();
+
+	DrawScene();
 
 	glutSwapBuffers();
 }
+
+//========================================END========================================
 
 static void InitializeGlutCallbacks()
 {
@@ -306,13 +415,17 @@ int main(int argc, char** argv)
 
 	hudvs_path = "../../engine/content/hudshader.vs";
 	hudfs_path = "../../engine/content/hudshader.fs";
+	shadowvs_path = "../../engine/content/shadowmap.vs";
+	shadowfs_path = "../../engine/content/shadowmap.fs";
+
 	simpleShader = new Shader(vs_path, fs_path);
 	hudShader = new Shader(hudvs_path, hudfs_path);
+	shadowShader = new Shader(shadowvs_path, shadowfs_path);
 
 	InitGLContext();
 
-	program = simpleShader->getProgram();
 	a_position = glGetAttribLocation(program, "Position");
+	a_position_shadow = glGetAttribLocation(shadowShader->getProgram(), "Position");
 	a_texcoord = glGetAttribLocation(program, "TexCoord");
 	a_normal = glGetAttribLocation(program, "Normal");
 	u_world = glGetUniformLocation(program, "gWorld");
@@ -320,7 +433,7 @@ int main(int argc, char** argv)
 	spr->CreateSprite(2, 2, 1, 0, 1, texture2);
 	spr->CreateSprite(2, 2, -1, 0, 2, texture4);
 	spr->CreateSprite(30, 30, 0, -1.1, 0, Vector2f(0, 0), Vector2f(20000, 20000), texture4);
-	spr->CreateSprite(2, 2, 4, 0, 3, texture3);
+	spr->CreateSprite(2, 2, 6, 0, 3, texture3);
 	//spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
 	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, 0.7, texture4);
 	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, -0.7, texture3);
@@ -338,14 +451,22 @@ int main(int argc, char** argv)
 	spr->GetSprite(1)->FollowCamera(true);
 	spr->GetHUDSprite(2)->SetTransparency(0.5f);
 
-	lighting->AddOmniLightSource(Vector3f(1, 1, 0), Vector3f(5, 1, 3), false);
-	lighting->AddOmniLightSource(Vector3f(1, 0, 1), Vector3f(-5, 1, 3), false);
-	lighting->AddOmniLightSource(Vector3f(0, 1, 1), Vector3f(0, 1, -6), false);
-
+	lighting->AddOmniLightSource(Vector3f(0.5f, 0.5f, 0), Vector3f(5, 1, 3), false);
+	lighting->AddOmniLightSource(Vector3f(0.5f, 0, 0.5f), Vector3f(-5, 1, 3), false);
+	lighting->AddOmniLightSource(Vector3f(0, 0.5f, 0.5f), Vector3f(0, 1, -6), false);
 	lighting->AddDirectLightSource(Vector3f(1, 1, 1), Vector3f(1, -1, -1), false);
 
 	lighting->InitLighting(simpleShader);
+
+	glUniform3f(glGetUniformLocation(program, "eyePos"), cam->getPosition().x, cam->getPosition().y, cam->getPosition().z);
 	
+	lightcam->MakeOrthogonal(10.0f);
+
+	Matrix4f BiasMatrix;
+	BiasMatrix.InitBiasMatrix();
+
+	lightBiasedMatrix = BiasMatrix*lightcam->getCameraMatrix();
+
 	glutMainLoop();
 	return 0;
 }

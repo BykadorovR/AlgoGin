@@ -46,6 +46,19 @@ void SpritesHandler::DrawSprites()
 	}
 }
 
+void SpritesHandler::DrawSprites(Shader* shadowShader)
+{
+	for (int i = 0; i < sprites.size(); i++)
+	{
+		Sprite* s = sprites[i];
+		if (s->isFollowingCamera)
+		{
+			s->SetRotation(-ToDegree(camera->getAngleV()) - 90.0f, ToDegree(camera->getAngleH()) + 90.0f, 0.0f); //following by both angles																										 //s->SetRotation(0, ToDegree(camera->getAngleH()) + 90.0f, 0.0f); //following by one angle
+		}
+		s->Draw(shadowShader->getProgram());
+	}
+}
+
 void SpritesHandler::DrawHUD()
 {
 	hudShader->useProgram();

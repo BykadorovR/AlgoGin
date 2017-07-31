@@ -20,6 +20,7 @@ public:
 	void Init(Shader* _spritesShader, Shader* _hudShader, Camera* cam);
 
 	void DrawSprites();
+	void DrawSprites(Shader* shadowShader);
 	void DrawHUD();
 
 	void CreateSprite(float _width, float _height, float posX, float posY, float posZ, Texture* _t);
