@@ -1,5 +1,11 @@
 #version 330 
 
+float random(vec4 seed)
+{
+	float dot_product = dot(seed, vec4(12.9898,78.233,45.164,94.673));
+    return fract(sin(dot_product) * 43758.5453);
+}
+
 struct dirlight
 {
 	vec3 dir;
@@ -53,10 +59,17 @@ void main()
 	float visibility = 1.0;
 	float bias = 0.005*tan(acos(dot(Normal0, lightdir))); // cosTheta is dot( n,l ), clamped between 0 and 1
 	//bias = clamp(bias, 0,0.01);
-	if (ShadowCoord.x < 1 && ShadowCoord.y < 1 && texture( shadowMap, ShadowCoord.xy ).z  <  ShadowCoord.z - bias)
+
+	if ( ShadowCoord.y < 1 )
+	for (int i=0; i<4; i++)
 	{
-		visibility = 0.0;
+		vec2 biasvec = vec2(random(vec4(gl_FragCoord.xyy, i)), random(vec4(i, gl_FragCoord.xyx)));
+		if ( texture2D( shadowMap, ShadowCoord.xy + biasvec/200.0 ).z  <  ShadowCoord.z-bias )
+		{
+			visibility-=0.25;
+		}
 	}
+
 	diffuseColor *= visibility;
 	specularColor *= visibility;
 
@@ -76,6 +89,5 @@ void main()
 	}
 
 	FragColor *= vec4(diffuseColor + specularColor + vec3(0.1, 0.1, 0.2), 1.0);
-
 	FragColor.w *= transparency;
 }

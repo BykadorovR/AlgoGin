@@ -43,7 +43,7 @@ Shader* hudShader;
 Shader* shadowShader;
 
 Camera* cam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, -1.0f), Vector3f(0.0f, 0.0f, 1.0f), Vector3f(0.0f, 1.0f, 0.0f));
-Camera* lightcam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(0.0f, 0.0f, 3.0f), Vector3f(1.0f, -1.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
+Camera* lightcam = new Camera(1024.0f, 768.0f, 90.0f, 0.001f, 1000.0f, Vector3f(2.0f, 0.0f, 3.0f), Vector3f(1.0f, -1.0f, -1.0f), Vector3f(0.0f, 1.0f, 0.0f));
 
 Matrix4f BiasMatrix;
 Matrix4f lightBiasedMatrix;
@@ -123,6 +123,8 @@ static void Keyboard_KeyUp(unsigned char Key, int x, int y)
 
 static void CreateTetraBuffers()
 {
+	glDeleteBuffers(1, &VBO);
+	glDeleteBuffers(1, &IBO);
 	/*unsigned int Indices[] =
 	{ 1, 3, 0,
 	2, 3, 1,
@@ -232,15 +234,8 @@ static void InitGLContext()
 	texture2 = new Texture("../resources/animtest.png", 2);
 	texture3 = new Texture("../resources/alphatest.png", 3);
 	texture4 = new Texture("../resources/wood.png", 4);
-
-	if (KC.Windowed())
-	{
-		ShadowMapBuffer(1024, 768); // Find out how to get window size and screen resolution
-	}
-	else
-	{
-		ShadowMapBuffer(1280, 1024);
-	}
+	
+	ShadowMapBuffer(glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 
 	texture0->Bind();
 	texture1->Bind();
@@ -297,10 +292,6 @@ void DrawShadowMap()
 	spr->DrawSprites(shadowShader);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &IBO);
-
 }
 
 void DrawScene()
@@ -338,9 +329,6 @@ void DrawScene()
 	glDisableVertexAttribArray(a_position);
 	glDisableVertexAttribArray(a_texcoord);
 	glDisableVertexAttribArray(a_normal);
-	
-	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &IBO);
 
 	spr->DrawSprites();
 	if (!FLAT) glDisable(GL_DEPTH_TEST);
@@ -355,9 +343,9 @@ static void RenderSceneCB()
 	lighting->GetOmniLightSource(0)->SetPosition(6 * cosf(currenttime / 1000.0f), 1, 6 * sinf(currenttime / 1000.0f));
 	lighting->GetOmniLightSource(1)->SetPosition(6 * cosf(currenttime / 1000.0f + 2 * M_PI / 3), 1, 6 * sinf(currenttime / 1000.0f + 2 * M_PI / 3));
 	lighting->GetOmniLightSource(2)->SetPosition(6 * cosf(currenttime / 1000.0f + 4 * M_PI / 3), 1, 6 * sinf(currenttime / 1000.0f + 4 * M_PI / 3));
+	
 	lighting->GetDirectLightSource(0)->SetDirection(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f));
 	lightcam->setTarget(cosf(-currenttime / 2000.0f), -1, sinf(-currenttime / 2000.0f));
-	lightcam->MakeOrthogonal(14.0f);
 	lightBiasedMatrix = BiasMatrix*lightcam->getCameraMatrix();
 
 	lighting->Reposition(simpleShader);
@@ -433,7 +421,7 @@ int main(int argc, char** argv)
 
 	spr->CreateSprite(2, 2, 1, 0, 1, texture2);
 	spr->CreateSprite(2, 2, -1, 0, 2, texture4);
-	spr->CreateSprite(30, 30, 0, -1.1, 0, Vector2f(0, 0), Vector2f(20000, 20000), texture4);
+	spr->CreateSprite(30, 30, 0, -1.0, 0, Vector2f(0, 0), Vector2f(20000, 20000), texture4);
 	spr->CreateSprite(2, 2, 6, 0, 3, texture3);
 	//spr->CreateHUDSprite(300, 300, 200, 200, Vector2f(200, 200), Vector2f(2400, 2400), texture2);
 	spr->CreateHUDSprite(0.5, 0.5, -cam->getRatio() + 0.3, 0.7, texture4);

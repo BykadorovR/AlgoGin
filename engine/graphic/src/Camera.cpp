@@ -128,7 +128,14 @@ void Camera::setTarget(float _x, float _y, float _z)
 	target.x = _x;
 	target.y = _y;
 	target.z = _z;
+	target.Normalize();
 	calcAngles();
+
+	if (isOrthogonal)
+	{
+		angleH = -angleH + M_PI;
+		angleV = -angleV;
+	}
 	rotate(0, 0);
 }
 
