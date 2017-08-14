@@ -263,9 +263,29 @@ TEST(Bubble, List1_ns) {
 
 TEST(BTree_nb, insert) {
 	BTree_nb<int> t;
-	t.insert(12, 4);
-	t.insert(12, 1);
+	t.insert(5, 4);
+	t.insert(2, 1);
 	t.insert(12, 2);
-	t.insert(12, 3);
-	t.insert(12, 5);
+	t.insert(7, 3);
+	t.insert(3, 5);
+}
+
+TEST(BTree_nb, remove) {
+	BTree_nb<int> t;
+	t.insert(1, 20);
+	t.insert(2, 21);
+	t.insert(3, 8);
+	t.insert(4, 7);
+	t.insert(5, 15);
+	t.insert(6, 4);
+	t.insert(5, 14);
+	t.insert(5, 16);
+
+	t.print_ordered();
+	t.remove(21);
+	t.print_ordered();
+	t.remove(7);
+	t.print_ordered();
+	t.remove(8);
+	t.print_ordered();
 }
