@@ -20,6 +20,16 @@ if (NOT GLEW_FOUND)
     message(ERROR " GLEW not found. Need to specify path to glew folder and to dynamic/static libraries!") 
 endif()
 
+#########################################################
+# FIND DevIL
+#########################################################
+find_package(DevIL REQUIRED)
+include_directories(${IL_INCLUDE_DIR})
+link_libraries(${IL_LIBRARIES})
+if (NOT IL_FOUND)
+    message(ERROR " IL not found. Need to specify path to il folder and to dynamic/static libraries!") 
+endif()
+
 #include app source
 FILE(GLOB_RECURSE APP_SOURCE "src/*.c*")
 source_group("App\\src" FILES ${APP_SOURCE})
@@ -49,8 +59,8 @@ endif()
 
 #paths to library are diferent on win and linux
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug ../engine/build/Release ../engine/build/Debug)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build ../engine/build)
 endif()
-target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES} ${IL_LIBRARIES})

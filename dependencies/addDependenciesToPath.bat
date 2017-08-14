@@ -1,14 +1,17 @@
 @echo off
 set REL_PATH_FREEGLUT=freeglut\
 set REL_PATH_GLEW=glew\
+set REL_PATH_DEVIL=devil\
 
 set ABS_PATH_DIR=%~dp0
 
 REM set PATH_LIST_GLUT=%REL_PATH_FREEGLUT% %REL_PATH_FREEGLUT%lib\x64 %REL_PATH_FREEGLUT%lib\Win32 %REL_PATH_FREEGLUT%bin\x64 %REL_PATH_FREEGLUT%bin\Win32 - with x64
 REM set PATH_LIST_GLEW=%REL_PATH_GLEW% %REL_PATH_GLEW%lib\Release\x64 %REL_PATH_GLEW%lib\Release\Win32 %REL_PATH_GLEW%bin\Release\x64 %REL_PATH_GLEW%bin\Release\Win32 - with x64
+REM set PATH_LIST_DEVIL=%REL_PATH_DEVIL% %REL_PATH_DEVIL%include %REL_PATH_DEVIL%include\IL %REL_PATH_DEVIL%lib\Release\x64 %REL_PATH_DEVIL%lib\Release\Win32 %REL_PATH_DEVIL%bin\Release\x64 %REL_PATH_DEVIL%bin\Release\Win32 - with x64
 
 set PATH_LIST_GLUT=%REL_PATH_FREEGLUT% %REL_PATH_FREEGLUT%lib\Win32 %REL_PATH_FREEGLUT%bin\Win32
 set PATH_LIST_GLEW=%REL_PATH_GLEW% %REL_PATH_GLEW%lib\Release\Win32 %REL_PATH_GLEW%bin\Release\Win32
+set PATH_LIST_DEVIL=%REL_PATH_DEVIL% %REL_PATH_DEVIL%include %REL_PATH_DEVIL%include\IL %REL_PATH_DEVIL%lib\Release\Win32 %REL_PATH_DEVIL%bin\Release\Win32
 
 for /f "tokens=2*" %%a in ('reg query "HKLM\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" /v Path') do set "system_path=%%b"
 
@@ -48,6 +51,14 @@ for %%c in (%PATH_LIST_GLUT%) do (
 )
 
 for %%c in (%PATH_LIST_GLEW%) do (
+  SET system_path|FINDSTR /b "system_path="|FINDSTR /i %%c >nul
+  IF ERRORLEVEL 1 (^
+    set "new_path=!new_path!%ABS_PATH_DIR%%%c;"
+    echo %%c
+  )  
+)
+
+for %%c in (%PATH_LIST_DEVIL%) do (
   SET system_path|FINDSTR /b "system_path="|FINDSTR /i %%c >nul
   IF ERRORLEVEL 1 (^
     set "new_path=!new_path!%ABS_PATH_DIR%%%c;"
