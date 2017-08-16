@@ -105,6 +105,7 @@ public:
 			head = new Node();
 			head->value = value;
 			head->index = index;
+			count++;
 			return SUCCESS;
 		}
 		Node* parent;
@@ -120,14 +121,33 @@ public:
 			else if (parent->index < index) {
 				parent->right = cur;
 			}
+			count++;
 		}
 		return sts;
 	}
 	T minimum() {
-		return 0;
+		if (!head)
+			throw;
+		Node* current = head;
+		T min = current->value;
+		current = current->left;
+		while (current != nullptr) {
+			if (current->value < min)
+				min = current->value;
+		}
+		return min;
 	}
 	T maximum() {
-		return 0;
+		if (!head)
+			throw;
+		Node* current = head;
+		T max = current->value;
+		current = current->left;
+		while (current != nullptr) {
+			if (current->value > max)
+				max = current->value;
+		}
+		return max;
 	}
 	l_sts remove(int index) {
 		if (head == nullptr)
@@ -135,6 +155,7 @@ public:
 		if (head->index == index) {
 			delete head;
 			head = nullptr;
+			count--;
 		}
 		Node* current;
 		l_sts sts = find_node(&current, index);
@@ -176,12 +197,27 @@ public:
 					nearest->parent->right = nullptr;
 				delete nearest;
 			}
+			count--;
 		}
 		return sts;
 	}
 
 	T operator[](int index) {
-		return 0;
+		if (!head)
+			throw;
+		Node* current = head;
+		while (current->index != index && current != nullptr) {
+			if (index < current->index)
+				current = current->left;
+			else current = current->right;
+		}
+		if (!current)
+			throw;
+		return current->value;
+	}
+
+	int getNodeCount() {
+		return count;
 	}
 
 	void print_ordered() {

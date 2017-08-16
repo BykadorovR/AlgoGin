@@ -268,6 +268,9 @@ TEST(BTree_nb, insert) {
 	t.insert(12, 2);
 	t.insert(7, 3);
 	t.insert(3, 5);
+	ASSERT_EQ(t.getNodeCount(), 5);
+	ASSERT_EQ(t[2], 12);
+	ASSERT_EQ(t[5], 3);
 }
 
 TEST(BTree_nb, remove) {
@@ -280,12 +283,11 @@ TEST(BTree_nb, remove) {
 	t.insert(6, 4);
 	t.insert(5, 14);
 	t.insert(5, 16);
-
-	t.print_ordered();
 	t.remove(21);
-	t.print_ordered();
+	ASSERT_EQ(t.getNodeCount(), 7);
+	ASSERT_EQ(t[20], 1);
 	t.remove(7);
-	t.print_ordered();
 	t.remove(8);
-	t.print_ordered();
+	ASSERT_EQ(t.getNodeCount(), 5);
+	ASSERT_EQ(t[4], 6);
 }
