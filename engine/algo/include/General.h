@@ -32,12 +32,12 @@ public:
 };
 
 //This is super class for all trees
-template <class T>
+template <class T, class I>
 class Tree {
 public:
 	virtual T minimum() = 0;
 	virtual T maximum() = 0;
-	virtual l_sts remove(int index) = 0;
-	virtual l_sts insert(T value, int index) = 0;
-	virtual T operator[](int index) = 0;
+	virtual l_sts remove(I index) = 0;
+	virtual l_sts insert(T value, I index) = 0;
+	virtual T operator[](I index) = 0;
 };

@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
 	testing::InitGoogleTest(&argc, argv);
-//	::testing::GTEST_FLAG(filter) = "Vector_cns.Insert";
+//	::testing::GTEST_FLAG(filter) = "BTree_nb.Remove_String_Value_Key";
 	return RUN_ALL_TESTS();
 	std::getchar(); // keep console window open until Return keystroke
 }
@@ -261,20 +261,25 @@ TEST(Bubble, List1_ns) {
 	ASSERT_EQ(l[6], 13);
 }
 
-TEST(BTree_nb, insert) {
-	BTree_nb<int> t;
+TEST(BTree_nb, Insert) {
+	BTree_nb<int, int> t;
 	t.insert(5, 4);
 	t.insert(2, 1);
 	t.insert(12, 2);
 	t.insert(7, 3);
 	t.insert(3, 5);
+	t.print_ordered();
 	ASSERT_EQ(t.getNodeCount(), 5);
 	ASSERT_EQ(t[2], 12);
 	ASSERT_EQ(t[5], 3);
 }
 
-TEST(BTree_nb, remove) {
-	BTree_nb<int> t;
+TEST(BTree_nb, Remove) {
+	BTree_nb<int, int> t;
+	ASSERT_EQ(t.remove(7), EMPTY);
+	t.insert(1, 20);
+	t.remove(20);
+	ASSERT_EQ(t.remove(20), EMPTY);
 	t.insert(1, 20);
 	t.insert(2, 21);
 	t.insert(3, 8);
@@ -283,6 +288,7 @@ TEST(BTree_nb, remove) {
 	t.insert(6, 4);
 	t.insert(5, 14);
 	t.insert(5, 16);
+	ASSERT_EQ(t.remove(12), NOT_FOUND);
 	t.remove(21);
 	ASSERT_EQ(t.getNodeCount(), 7);
 	ASSERT_EQ(t[20], 1);
@@ -290,4 +296,45 @@ TEST(BTree_nb, remove) {
 	t.remove(8);
 	ASSERT_EQ(t.getNodeCount(), 5);
 	ASSERT_EQ(t[4], 6);
+}
+
+TEST(BTree_nb, Remove_String_Value) {
+	BTree_nb<std::string, int> t;
+	t.insert("first", 20);
+	t.insert("second", 21);
+	t.insert("third", 8);
+	t.insert("fourth", 7);
+	t.print_ordered();
+	t.remove(21);
+	ASSERT_EQ(t.getNodeCount(), 3);
+	ASSERT_STREQ(t[20].c_str(), "first");
+	t.remove(7);
+	t.remove(8);
+	ASSERT_EQ(t.getNodeCount(), 1);
+}
+
+TEST(BTree_nb, Remove_String_Value_Key) {
+	BTree_nb<std::string, std::string> t;
+	t.insert("first", "Melon");
+	t.insert("second", "Apple");
+	t.insert("third", "Berry");
+	t.insert("fourth", "Orange");
+	t.print_ordered();
+	t.remove("Berry");
+	ASSERT_EQ(t.getNodeCount(), 3);
+	ASSERT_STREQ(t["Apple"].c_str(), "second");
+	t.remove("Melon");
+	t.remove("Apple");
+	t.print_ordered();
+	ASSERT_EQ(t.getNodeCount(), 1);
+}
+
+TEST(BTree_nb, Max_Min) {
+	BTree_nb<int, int> t;
+	t.insert(1, 20);
+	t.insert(2, 21);
+	t.insert(3, 8);
+	t.insert(4, 7);
+	ASSERT_EQ(t.minimum(), 1);
+	ASSERT_EQ(t.maximum(), 4);
 }

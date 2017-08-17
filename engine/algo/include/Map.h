@@ -1,8 +1,8 @@
 #pragma once
 #include "General.h"
 
-template <class T>
-class BTree_nb : public Tree<T> {
+template <class T, class I>
+class BTree_nb : public Tree<T, I> {
 #ifdef GMOCK_DEBUG
 public:
 #else
@@ -19,7 +19,7 @@ protected:
 		Node* right;
 		Node* parent;
 		T value;
-		int index;
+		I index;
 		Node(Node& src) {
 			left = src->left;
 			right = src->right;
@@ -31,14 +31,12 @@ protected:
 			left = nullptr;
 			right = nullptr;
 			parent = nullptr;
-			value = 0;
-			index = 0;
 		}
 	};
 	Node* head;
 	int count;
 
-	l_sts find_parent(Node** res, int index) {
+	l_sts find_parent(Node** res, I index) {
 		Node* cur = head;
 		while (cur != nullptr) {
 			*res = cur;
@@ -51,7 +49,7 @@ protected:
 		return SUCCESS;
 	}
 
-	l_sts find_node(Node** res, int index) {
+	l_sts find_node(Node** res, I index) {
 		*res = head;
 		while ((*res) != nullptr && (*res)->index != index) {
 			if ((*res)->index < index)
@@ -65,20 +63,23 @@ protected:
 		return NOT_FOUND;
 	}
 
-	l_sts find_nearest(Node** res, int index) {
+	l_sts find_nearest(Node** res, I index) {
+		Node* start = *res;
 		while (*res) {
 			*res = (*res)->right;
-			if ((*res)->left) {
+			if ((*res) != nullptr && (*res)->left) {
 				*res = (*res)->left;
 				return SUCCESS;
 			}
 		}
 		
-		*res = (*res)->right > (*res)->left ? (*res)->left : (*res)->right;
+		*res = start->left;
 		return SUCCESS;
 	}
 
 	l_sts print_recursively(Node* current) {
+		if (!current)
+			return EMPTY;
 		if (current->left)
 			print_recursively(current->left);
 		std::cout << "Pointer: " << current << " Index: " << current->index << " Value: " << current->value << std::endl;
@@ -87,10 +88,19 @@ protected:
 		return SUCCESS;
 	}
 
+	l_sts _minimum(Node* current, T& value) {
+		if (!current)
+			return EMPTY;
+		if (current->value < value)
+			value = current->value;
+		_minimum(current->left, value);
+		_minimum(current->right, value);
+	}
+
 	NodeType childType(Node* child) {
 		Node* parent = child->parent;
 		if (parent) {
-			if (parent->left->index == child->index)
+			if (parent->left && parent->left->index == child->index)
 				return leftNode;
 			return rightNode;
 		}
@@ -100,7 +110,7 @@ protected:
 public:
 	BTree_nb() : head(nullptr), count(0) {
 	}
-	l_sts insert(T value, int index) {
+	l_sts insert(T value, I index) {
 		if (head == nullptr) {
 			head = new Node();
 			head->value = value;
@@ -134,6 +144,7 @@ public:
 		while (current != nullptr) {
 			if (current->value < min)
 				min = current->value;
+			current = current->left;
 		}
 		return min;
 	}
@@ -142,17 +153,18 @@ public:
 			throw;
 		Node* current = head;
 		T max = current->value;
-		current = current->left;
+		current = current->right;
 		while (current != nullptr) {
 			if (current->value > max)
 				max = current->value;
+			current = current->right;
 		}
 		return max;
 	}
-	l_sts remove(int index) {
+	l_sts remove(I index) {
 		if (head == nullptr)
 			return EMPTY;
-		if (head->index == index) {
+		if (head->index == index && !head->left && !head->right) {
 			delete head;
 			head = nullptr;
 			count--;
@@ -202,7 +214,7 @@ public:
 		return sts;
 	}
 
-	T operator[](int index) {
+	T operator[](I index) {
 		if (!head)
 			throw;
 		Node* current = head;
