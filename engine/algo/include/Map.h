@@ -88,13 +88,26 @@ protected:
 		return SUCCESS;
 	}
 
+	l_sts _maximum(Node* current, T& value) {
+		if (!current)
+			return EMPTY;
+		if (current->left)
+			_maximum(current->left, value);
+		if (current->value > value)
+			value = current->value;
+		if (current->right)
+			_maximum(current->right, value);
+	}
+
 	l_sts _minimum(Node* current, T& value) {
 		if (!current)
 			return EMPTY;
+		if (current->left)
+			_minimum(current->left, value);
 		if (current->value < value)
 			value = current->value;
-		_minimum(current->left, value);
-		_minimum(current->right, value);
+		if (current->right)
+			_minimum(current->right, value);
 	}
 
 	NodeType childType(Node* child) {
@@ -136,29 +149,13 @@ public:
 		return sts;
 	}
 	T minimum() {
-		if (!head)
-			throw;
-		Node* current = head;
-		T min = current->value;
-		current = current->left;
-		while (current != nullptr) {
-			if (current->value < min)
-				min = current->value;
-			current = current->left;
-		}
+		T min = head->value;
+		_minimum(head, min);
 		return min;
 	}
 	T maximum() {
-		if (!head)
-			throw;
-		Node* current = head;
-		T max = current->value;
-		current = current->right;
-		while (current != nullptr) {
-			if (current->value > max)
-				max = current->value;
-			current = current->right;
-		}
+		T max = head->value;
+		_maximum(head, max);
 		return max;
 	}
 	l_sts remove(I index) {

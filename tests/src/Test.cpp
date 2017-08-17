@@ -268,7 +268,6 @@ TEST(BTree_nb, Insert) {
 	t.insert(12, 2);
 	t.insert(7, 3);
 	t.insert(3, 5);
-	t.print_ordered();
 	ASSERT_EQ(t.getNodeCount(), 5);
 	ASSERT_EQ(t[2], 12);
 	ASSERT_EQ(t[5], 3);
@@ -304,7 +303,6 @@ TEST(BTree_nb, Remove_String_Value) {
 	t.insert("second", 21);
 	t.insert("third", 8);
 	t.insert("fourth", 7);
-	t.print_ordered();
 	t.remove(21);
 	ASSERT_EQ(t.getNodeCount(), 3);
 	ASSERT_STREQ(t[20].c_str(), "first");
@@ -319,13 +317,11 @@ TEST(BTree_nb, Remove_String_Value_Key) {
 	t.insert("second", "Apple");
 	t.insert("third", "Berry");
 	t.insert("fourth", "Orange");
-	t.print_ordered();
 	t.remove("Berry");
 	ASSERT_EQ(t.getNodeCount(), 3);
 	ASSERT_STREQ(t["Apple"].c_str(), "second");
 	t.remove("Melon");
 	t.remove("Apple");
-	t.print_ordered();
 	ASSERT_EQ(t.getNodeCount(), 1);
 }
 
@@ -337,4 +333,15 @@ TEST(BTree_nb, Max_Min) {
 	t.insert(4, 7);
 	ASSERT_EQ(t.minimum(), 1);
 	ASSERT_EQ(t.maximum(), 4);
+}
+
+TEST(BTree_nb, Max_Min_String) {
+	BTree_nb<std::string, int> t;
+	t.insert("Orange", 20);
+	t.insert("Lemon", 21);
+	t.insert("Melon", 8);
+	t.insert("Pear", 7);
+	t.insert("Apple", 12);
+	ASSERT_EQ(t.minimum(), "Apple");
+	ASSERT_EQ(t.maximum(), "Pear");
 }
