@@ -115,7 +115,7 @@ protected:
 		if (parent) {
 			if (parent->left && parent->left->index == child->index)
 				return leftNode;
-			return rightNode;
+			return rightNode;	
 		}
 		return headNode;
 	}
@@ -176,6 +176,19 @@ protected:
 			//now child node is left child of scanner
 			scanner->left = child;
 			child->parent = scanner->left;
+		}
+		return SUCCESS;
+	}
+
+	l_sts vineToTree(Node* root) {
+		int size = count;
+		int leafCount = size + 1 - pow(2, floor(log(size + 1)));
+		//create deepest leaves
+		compression(root, leaveCount);
+		size -= leafCount;
+		while (size > 1) {
+			compression(root, size % 2);
+			size = size % 2;
 		}
 		return SUCCESS;
 	}
