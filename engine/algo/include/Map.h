@@ -157,7 +157,7 @@ protected:
 
 	l_sts compress(Node* root, int size) {
 		Node* scanner = root;
-		for (i = 0; i < size; i++) {
+		for (int i = 0; i < size; i++) {
 			Node* child = scanner->right;
 			//(1)-(2)-(3)
 			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
