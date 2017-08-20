@@ -119,6 +119,45 @@ protected:
 		}
 		return headNode;
 	}
+	/*Day-Stout-Warren algorithm of balancing BST*/
+
+	//TreeToVine transform to vine where is all of nodes are right (just ordered list)
+	l_sts treeToVine(Node* root) {
+		//last element of vain (no additional work is needed)
+		Node* vineTail = root;
+		//first element of unprocessed part
+		Node* remainder = vineTail->right;
+		while (remainder != nullptr) {
+			if (remainder->left == nullptr) {
+				//move vineTail down
+				vineTail = remainder;
+				remainder = remainder->right;
+			}
+			else {
+				//right rotate: from left bottom to left top
+				//save left subtree
+				Node* temp = remainder->left;
+				
+				//reassign one of subtrees from temp to remainder
+				remainder->left = temp->right;
+				if (temp->right)
+					temp->right->parent = remainder->left;
+
+				//raise temp node. It has to be between vineTail and remainder
+				temp->right = remainder;
+				remainder->parent = temp->right;
+				vineTail->right = temp;
+				temp->parent = vineTail;
+				
+				remainder = temp;
+			}
+		}
+		return SUCCESS;
+	}
+
+	l_sts compress(Node* root, int size) {
+
+	}
 
 public:
 	BTree_nb() : head(nullptr), count(0) {
