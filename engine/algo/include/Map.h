@@ -184,13 +184,22 @@ protected:
 		int size = count;
 		int leafCount = size + 1 - pow(2, floor(log(size + 1)));
 		//create deepest leaves
-		compression(root, leaveCount);
+		compression(root, leafCount);
 		size -= leafCount;
 		while (size > 1) {
 			compression(root, size % 2);
 			size = size % 2;
 		}
 		return SUCCESS;
+	}
+
+	l_sts balanceTree() {
+		Node* temp = new Node();
+		temp->right = head;
+		treeToVine(temp);
+		vineToTree(temp);
+		delete temp;
+		return SUCESS;
 	}
 
 public:
