@@ -97,6 +97,7 @@ protected:
 			value = current->value;
 		if (current->right)
 			_maximum(current->right, value);
+		return SUCCESS;
 	}
 
 	l_sts _minimum(Node* current, T& value) {
@@ -108,6 +109,7 @@ protected:
 			value = current->value;
 		if (current->right)
 			_minimum(current->right, value);
+		return SUCCESS;
 	}
 
 	NodeType childType(Node* child) {
@@ -199,7 +201,7 @@ protected:
 		treeToVine(temp);
 		vineToTree(temp);
 		delete temp;
-		return SUCESS;
+		return SUCCESS;
 	}
 
 public:
