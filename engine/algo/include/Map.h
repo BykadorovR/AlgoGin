@@ -156,7 +156,28 @@ protected:
 	}
 
 	l_sts compress(Node* root, int size) {
+		Node* scanner = root;
+		for (i = 0; i < size; i++) {
+			Node* child = scanner->right;
+			//(1)-(2)-(3)
+			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
+			scanner->right = child->right;
+			if (child->right)
+				child->right->parent = scanner->right;
 
+			//scanner now (3)
+			scanner = scanner->right;
+			
+			//reassign scanner left to child right
+			child->right = scanner->left;
+			if (scanner->left)
+				scanner->left->parent = child->right;
+
+			//now child node is left child of scanner
+			scanner->left = child;
+			child->parent = scanner->left;
+		}
+		return SUCCESS;
 	}
 
 public:
