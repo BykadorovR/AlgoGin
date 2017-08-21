@@ -345,3 +345,15 @@ TEST(BTree_nb, Max_Min_String) {
 	ASSERT_EQ(t.minimum(), "Apple");
 	ASSERT_EQ(t.maximum(), "Pear");
 }
+
+TEST(BTree_nb, Balancing) {
+	BTree_nb<int, int> t;
+	t.insert(6, 6);
+	t.insert(4, 4);
+	t.insert(3, 3);
+	t.insert(5, 5);
+	t.insert(8, 8);
+	t.insert(9, 9);
+	t.insert(7, 7);
+	t.balanceTree();
+}

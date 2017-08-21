@@ -133,6 +133,7 @@ protected:
 			if (remainder->left == nullptr) {
 				//move vineTail down
 				vineTail = remainder;
+				//no need to rebind parent due of right structure of vine
 				remainder = remainder->right;
 			}
 			else {
@@ -143,13 +144,14 @@ protected:
 				//reassign one of subtrees from temp to remainder
 				remainder->left = temp->right;
 				if (temp->right)
-					temp->right->parent = remainder->left;
+					temp->right->parent = remainder;
 
 				//raise temp node. It has to be between vineTail and remainder
 				temp->right = remainder;
-				remainder->parent = temp->right;
-				vineTail->right = temp;
 				temp->parent = vineTail;
+				remainder->parent = temp;
+				vineTail->right = temp;
+				
 				
 				remainder = temp;
 			}
@@ -184,12 +186,12 @@ protected:
 
 	l_sts vineToTree(Node* root) {
 		int size = count;
-		int leafCount = size + 1 - pow(2, floor(log(size + 1)));
+		int leafCount = static_cast<int>(size + 1 - pow(2, floor(log(size + 1))));
 		//create deepest leaves
-		compression(root, leafCount);
+		compress(root, leafCount);
 		size -= leafCount;
 		while (size > 1) {
-			compression(root, size % 2);
+			compress(root, size % 2);
 			size = size % 2;
 		}
 		return SUCCESS;
