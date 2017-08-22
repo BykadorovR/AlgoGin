@@ -167,43 +167,44 @@ protected:
 			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
 			scanner->right = child->right;
 			if (child->right)
-				child->right->parent = scanner->right;
+				child->right->parent = scanner;
 
-			//scanner now (3)
 			scanner = scanner->right;
 			
 			//reassign scanner left to child right
 			child->right = scanner->left;
 			if (scanner->left)
-				scanner->left->parent = child->right;
+				scanner->left->parent = child;
 
 			//now child node is left child of scanner
 			scanner->left = child;
-			child->parent = scanner->left;
+			child->parent = scanner;
 		}
 		return SUCCESS;
 	}
 
 	l_sts vineToTree(Node* root) {
-		int size = count;
-		int leafCount = static_cast<int>(size + 1 - pow(2, floor(log(size + 1))));
+		int size = count; //add 1 due of fake root
+		int leafCount = static_cast<int>(size + 1 - pow(2, floor(log2(size + 1))));
 		//create deepest leaves
 		compress(root, leafCount);
 		size -= leafCount;
 		while (size > 1) {
-			compress(root, size % 2);
-			size = size % 2;
+			compress(root, static_cast<int>(floor(size / 2)));
+			size = static_cast<int>(floor(size / 2));
 		}
 		return SUCCESS;
 	}
 
-	l_sts balanceTree() {
-		Node* temp = new Node();
-		temp->right = head;
-		treeToVine(temp);
-		vineToTree(temp);
-		delete temp;
-		return SUCCESS;
+	int getHeight(Node* root) {
+		auto max = [](int left, int right) -> int {
+			return left > right ? left : right;
+		};
+		if (root == NULL)
+			return 0;
+		else
+		    return max(getHeight(root->left) + 1,
+		               getHeight(root->right) + 1);
 	}
 
 public:
@@ -311,11 +312,26 @@ public:
 		return current->value;
 	}
 
+	l_sts balanceTree() {
+		Node* temp = new Node();
+		temp->right = head;
+		treeToVine(temp);
+		vineToTree(temp);
+		delete temp;
+		return SUCCESS;
+	}
+
 	int getNodeCount() {
 		return count;
 	}
 
 	void print_ordered() {
 		print_recursively(head);
+	}
+
+	bool isTreeBalanced() {
+		if (abs(getHeight(head->left) - getHeight(head->right)) <= 1)
+			return true;
+		return false;
 	}
 };

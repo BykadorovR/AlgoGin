@@ -346,14 +346,32 @@ TEST(BTree_nb, Max_Min_String) {
 	ASSERT_EQ(t.maximum(), "Pear");
 }
 
+TEST(Btree_nb, Height) {
+	BTree_nb<int, int> t;
+	t.insert(6, 6);
+	t.insert(9, 9);
+	t.insert(4, 4);
+	t.insert(3, 3);
+	t.insert(5, 5);
+	ASSERT_EQ(t.getHeight(t.head->left), 2);
+	ASSERT_EQ(t.getHeight(t.head->right), 1);
+	t.insert(5, 11);
+	t.insert(5, 14);
+	ASSERT_EQ(t.getHeight(t.head->right), 3);
+	t.insert(5, 15);
+	t.insert(5, 13);
+	ASSERT_EQ(t.getHeight(t.head->right), 4);
+	t.insert(5, 2);
+	ASSERT_EQ(t.getHeight(t.head->left), 3);
+}
+
 TEST(BTree_nb, Balancing) {
 	BTree_nb<int, int> t;
 	t.insert(6, 6);
+	t.insert(9, 9);
 	t.insert(4, 4);
 	t.insert(3, 3);
 	t.insert(5, 5);
 	t.insert(8, 8);
-	t.insert(9, 9);
-	t.insert(7, 7);
 	t.balanceTree();
 }
