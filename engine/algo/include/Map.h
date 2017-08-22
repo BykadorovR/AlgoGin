@@ -1,8 +1,9 @@
 #pragma once
 #include "General.h"
 
+//Manually balancing binary search tree
 template <class T, class I>
-class BTree_nb : public Tree<T, I> {
+class BTree_mb : public Tree<T, I> {
 #ifdef GMOCK_DEBUG
 public:
 #else
@@ -208,7 +209,7 @@ protected:
 	}
 
 public:
-	BTree_nb() : head(nullptr), count(0) {
+	BTree_mb() : head(nullptr), count(0) {
 	}
 	l_sts insert(T value, I index) {
 		if (head == nullptr) {
@@ -313,6 +314,8 @@ public:
 	}
 
 	l_sts balanceTree() {
+		if (!head)
+			return EMPTY;
 		Node* temp = new Node();
 		temp->right = head;
 		treeToVine(temp);
@@ -330,6 +333,8 @@ public:
 	}
 
 	bool isTreeBalanced() {
+		if (!head)
+			return false;
 		if (abs(getHeight(head->left) - getHeight(head->right)) <= 1)
 			return true;
 		return false;

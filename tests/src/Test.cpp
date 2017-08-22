@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
 	testing::InitGoogleTest(&argc, argv);
-//	::testing::GTEST_FLAG(filter) = "BTree_nb.Remove_String_Value_Key";
+//	::testing::GTEST_FLAG(filter) = "BTree_mb.Remove_String_Value_Key";
 	return RUN_ALL_TESTS();
 	std::getchar(); // keep console window open until Return keystroke
 }
@@ -261,8 +261,8 @@ TEST(Bubble, List1_ns) {
 	ASSERT_EQ(l[6], 13);
 }
 
-TEST(BTree_nb, Insert) {
-	BTree_nb<int, int> t;
+TEST(BTree_mb, Insert) {
+	BTree_mb<int, int> t;
 	t.insert(5, 4);
 	t.insert(2, 1);
 	t.insert(12, 2);
@@ -273,8 +273,8 @@ TEST(BTree_nb, Insert) {
 	ASSERT_EQ(t[5], 3);
 }
 
-TEST(BTree_nb, Remove) {
-	BTree_nb<int, int> t;
+TEST(BTree_mb, Remove) {
+	BTree_mb<int, int> t;
 	ASSERT_EQ(t.remove(7), EMPTY);
 	t.insert(1, 20);
 	t.remove(20);
@@ -297,8 +297,8 @@ TEST(BTree_nb, Remove) {
 	ASSERT_EQ(t[4], 6);
 }
 
-TEST(BTree_nb, Remove_String_Value) {
-	BTree_nb<std::string, int> t;
+TEST(BTree_mb, Remove_String_Value) {
+	BTree_mb<std::string, int> t;
 	t.insert("first", 20);
 	t.insert("second", 21);
 	t.insert("third", 8);
@@ -311,8 +311,8 @@ TEST(BTree_nb, Remove_String_Value) {
 	ASSERT_EQ(t.getNodeCount(), 1);
 }
 
-TEST(BTree_nb, Remove_String_Value_Key) {
-	BTree_nb<std::string, std::string> t;
+TEST(BTree_mb, Remove_String_Value_Key) {
+	BTree_mb<std::string, std::string> t;
 	t.insert("first", "Melon");
 	t.insert("second", "Apple");
 	t.insert("third", "Berry");
@@ -325,8 +325,8 @@ TEST(BTree_nb, Remove_String_Value_Key) {
 	ASSERT_EQ(t.getNodeCount(), 1);
 }
 
-TEST(BTree_nb, Max_Min) {
-	BTree_nb<int, int> t;
+TEST(BTree_mb, Max_Min) {
+	BTree_mb<int, int> t;
 	t.insert(1, 20);
 	t.insert(2, 21);
 	t.insert(3, 8);
@@ -335,8 +335,8 @@ TEST(BTree_nb, Max_Min) {
 	ASSERT_EQ(t.maximum(), 4);
 }
 
-TEST(BTree_nb, Max_Min_String) {
-	BTree_nb<std::string, int> t;
+TEST(BTree_mb, Max_Min_String) {
+	BTree_mb<std::string, int> t;
 	t.insert("Orange", 20);
 	t.insert("Lemon", 21);
 	t.insert("Melon", 8);
@@ -346,8 +346,8 @@ TEST(BTree_nb, Max_Min_String) {
 	ASSERT_EQ(t.maximum(), "Pear");
 }
 
-TEST(Btree_nb, Height) {
-	BTree_nb<int, int> t;
+TEST(BTree_mb, Height) {
+	BTree_mb<int, int> t;
 	t.insert(6, 6);
 	t.insert(9, 9);
 	t.insert(4, 4);
@@ -365,8 +365,8 @@ TEST(Btree_nb, Height) {
 	ASSERT_EQ(t.getHeight(t.head->left), 3);
 }
 
-TEST(BTree_nb, Balancing) {
-	BTree_nb<int, int> t;
+TEST(BTree_mb, Balancing) {
+	BTree_mb<int, int> t;
 	t.insert(6, 6);
 	t.insert(9, 9);
 	t.insert(4, 4);
@@ -374,4 +374,9 @@ TEST(BTree_nb, Balancing) {
 	t.insert(5, 5);
 	t.insert(8, 8);
 	t.balanceTree();
+	ASSERT_EQ(t.isTreeBalanced(), true);
+	BTree_mb<int, int> t1;
+	ASSERT_EQ(t1.balanceTree(), EMPTY);
+	ASSERT_EQ(t1.isTreeBalanced(), false);
+
 }
