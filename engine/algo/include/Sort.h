@@ -45,3 +45,21 @@ public:
 		}
 	}
 };
+
+//O(n^2)
+class Insertion {
+public:
+	template <class T>
+	void sort(Container_ns<T>& list) {
+		//on every iteration shift element to it position
+		//so move to left every element until it on own place or start of container
+		//5 3 2 4 1 (1)-> 5 3 2 4 1 (2)-> 3 5 2 4 1 (3)-> 3 2 5 4 1 -> 2 3 5 4 1 (4)-> 2 3 4 5 1 (5)-> 2 3 4 1 5 -> 2 3 1 4 5 -> 2 1 3 4 5 -> 1 2 3 4 5
+		for (int i = 1; i < list.getSize(); i++) {
+			int j = i;
+			while (j > 0 && list[j] < list[j - 1]) {
+				swap(j, j - 1, list);
+				j--;
+			}
+		}
+	}
+};

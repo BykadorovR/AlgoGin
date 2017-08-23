@@ -279,6 +279,18 @@ TEST_F(Sorting, Selection) {
 	ASSERT_EQ(l_int[6], 13);
 }
 
+TEST_F(Sorting, Insertion) {
+	Insertion a;
+	a.sort(l_int);
+	ASSERT_EQ(l_int[0], -2);
+	ASSERT_EQ(l_int[1], 0);
+	ASSERT_EQ(l_int[2], 3);
+	ASSERT_EQ(l_int[3], 4);
+	ASSERT_EQ(l_int[4], 7);
+	ASSERT_EQ(l_int[5], 12);
+	ASSERT_EQ(l_int[6], 13);
+}
+
 TEST(BTree_mb, Insert) {
 	BTree_mb<int, int> t;
 	t.insert(5, 4);
