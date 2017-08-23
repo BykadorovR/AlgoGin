@@ -240,25 +240,43 @@ TEST(Vector, Max_Min) {
 	ASSERT_EQ(v.minimum(), 0);
 }
 
+class Sorting : public ::testing::Test {
+protected:
+	void SetUp()
+	{
+		l_int.push_back(12);
+		l_int.push_back(-2);
+		l_int.push_back(3);
+		l_int.push_back(13);
+		l_int.push_back(4);
+		l_int.push_back(0);
+		l_int.push_back(7);
+	}
+	List1_ns<int> l_int;
+};
 
-TEST(Bubble, List1_ns) {
-	List1_ns<int> l;
-	l.push_back(12);
-	l.push_back(-2);
-	l.push_back(3);
-	l.push_back(13);
-	l.push_back(4);
-	l.push_back(0);
-	l.push_back(7);
+TEST_F(Sorting, Bubble) {
 	Bubble a;
-	a.sort(l);
-	ASSERT_EQ(l[0], -2);
-	ASSERT_EQ(l[1], 0);
-	ASSERT_EQ(l[2], 3);
-	ASSERT_EQ(l[3], 4);
-	ASSERT_EQ(l[4], 7);
-	ASSERT_EQ(l[5], 12);
-	ASSERT_EQ(l[6], 13);
+	a.sort(l_int);
+	ASSERT_EQ(l_int[0], -2);
+	ASSERT_EQ(l_int[1], 0);
+	ASSERT_EQ(l_int[2], 3);
+	ASSERT_EQ(l_int[3], 4);
+	ASSERT_EQ(l_int[4], 7);
+	ASSERT_EQ(l_int[5], 12);
+	ASSERT_EQ(l_int[6], 13);
+}
+
+TEST_F(Sorting, Selection) {
+	Selection a;
+	a.sort(l_int);
+	ASSERT_EQ(l_int[0], -2);
+	ASSERT_EQ(l_int[1], 0);
+	ASSERT_EQ(l_int[2], 3);
+	ASSERT_EQ(l_int[3], 4);
+	ASSERT_EQ(l_int[4], 7);
+	ASSERT_EQ(l_int[5], 12);
+	ASSERT_EQ(l_int[6], 13);
 }
 
 TEST(BTree_mb, Insert) {
