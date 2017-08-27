@@ -122,6 +122,61 @@ protected:
 		}
 		return headNode;
 	}
+	
+
+	/* 
+	       (y)              (x)
+		   / \     right    / \
+		 (x)  c   ------>  a   (y)
+		 / \                   / \
+	    a   b                 b   c
+	*/
+	//First uprocessed node and last node of final vine
+	l_sts rightRotation(Node** remaining, Node* vineTail) {
+		Node* temp = (*remaining)->left;
+
+		//reassign one of subtrees from temp to remainder
+		(*remaining)->left = temp->right;
+		if (temp->right)
+			temp->right->parent = (*remaining);
+
+		//raise temp node. It has to be between vineTail and remainder
+		temp->right = (*remaining);
+		temp->parent = vineTail;
+		(*remaining)->parent = temp;
+		vineTail->right = temp;
+
+		(*remaining) = temp;
+		return SUCCESS;
+	}
+	
+
+	/*
+          (x)	           (y)
+          / \      left    / \  
+         a  (y)  ------> (x)  c 
+        / \              / \                   
+       b   c	        a   b                 
+	*/
+	l_sts leftRotation(Node** scanner, Node* child) {
+		(*scanner)->right = child->right;
+		if (child->right)
+			child->right->parent = (*scanner);
+
+		(*scanner) = (*scanner)->right;
+
+		//reassign scanner left to child right
+		child->right = (*scanner)->left;
+		if ((*scanner)->left)
+			(*scanner)->left->parent = child;
+
+		//now child node is left child of scanner
+		(*scanner)->left = child;
+		child->parent = (*scanner);
+		
+		return SUCCESS;
+	}
+
 	/*Day-Stout-Warren algorithm of balancing BST*/
 
 	//TreeToVine transform to vine where is all of nodes are right (just ordered list)
@@ -139,22 +194,7 @@ protected:
 			}
 			else {
 				//right rotate: from left bottom to left top
-				//save left subtree
-				Node* temp = remainder->left;
-				
-				//reassign one of subtrees from temp to remainder
-				remainder->left = temp->right;
-				if (temp->right)
-					temp->right->parent = remainder;
-
-				//raise temp node. It has to be between vineTail and remainder
-				temp->right = remainder;
-				temp->parent = vineTail;
-				remainder->parent = temp;
-				vineTail->right = temp;
-				
-				
-				remainder = temp;
+				rightRotation(&remainder, vineTail);
 			}
 		}
 		return SUCCESS;
@@ -166,20 +206,7 @@ protected:
 			Node* child = scanner->right;
 			//(1)-(2)-(3)
 			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
-			scanner->right = child->right;
-			if (child->right)
-				child->right->parent = scanner;
-
-			scanner = scanner->right;
-			
-			//reassign scanner left to child right
-			child->right = scanner->left;
-			if (scanner->left)
-				scanner->left->parent = child;
-
-			//now child node is left child of scanner
-			scanner->left = child;
-			child->parent = scanner;
+			leftRotation(&scanner, child);
 		}
 		return SUCCESS;
 	}
