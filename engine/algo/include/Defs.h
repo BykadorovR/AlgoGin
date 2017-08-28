@@ -11,3 +11,7 @@ enum l_sts {
 	UNKNOWN,
 	WRONG_ARGS
 };
+
+l_sts getWorst(l_sts first, l_sts second) {
+	return first < second ? first : second;
+}

@@ -377,7 +377,12 @@ public:
 	}
 
 	l_sts insert(T value, I index) {
-		return BTree<T, I>::_insert(value, index);
+		l_sts sts;
+		sts = BTree<T, I>::_insert(value, index);
+		//balancing
+		if (BTree<T, I>::count > 10)
+			sts = getWorst(balanceTree(), sts);
+		return sts;
 	}
 
 	T minimum() {
@@ -405,5 +410,34 @@ public:
 
 	l_sts print_ordered() {
 		return print_recursively(BTree<T, I>::head);
+	}
+};
+
+template <class T, class I>
+class BTree_rb : public BTree<T, I>, public Tree<T, I> {
+#ifdef GMOCK_DEBUG
+public:
+#else
+protected:
+#endif
+	enum NodeColor {
+		red = 0,
+		black = 1,
+	};
+
+	struct Node {
+		Node* left;
+		Node* right;
+		Node* parent;
+		T value;
+		NodeColor color;
+		I index;
+	};
+
+
+
+public:
+	l_sts insert(T value, I index) {
+		return BTree<T, I>::_insert(value, index);
 	}
 };
