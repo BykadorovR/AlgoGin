@@ -305,11 +305,11 @@ protected:
 #endif
 	/*Day-Stout-Warren algorithm of balancing BST*/
 	//TreeToVine transform to vine where is all of nodes are right (just ordered list)
-	l_sts treeToVine(BTree<T, I>::Node* root) {
+	l_sts treeToVine(typename BTree<T, I>::Node* root) {
 		//last element of vain (no additional work is needed)
-		BTree<T, I>::Node* vineTail = root;
+		typename BTree<T, I>::Node* vineTail = root;
 		//first element of unprocessed part
-		BTree<T, I>::Node* remainder = vineTail->right;
+		typename BTree<T, I>::Node* remainder = vineTail->right;
 		while (remainder != nullptr) {
 			if (remainder->left == nullptr) {
 				//move vineTail down
@@ -325,10 +325,10 @@ protected:
 		return SUCCESS;
 	}
 
-	l_sts compress(BTree<T, I>::Node* root, int size) {
-		BTree<T, I>::Node* scanner = root;
+	l_sts compress(typename BTree<T, I>::Node* root, int size) {
+		typename BTree<T, I>::Node* scanner = root;
 		for (int i = 0; i < size; i++) {
-			BTree<T, I>::Node* child = scanner->right;
+			typename BTree<T, I>::Node* child = scanner->right;
 			//(1)-(2)-(3)
 			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
 			BTree<T, I>::leftRotation(&scanner, child);
@@ -336,8 +336,8 @@ protected:
 		return SUCCESS;
 	}
 
-	l_sts vineToTree(BTree<T, I>::Node* root) {
-		int size = count; //add 1 due of fake root
+	l_sts vineToTree(typename BTree<T, I>::Node* root) {
+		int size = BTree<T, I>::count; //add 1 due of fake root
 		int leafCount = static_cast<int>(size + 1 - pow(2, floor(log2(size + 1))));
 		//create deepest leaves
 		compress(root, leafCount);
@@ -349,7 +349,7 @@ protected:
 		return SUCCESS;
 	}
 
-	l_sts print_recursively(BTree<T, I>::Node* current) {
+	l_sts print_recursively(typename BTree<T, I>::Node* current) {
 		if (!current)
 			return EMPTY;
 		if (current->left)
@@ -368,7 +368,7 @@ public:
 	}
 
 	~BTree_mb() {
-		if (head)
+		if (BTree<T, I>::head)
 			BTree<T, I>::free(BTree<T, I>::head);
 	}
 
@@ -395,7 +395,7 @@ public:
 	l_sts balanceTree() {
 		if (!BTree<T, I>::head)
 			return EMPTY;
-		BTree<T, I>::Node* temp = new BTree<T, I>::Node();
+		typename BTree<T, I>::Node* temp = new BTree<T, I>::Node();
 		temp->right = BTree<T, I>::head;
 		treeToVine(temp);
 		vineToTree(temp);
@@ -404,6 +404,6 @@ public:
 	}
 
 	l_sts print_ordered() {
-		return print_recursively(head);
+		return print_recursively(BTree<T, I>::head);
 	}
 };

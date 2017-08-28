@@ -189,9 +189,9 @@ public:
 		List1<T>::tail = nullptr;
 	}
 	~List1_s() {
-		List1<T>::Node* cur = List1<T>::head;
+		typename List1<T>::Node* cur = List1<T>::head;
 		while (cur != nullptr) {
-			List1<T>::Node* tmp = cur;
+			typename List1<T>::Node* tmp = cur;
 			cur = cur->next;
 			delete tmp;
 		}
@@ -248,9 +248,9 @@ public:
 		List1<T>::tail = nullptr;
 	}
 	~List1_ns() {
-		List1<T>::Node* cur = List1<T>::head;
+		typename List1<T>::Node* cur = List1<T>::head;
 		while (cur != nullptr) {
-			List1<T>::Node* tmp = cur;
+			typename List1<T>::Node* tmp = cur;
 			cur = cur->next;
 			delete tmp;
 		}
@@ -509,9 +509,9 @@ public:
 	}
 
 	~List2_s() {
-		List2<T>::Node* cur = List2<T>::head;
+		typename List2<T>::Node* cur = List2<T>::head;
 		while (cur != nullptr) {
-			List2<T>::Node* tmp = cur;
+			typename List2<T>::Node* tmp = cur;
 			cur = cur->next;
 			delete tmp;
 		}
@@ -575,9 +575,9 @@ public:
 	}
 
 	~List2_ns() {
-		List2<T>::Node* cur = List2<T>::head;
+		typename List2<T>::Node* cur = List2<T>::head;
 		while (cur != nullptr) {
-			List2<T>::Node* tmp = cur;
+			typename List2<T>::Node* tmp = cur;
 			cur = cur->next;
 			delete tmp;
 		}
