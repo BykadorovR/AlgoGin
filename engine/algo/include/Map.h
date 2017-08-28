@@ -395,7 +395,7 @@ public:
 	l_sts balanceTree() {
 		if (!BTree<T, I>::head)
 			return EMPTY;
-		typename BTree<T, I>::Node* temp = new BTree<T, I>::Node();
+		typename BTree<T, I>::Node* temp = new typename BTree<T, I>::Node();
 		temp->right = BTree<T, I>::head;
 		treeToVine(temp);
 		vineToTree(temp);
