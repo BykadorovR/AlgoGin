@@ -1,9 +1,8 @@
 #pragma once
 #include "General.h"
 
-//Manually balancing binary search tree
 template <class T, class I>
-class BTree_mb : public Tree<T, I> {
+class BTree {
 #ifdef GMOCK_DEBUG
 public:
 #else
@@ -21,18 +20,6 @@ protected:
 		Node* parent;
 		T value;
 		I index;
-		Node(Node& src) {
-			left = src->left;
-			right = src->right;
-			parent = src->parent;
-			value = src->value;
-			index = src->index;
-		}
-		Node() {
-			left = nullptr;
-			right = nullptr;
-			parent = nullptr;
-		}
 	};
 	Node* head;
 	int count;
@@ -43,7 +30,7 @@ protected:
 			*res = cur;
 			if (cur->index < index)
 				cur = cur->right;
-			else if (cur->index > index) 
+			else if (cur->index > index)
 				cur = cur->left;
 			else return WRONG_ARGS;
 		}
@@ -73,43 +60,32 @@ protected:
 				return SUCCESS;
 			}
 		}
-		
+
 		*res = start->left;
 		return SUCCESS;
 	}
 
-	l_sts print_recursively(Node* current) {
+	l_sts maximum_recursively(Node* current, T& value) {
 		if (!current)
 			return EMPTY;
 		if (current->left)
-			print_recursively(current->left);
-		std::cout << "Pointer: " << current << " Index: " << current->index << " Value: " << current->value << std::endl;
-		if (current->right)
-			print_recursively(current->right);
-		return SUCCESS;
-	}
-
-	l_sts _maximum(Node* current, T& value) {
-		if (!current)
-			return EMPTY;
-		if (current->left)
-			_maximum(current->left, value);
+			maximum_recursively(current->left, value);
 		if (current->value > value)
 			value = current->value;
 		if (current->right)
-			_maximum(current->right, value);
+			maximum_recursively(current->right, value);
 		return SUCCESS;
 	}
 
-	l_sts _minimum(Node* current, T& value) {
+	l_sts minimum_recursively(Node* current, T& value) {
 		if (!current)
 			return EMPTY;
 		if (current->left)
-			_minimum(current->left, value);
+			minimum_recursively(current->left, value);
 		if (current->value < value)
 			value = current->value;
 		if (current->right)
-			_minimum(current->right, value);
+			minimum_recursively(current->right, value);
 		return SUCCESS;
 	}
 
@@ -118,18 +94,19 @@ protected:
 		if (parent) {
 			if (parent->left && parent->left->index == child->index)
 				return leftNode;
-			return rightNode;	
+			return rightNode;
 		}
 		return headNode;
 	}
-	
 
-	/* 
-	       (y)              (x)
-		   / \     right    / \
-		 (x)  c   ------>  a   (y)
-		 / \                   / \
-	    a   b                 b   c
+	/*
+        (1) vt.          (1) vt.
+          \                \
+	      (3) re.           (2) tm. 
+	      / \     right     / \
+	tm. (2)  c   ------>   a  (3) re.
+	    / \                   / \
+	   a   b                 b   c
 	*/
 	//First uprocessed node and last node of final vine
 	l_sts rightRotation(Node** remaining, Node* vineTail) {
@@ -149,14 +126,15 @@ protected:
 		(*remaining) = temp;
 		return SUCCESS;
 	}
-	
 
 	/*
-          (x)	           (y)
-          / \      left    / \  
-         a  (y)  ------> (x)  c 
-        / \              / \                   
-       b   c	        a   b                 
+       (1) sc.               (1) sc.
+		 \                     \
+	     (2) ch.               (3)
+	     / \     left          / \
+	    a  (3)  ------>  ch. (2)  c
+	       / \               / \
+	      b   c	            a   b
 	*/
 	l_sts leftRotation(Node** scanner, Node* child) {
 		(*scanner)->right = child->right;
@@ -173,54 +151,7 @@ protected:
 		//now child node is left child of scanner
 		(*scanner)->left = child;
 		child->parent = (*scanner);
-		
-		return SUCCESS;
-	}
 
-	/*Day-Stout-Warren algorithm of balancing BST*/
-
-	//TreeToVine transform to vine where is all of nodes are right (just ordered list)
-	l_sts treeToVine(Node* root) {
-		//last element of vain (no additional work is needed)
-		Node* vineTail = root;
-		//first element of unprocessed part
-		Node* remainder = vineTail->right;
-		while (remainder != nullptr) {
-			if (remainder->left == nullptr) {
-				//move vineTail down
-				vineTail = remainder;
-				//no need to rebind parent due of right structure of vine
-				remainder = remainder->right;
-			}
-			else {
-				//right rotate: from left bottom to left top
-				rightRotation(&remainder, vineTail);
-			}
-		}
-		return SUCCESS;
-	}
-
-	l_sts compress(Node* root, int size) {
-		Node* scanner = root;
-		for (int i = 0; i < size; i++) {
-			Node* child = scanner->right;
-			//(1)-(2)-(3)
-			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
-			leftRotation(&scanner, child);
-		}
-		return SUCCESS;
-	}
-
-	l_sts vineToTree(Node* root) {
-		int size = count; //add 1 due of fake root
-		int leafCount = static_cast<int>(size + 1 - pow(2, floor(log2(size + 1))));
-		//create deepest leaves
-		compress(root, leafCount);
-		size -= leafCount;
-		while (size > 1) {
-			compress(root, static_cast<int>(floor(size / 2)));
-			size = static_cast<int>(floor(size / 2));
-		}
 		return SUCCESS;
 	}
 
@@ -231,14 +162,25 @@ protected:
 		if (root == NULL)
 			return 0;
 		else
-		    return max(getHeight(root->left) + 1,
-		               getHeight(root->right) + 1);
+			return max(getHeight(root->left) + 1,
+				getHeight(root->right) + 1);
 	}
 
-public:
-	BTree_mb() : head(nullptr), count(0) {
+	T _operator(I index) {
+		if (!head)
+			throw;
+		Node* current = head;
+		while (current->index != index && current != nullptr) {
+			if (index < current->index)
+				current = current->left;
+			else current = current->right;
+		}
+		if (!current)
+			throw;
+		return current->value;
 	}
-	l_sts insert(T value, I index) {
+
+	l_sts _insert(T value, I index) {
 		if (head == nullptr) {
 			head = new Node();
 			head->value = value;
@@ -263,17 +205,17 @@ public:
 		}
 		return sts;
 	}
-	T minimum() {
+	T _minimum() {
 		T min = head->value;
-		_minimum(head, min);
+		minimum_recursively(head, min);
 		return min;
 	}
-	T maximum() {
+	T _maximum() {
 		T max = head->value;
-		_maximum(head, max);
+		maximum_recursively(head, max);
 		return max;
 	}
-	l_sts remove(I index) {
+	l_sts _remove(I index) {
 		if (head == nullptr)
 			return EMPTY;
 		if (head->index == index && !head->left && !head->right) {
@@ -283,7 +225,7 @@ public:
 		}
 		Node* current;
 		l_sts sts = find_node(&current, index);
-		
+
 		if (sts == SUCCESS) {
 			//if node is leaf
 			if (current->left == nullptr && current->right == nullptr) {
@@ -293,70 +235,55 @@ public:
 				else if (type == rightNode)
 					current->parent->right = nullptr;
 				delete current;
-			} else
-			//if there is 1 child
-			if (current->left && current->right == nullptr) {
-				//not deep copy, only index and value
-				current->index = current->left->index;
-				current->value = current->left->value;
-				delete current->left;
-				current->left = nullptr;
-			} else
-			if (current->right && current->left == nullptr) {
-				current->index = current->right->index;
-				current->value = current->right->value;
-				delete current->right;
-				current->right = nullptr;
-			} else
-			//if there are 2 children
-			if (current->right && current->left) {
-				Node* nearest = current;
-				sts = find_nearest(&nearest, index);
-				current->index = nearest->index;
-				current->value = nearest->value;
-				NodeType type = childType(nearest);
-				if (type == leftNode)
-					nearest->parent->left = nullptr;
-				else if (type == rightNode)
-					nearest->parent->right = nullptr;
-				delete nearest;
 			}
+			else
+				//if there is 1 child
+				if (current->left && current->right == nullptr) {
+					//not deep copy, only index and value
+					current->index = current->left->index;
+					current->value = current->left->value;
+					delete current->left;
+					current->left = nullptr;
+				}
+				else
+					if (current->right && current->left == nullptr) {
+						current->index = current->right->index;
+						current->value = current->right->value;
+						delete current->right;
+						current->right = nullptr;
+					}
+					else
+						//if there are 2 children
+						if (current->right && current->left) {
+							Node* nearest = current;
+							sts = find_nearest(&nearest, index);
+							current->index = nearest->index;
+							current->value = nearest->value;
+							NodeType type = childType(nearest);
+							if (type == leftNode)
+								nearest->parent->left = nullptr;
+							else if (type == rightNode)
+								nearest->parent->right = nullptr;
+							delete nearest;
+						}
 			count--;
 		}
 		return sts;
 	}
 
-	T operator[](I index) {
-		if (!head)
-			throw;
-		Node* current = head;
-		while (current->index != index && current != nullptr) {
-			if (index < current->index)
-				current = current->left;
-			else current = current->right;
-		}
-		if (!current)
-			throw;
-		return current->value;
-	}
-
-	l_sts balanceTree() {
-		if (!head)
-			return EMPTY;
-		Node* temp = new Node();
-		temp->right = head;
-		treeToVine(temp);
-		vineToTree(temp);
-		delete temp;
+	l_sts free(Node* current) {
+		if (current->left != nullptr)
+			free(current->left);
+		if (current->right != nullptr)
+			free(current->right);
+		delete current;
+		count--;
 		return SUCCESS;
 	}
 
+public:
 	int getNodeCount() {
 		return count;
-	}
-
-	void print_ordered() {
-		print_recursively(head);
 	}
 
 	bool isTreeBalanced() {
@@ -365,5 +292,118 @@ public:
 		if (abs(getHeight(head->left) - getHeight(head->right)) <= 1)
 			return true;
 		return false;
+	}
+};
+
+//Manually balancing binary search tree
+template <class T, class I>
+class BTree_mb : public BTree<T, I>, public Tree<T, I> {
+#ifdef GMOCK_DEBUG
+public:
+#else
+protected:
+#endif
+	/*Day-Stout-Warren algorithm of balancing BST*/
+	//TreeToVine transform to vine where is all of nodes are right (just ordered list)
+	l_sts treeToVine(BTree<T, I>::Node* root) {
+		//last element of vain (no additional work is needed)
+		BTree<T, I>::Node* vineTail = root;
+		//first element of unprocessed part
+		BTree<T, I>::Node* remainder = vineTail->right;
+		while (remainder != nullptr) {
+			if (remainder->left == nullptr) {
+				//move vineTail down
+				vineTail = remainder;
+				//no need to rebind parent due of right structure of vine
+				remainder = remainder->right;
+			}
+			else {
+				//right rotate: from left bottom to left top
+				BTree<T, I>::rightRotation(&remainder, vineTail);
+			}
+		}
+		return SUCCESS;
+	}
+
+	l_sts compress(BTree<T, I>::Node* root, int size) {
+		BTree<T, I>::Node* scanner = root;
+		for (int i = 0; i < size; i++) {
+			BTree<T, I>::Node* child = scanner->right;
+			//(1)-(2)-(3)
+			//ommit child node(2) and link scanner(1) and child->right(3) nodes together
+			BTree<T, I>::leftRotation(&scanner, child);
+		}
+		return SUCCESS;
+	}
+
+	l_sts vineToTree(BTree<T, I>::Node* root) {
+		int size = count; //add 1 due of fake root
+		int leafCount = static_cast<int>(size + 1 - pow(2, floor(log2(size + 1))));
+		//create deepest leaves
+		compress(root, leafCount);
+		size -= leafCount;
+		while (size > 1) {
+			compress(root, static_cast<int>(floor(size / 2)));
+			size = static_cast<int>(floor(size / 2));
+		}
+		return SUCCESS;
+	}
+
+	l_sts print_recursively(BTree<T, I>::Node* current) {
+		if (!current)
+			return EMPTY;
+		if (current->left)
+			print_recursively(current->left);
+		std::cout << "Pointer: " << current << " Index: " << current->index << " Value: " << current->value << std::endl;
+		if (current->right)
+			print_recursively(current->right);
+		return SUCCESS;
+	}
+
+
+public:
+	BTree_mb() {
+		BTree<T, I>::head = nullptr;
+		BTree<T, I>::count = 0;
+	}
+
+	~BTree_mb() {
+		if (head)
+			BTree<T, I>::free(BTree<T, I>::head);
+	}
+
+	T operator[](I index) {
+		return BTree<T, I>::_operator(index);
+	}
+
+	l_sts insert(T value, I index) {
+		return BTree<T, I>::_insert(value, index);
+	}
+
+	T minimum() {
+		return BTree<T, I>::_minimum();
+	}
+
+	T maximum() {
+		return BTree<T, I>::_maximum();
+	}
+
+	l_sts remove(I index) {
+		return BTree<T, I>::_remove(index);
+	}
+
+	l_sts balanceTree() {
+		if (!BTree<T, I>::head)
+			return EMPTY;
+		BTree<T, I>::Node* temp = new BTree<T, I>::Node();
+		temp->right = BTree<T, I>::head;
+		treeToVine(temp);
+		vineToTree(temp);
+		delete temp;
+		return SUCCESS;
+	}
+
+	l_sts print_ordered() {
+		return print_recursively(head);
 	}
 };

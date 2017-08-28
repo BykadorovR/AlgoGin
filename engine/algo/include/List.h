@@ -169,18 +169,6 @@ protected:
         return SUCCESS;
     }
 public:
-    List1() : size(0), head(nullptr), tail(nullptr) {
-    }
-    ~List1() {
-        Node* cur = head;
-        while (cur != nullptr) {
-            Node* tmp = cur;
-            cur = cur->next;
-            delete tmp;
-        }
-        head = nullptr;
-        tail = nullptr;
-    }
     void print() {
         std::cout << "Printing .." << std::endl;
         Node* cur = head;
@@ -195,6 +183,22 @@ public:
 template <class T>
 class List1_s : public Container_s<T>, public List1<T> {
 public:
+	List1_s() {
+		List1<T>::size = 0;
+		List1<T>::head = nullptr;
+		List1<T>::tail = nullptr;
+	}
+	~List1_s() {
+		List1<T>::Node* cur = List1<T>::head;
+		while (cur != nullptr) {
+			List1<T>::Node* tmp = cur;
+			cur = cur->next;
+			delete tmp;
+		}
+		List1<T>::head = nullptr;
+		List1<T>::tail = nullptr;
+	}
+
     T minimum() {
         return List1<T>::head->data;
     }
@@ -238,6 +242,21 @@ public:
 
 template <class T> class List1_ns : public Container_ns<T>, public List1<T> {
 public:
+	List1_ns() {
+		List1<T>::size = 0;
+		List1<T>::head = nullptr;
+		List1<T>::tail = nullptr;
+	}
+	~List1_ns() {
+		List1<T>::Node* cur = List1<T>::head;
+		while (cur != nullptr) {
+			List1<T>::Node* tmp = cur;
+			cur = cur->next;
+			delete tmp;
+		}
+		List1<T>::head = nullptr;
+	}
+
 	T minimum() {
 		typename List1<T>::Node* cur = List1<T>::head;
 		T min = cur->data;
@@ -468,18 +487,6 @@ protected:
 		return SUCCESS;
 	}
 public:
-   List2() : head(nullptr), tail(nullptr), size(0) {
-   }
-   ~List2() {
-       Node* cur = head;
-       while (cur != nullptr) {
-           Node* tmp = cur;
-           cur = cur->next;
-           delete tmp;
-       }
-       head = nullptr;
-       tail = nullptr;
-   }
    void print() {
 	   std::cout << "Printing .." << std::endl;
 	   Node* cur = head;
@@ -493,8 +500,25 @@ public:
 };
 
 template <class T>
-class List2_s : public List2<T>, Container_s<T> {
+class List2_s : public List2<T>, public Container_s<T> {
 public:
+	List2_s() {
+		List2<T>::head = nullptr;
+		List2<T>::tail = nullptr;
+		List2<T>::size = 0;
+	}
+
+	~List2_s() {
+		List2<T>::Node* cur = List2<T>::head;
+		while (cur != nullptr) {
+			List2<T>::Node* tmp = cur;
+			cur = cur->next;
+			delete tmp;
+		}
+		List2<T>::head = nullptr;
+		List2<T>::tail = nullptr;
+	}
+
     T minimum() {
         return List2<T>::head->data;
     }
@@ -542,8 +566,25 @@ public:
 };
 
 template <class T>
-class List2_ns : public List2<T>, Container_ns<T> {
+class List2_ns : public List2<T>, public Container_ns<T> {
 public:
+	List2_ns() {
+		List2<T>::head = nullptr;
+		List2<T>::tail = nullptr;
+		List2<T>::size = 0;
+	}
+
+	~List2_ns() {
+		List2<T>::Node* cur = List2<T>::head;
+		while (cur != nullptr) {
+			List2<T>::Node* tmp = cur;
+			cur = cur->next;
+			delete tmp;
+		}
+		List2<T>::head = nullptr;
+		List2<T>::tail = nullptr;
+	}
+
 	T minimum() {
 		typename List2<T>::Node* cur = this->head;
 		T min = cur->data;
