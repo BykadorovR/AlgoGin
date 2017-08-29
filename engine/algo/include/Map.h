@@ -8,10 +8,17 @@ public:
 #else
 protected:
 #endif
+
+	enum NodeColor {
+		none = 0,
+		red,
+		black,
+	};
+
 	enum NodeType {
 		headNode = 0,
-		leftNode = 1,
-		rightNode = 2,
+		leftNode,
+		rightNode,
 	};
 
 	struct Node {
@@ -20,7 +27,9 @@ protected:
 		Node* parent;
 		T value;
 		I index;
+		NodeColor color;
 	};
+
 	Node* head;
 	int count;
 
@@ -180,11 +189,13 @@ protected:
 		return current->value;
 	}
 
-	l_sts _insert(T value, I index) {
+	l_sts _insert(T value, I index, Node** inserted = nullptr) {
 		if (head == nullptr) {
 			head = new Node();
 			head->value = value;
 			head->index = index;
+			if (inserted)
+				*inserted = head;
 			count++;
 			return SUCCESS;
 		}
@@ -195,6 +206,8 @@ protected:
 			cur->index = index;
 			cur->value = value;
 			cur->parent = parent;
+			if (inserted)
+				*inserted = cur;
 			if (parent->index > index) {
 				parent->left = cur;
 			}
@@ -420,24 +433,64 @@ public:
 #else
 protected:
 #endif
-	enum NodeColor {
-		red = 0,
-		black = 1,
-	};
 
-	struct Node {
-		Node* left;
-		Node* right;
-		Node* parent;
-		T value;
-		NodeColor color;
-		I index;
-	};
+	l_sts findUncle(BTree<T, I>::Node* current, BTree<T, I>::Node** uncle) {
+		if (!current->parent)
+			return NOT_FOUND;
+		BTree<T, I>::Node* parent = current->parent;
+		NodeType parentType = childType(parent);
+		if (parentType == rightNode)
+			*uncle = parent->parent->left;
+		else
+		if (parentType == leftNode)
+			*uncle = parent->parent->right;
+		else
+			return NOT_FOUND;
+		return SUCCESS;
+	}
 
-
+	l_sts currentHead(Node* current) {
+		current->color = black;
+		return SUCCESS;
+	}
 
 public:
+	BTree_rb() {
+		BTree<T, I>::head = nullptr;
+		BTree<T, I>::count = 0;
+	}
+
 	l_sts insert(T value, I index) {
-		return BTree<T, I>::_insert(value, index);
+		BTree<T, I>::Node* inserted;
+		l_sts sts = BTree<T, I>::_insert(value, index, &inserted);
+		//Newly inserted nodes have to be red
+		inserted->color = red;
+		//If inserted node is first in tree
+		if (inserted == head) {
+			return currentHead(inserted);
+		}
+		//parent is black node so it's ok
+		if (inserted->parent->color == black) {
+			return SUCCESS;
+		}
+		Node* uncle;
+		findUncle(inserted, &uncle);
+		return SUCCESS;
+	}
+
+	T operator[](I index) {
+		return BTree<T, I>::_operator(index);
+	}
+
+	T minimum() {
+		return BTree<T, I>::_minimum();
+	}
+
+	T maximum() {
+		return BTree<T, I>::_maximum();
+	}
+
+	l_sts remove(I index) {
+		return BTree<T, I>::_remove(index);
 	}
 };

@@ -408,5 +408,12 @@ TEST(BTree_mb, Balancing) {
 	BTree_mb<int, int> t1;
 	ASSERT_EQ(t1.balanceTree(), EMPTY);
 	ASSERT_EQ(t1.isTreeBalanced(), false);
+}
 
+TEST(BTree_rb, Insert) {
+	BTree_rb<int, int> t;
+	t.insert(12, 1);
+	t.insert(12, 2);
+	t.insert(12, 3);
+	t.insert(12, 0);
 }
