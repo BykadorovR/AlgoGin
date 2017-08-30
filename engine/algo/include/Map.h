@@ -435,8 +435,10 @@ protected:
 #endif
 
 	l_sts findUncle(BTree<T, I>::Node* current, BTree<T, I>::Node** uncle) {
-		if (!current->parent)
+		if (!current->parent) {
+			*uncle = nullptr;
 			return NOT_FOUND;
+		}
 		BTree<T, I>::Node* parent = current->parent;
 		NodeType parentType = childType(parent);
 		if (parentType == rightNode)
@@ -444,16 +446,41 @@ protected:
 		else
 		if (parentType == leftNode)
 			*uncle = parent->parent->right;
-		else
+		else {
+			*uncle = nullptr;
 			return NOT_FOUND;
+		}
 		return SUCCESS;
 	}
+	//if x is root change color of x as BLACK
+	//if color of x's parent is RED and x isn't root do:
+	//change color of parent and uncle as BLACK; color of grand parent as RED; x = x's grandparent and repeat;
+	l_sts recoloring(BTree<T, I>::Node* current) {
+		while (current != nullptr) {
+			//If inserted node is first in tree
+			if (current == BTree<T, I>::head) {
+				current->color = black;
+				return SUCCESS;
+			}
+			//parent is black node so it's ok
+			if (current->parent->color == black) {
+				return SUCCESS;
+			}
 
-	l_sts currentHead(Node* current) {
-		current->color = black;
+			BTree<T, I>::Node* uncle;
+			findUncle(current, &uncle);
+			if (uncle && uncle->color == red) {
+				//current->parent exists because in other case current is head node and we would exit from this loop
+				current->parent->color = black;
+				uncle->color = black;
+				if (current->parent->parent)
+					current->parent->parent->color = red;
+				current = current->parent->parent;
+			}
+		}
 		return SUCCESS;
-	}
 
+	}
 public:
 	BTree_rb() {
 		BTree<T, I>::head = nullptr;
@@ -465,16 +492,9 @@ public:
 		l_sts sts = BTree<T, I>::_insert(value, index, &inserted);
 		//Newly inserted nodes have to be red
 		inserted->color = red;
-		//If inserted node is first in tree
-		if (inserted == head) {
-			return currentHead(inserted);
-		}
-		//parent is black node so it's ok
-		if (inserted->parent->color == black) {
-			return SUCCESS;
-		}
-		Node* uncle;
-		findUncle(inserted, &uncle);
+
+		//try to do recoloring if needed
+		recoloring(inserted);
 		return SUCCESS;
 	}
 
