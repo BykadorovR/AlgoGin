@@ -130,27 +130,41 @@ protected:
 		temp->right = (*remaining);
 		temp->parent = vineTail;
 		(*remaining)->parent = temp;
-		vineTail->right = temp;
+		if (vineTail)
+		    vineTail->right = temp;
 
 		(*remaining) = temp;
 		return SUCCESS;
 	}
 
 	/*
-       (1) sc.               (1) sc.
+       (1) sc.               (1)
 		 \                     \
-	     (2) ch.               (3)
+	     (2) ch.               (3) sc.
 	     / \     left          / \
 	    a  (3)  ------>  ch. (2)  c
 	       / \               / \
 	      b   c	            a   b
 	*/
+	//(1) doesn't change own location so there is case when child of scanner isn't right but left (it doesn't matter because left rotation is applied to
+	//child not scanner
 	l_sts leftRotation(Node** scanner, Node* child) {
-		(*scanner)->right = child->right;
+		if (childType(child) == rightNode)
+			//if child is right node of scanner 
+			(*scanner)->right = child->right;
+		else
+			//if child is left node of scanner 
+			(*scanner)->left = child->right;
+
 		if (child->right)
 			child->right->parent = (*scanner);
 
-		(*scanner) = (*scanner)->right;
+		if (childType(child) == rightNode)
+			//if child is right node of scanner 
+			(*scanner) = (*scanner)->right;
+		else
+			//if child is left node of scanner 
+			(*scanner) = (*scanner)->left;
 
 		//reassign scanner left to child right
 		child->right = (*scanner)->left;
@@ -452,10 +466,31 @@ protected:
 		}
 		return SUCCESS;
 	}
+
+	//left left case - curent left child and parent left child
+	l_sts leftLeftCase(BTree<T, I>::Node** current) {	
+		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == leftNode) {
+			BTree<T, I>::Node* grandParent = current->parent->parent;
+			grandParent->color = red;
+			current->parent = black;
+			BTree<T, I>::rightRotation(&grandParent, grandParent->parent);
+			return SUCCESS;
+		}
+		return NOT_FOUND;
+	}
+
+	l_sts leftRightCase(BTree<T, I>::Node** current) {
+		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == leftNode) {
+			BTree<T, I>::Node* grandParent = current->parent->parent;
+			BTree<T, I>::leftRotation(&grandParent, current->parent);
+			return leftLeftCase(&grandParent->left);
+		}
+	}
+
 	//if x is root change color of x as BLACK
 	//if color of x's parent is RED and x isn't root do:
 	//change color of parent and uncle as BLACK; color of grand parent as RED; x = x's grandparent and repeat;
-	l_sts recoloring(BTree<T, I>::Node* current) {
+	l_sts rebalancing(BTree<T, I>::Node* current) {
 		while (current != nullptr) {
 			//If inserted node is first in tree
 			if (current == BTree<T, I>::head) {
@@ -477,6 +512,9 @@ protected:
 					current->parent->parent->color = red;
 				current = current->parent->parent;
 			}
+			else if (!uncle || uncle->color == black) {
+				
+			}
 		}
 		return SUCCESS;
 
@@ -493,8 +531,8 @@ public:
 		//Newly inserted nodes have to be red
 		inserted->color = red;
 
-		//try to do recoloring if needed
-		recoloring(inserted);
+		//try to do rebalancing if needed
+		rebalancing(inserted);
 		return SUCCESS;
 	}
 
