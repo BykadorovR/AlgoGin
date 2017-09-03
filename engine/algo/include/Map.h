@@ -128,8 +128,8 @@ protected:
 
 		//raise temp node. It has to be between vineTail and remainder
 		temp->right = (*remaining);
-		temp->parent = vineTail;
 		(*remaining)->parent = temp;
+		temp->parent = vineTail;
 		if (vineTail)
 		    vineTail->right = temp;
 
@@ -149,7 +149,8 @@ protected:
 	//(1) doesn't change own location so there is case when child of scanner isn't right but left (it doesn't matter because left rotation is applied to
 	//child not scanner
 	l_sts leftRotation(Node** scanner, Node* child) {
-		if (childType(child) == rightNode)
+		NodeType childNodeType = childType(child);
+		if (childNodeType == rightNode)
 			//if child is right node of scanner 
 			(*scanner)->right = child->right;
 		else
@@ -159,7 +160,7 @@ protected:
 		if (child->right)
 			child->right->parent = (*scanner);
 
-		if (childType(child) == rightNode)
+		if (childNodeType == rightNode)
 			//if child is right node of scanner 
 			(*scanner) = (*scanner)->right;
 		else
@@ -429,9 +430,12 @@ public:
 			return EMPTY;
 		typename BTree<T, I>::Node* temp = new typename BTree<T, I>::Node();
 		temp->right = BTree<T, I>::head;
+		BTree<T, I>::head->parent = temp;
 		treeToVine(temp);
 		vineToTree(temp);
+		head = temp->right;
 		delete temp;
+		BTree<T, I>::head->parent = nullptr;
 		return SUCCESS;
 	}
 
@@ -474,6 +478,8 @@ protected:
 			grandParent->color = red;
 			current->parent->color = black;
 			BTree<T, I>::rightRotation(&grandParent, grandParent->parent);
+			//we rotated grandParent-parent nodes and after set grandParent pointer to "grand parent" so head have to be grandParent
+			head = grandParent;
 			return SUCCESS;
 		}
 		return NOT_FOUND;
@@ -494,7 +500,16 @@ protected:
 			NodeColor temp = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = temp;
-			BTree<T, I>::leftRotation(&grandParent, grandParent->parent);
+			//due of realisation of left rotation as in BSW algorithm (where fake node is used) we have to add fake node for left rotation too
+			//if we want to rotate grandparent
+			Node* fake = new Node();
+			fake->right = grandParent;
+			grandParent->parent = fake;
+			//we have to make left rotate of grandParent so we need to pass grand parent node and its parent
+			BTree<T, I>::leftRotation(&fake, grandParent);
+			delete fake->parent;
+			fake->parent = nullptr;
+			head = fake;
 			return SUCCESS;
 		}
 		return NOT_FOUND;

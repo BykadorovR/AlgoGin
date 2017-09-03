@@ -398,11 +398,11 @@ TEST(BTree_mb, Height) {
 TEST(BTree_mb, Balancing) {
 	BTree_mb<int, int> t;
 	t.insert(6, 6);
-	t.insert(9, 9);
+	t.insert(2, 2);
 	t.insert(4, 4);
 	t.insert(3, 3);
 	t.insert(5, 5);
-	t.insert(8, 8);
+	t.insert(1, 1);
 	t.balanceTree();
 	ASSERT_EQ(t.isTreeBalanced(), true);
 	BTree_mb<int, int> t1;
@@ -416,11 +416,25 @@ TEST(BTree_rb, Insert) {
 	t.insert(12, 1);
 	t.insert(12, 3);
 	t.insert(12, 0);
-	//
+	//right right
 	BTree_rb<int, int> t1;
-	t.insert(10, 10);
-	t.insert(20, 20);
-	t.insert(30, 30);
-	t.insert(15, 15);
-
+	t1.insert(10, 10);
+	t1.insert(20, 20);
+	t1.insert(30, 30);
+	t1.insert(15, 15);
+	//left left
+	BTree_rb<int, int> t2;
+	t2.insert(30, 30);
+	t2.insert(20, 20);
+	t2.insert(10, 10);
+	//left right
+	BTree_rb<int, int> t3;
+	t3.insert(30, 30);
+	t3.insert(20, 20);
+	t3.insert(25, 25);
+	//right left
+	BTree_rb<int, int> t4;
+	t4.insert(20, 20);
+	t4.insert(30, 30);
+	t4.insert(25, 25);
 }
