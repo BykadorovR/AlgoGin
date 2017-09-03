@@ -468,25 +468,46 @@ protected:
 	}
 
 	//left left case - curent left child and parent left child
-	l_sts leftLeftCase(BTree<T, I>::Node** current) {	
+	l_sts leftLeftCase(BTree<T, I>::Node* current) {	
 		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == leftNode) {
 			BTree<T, I>::Node* grandParent = current->parent->parent;
 			grandParent->color = red;
-			current->parent = black;
+			current->parent->color = black;
 			BTree<T, I>::rightRotation(&grandParent, grandParent->parent);
 			return SUCCESS;
 		}
 		return NOT_FOUND;
 	}
 
-	l_sts leftRightCase(BTree<T, I>::Node** current) {
+	l_sts leftRightCase(BTree<T, I>::Node* current) {
 		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == leftNode) {
 			BTree<T, I>::Node* grandParent = current->parent->parent;
 			BTree<T, I>::leftRotation(&grandParent, current->parent);
-			return leftLeftCase(&grandParent->left);
+			return leftLeftCase(grandParent->left);
 		}
+		return NOT_FOUND;
 	}
 
+	l_sts rightRightCase(BTree<T, I>::Node* current) {
+		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == rightNode) {
+			BTree<T, I>::Node* grandParent = current->parent->parent;
+			NodeColor temp = grandParent->color;
+			grandParent->color = current->parent->color;
+			current->parent->color = temp;
+			BTree<T, I>::leftRotation(&grandParent, grandParent->parent);
+			return SUCCESS;
+		}
+		return NOT_FOUND;
+	}
+
+	l_sts rightLeftCase(BTree<T, I>::Node* current) {
+		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == rightNode) {
+			BTree<T, I>::Node* grandParent = current->parent->parent;
+			BTree<T, I>::rightRotation(&(current->parent), grandParent);
+			return rightRightCase(current);
+		}
+		return NOT_FOUND;
+	}
 	//if x is root change color of x as BLACK
 	//if color of x's parent is RED and x isn't root do:
 	//change color of parent and uncle as BLACK; color of grand parent as RED; x = x's grandparent and repeat;
@@ -513,7 +534,19 @@ protected:
 				current = current->parent->parent;
 			}
 			else if (!uncle || uncle->color == black) {
-				
+				l_sts sts = leftLeftCase(current);
+				if (sts == SUCCESS)
+					return sts;
+				sts = leftRightCase(current);
+				if (sts == SUCCESS)
+					return sts;
+				sts = rightRightCase(current);
+				if (sts == SUCCESS)
+					return sts;
+				sts = rightLeftCase(current);
+				if (sts == SUCCESS)
+					return sts;
+
 			}
 		}
 		return SUCCESS;

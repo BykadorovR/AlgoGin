@@ -416,4 +416,11 @@ TEST(BTree_rb, Insert) {
 	t.insert(12, 1);
 	t.insert(12, 3);
 	t.insert(12, 0);
+	//
+	BTree_rb<int, int> t1;
+	t.insert(10, 10);
+	t.insert(20, 20);
+	t.insert(30, 30);
+	t.insert(15, 15);
+
 }
