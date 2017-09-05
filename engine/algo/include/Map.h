@@ -462,11 +462,11 @@ protected:
 			return NOT_FOUND;
 		}
 		typename BTree<T, I>::Node* parent = current->parent;
-		typename BTree<T, I>::NodeType parentType = childType(parent);
-		if (parentType == rightNode)
+		typename BTree<T, I>::NodeType parentType = BTree<T, I>::childType(parent);
+		if (parentType == BTree<T, I>::rightNode)
 			*uncle = parent->parent->left;
 		else
-		if (parentType == leftNode)
+		if (parentType == BTree<T, I>::leftNode)
 			*uncle = parent->parent->right;
 		else {
 			*uncle = nullptr;
