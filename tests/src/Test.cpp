@@ -9,7 +9,7 @@
 int main(int argc, char *argv[])
 {
 	testing::InitGoogleTest(&argc, argv);
-//	::testing::GTEST_FLAG(filter) = "BTree_mb.Remove_String_Value_Key";
+	//::testing::GTEST_FLAG(filter) = "BTree_rb.Insert";
 	return RUN_ALL_TESTS();
 	std::getchar(); // keep console window open until Return keystroke
 }
@@ -410,31 +410,83 @@ TEST(BTree_mb, Balancing) {
 	ASSERT_EQ(t1.isTreeBalanced(), false);
 }
 
+//checking correctness of insertion and structure of tree: left, right, parent nodes have to be correct
 TEST(BTree_rb, Insert) {
-	BTree_rb<int, int> t;
-	t.insert(12, 2);
-	t.insert(12, 1);
-	t.insert(12, 3);
-	t.insert(12, 0);
 	//right right
 	BTree_rb<int, int> t1;
 	t1.insert(10, 10);
 	t1.insert(20, 20);
 	t1.insert(30, 30);
 	t1.insert(15, 15);
+	ASSERT_EQ(t1.head->color, t1.black);
+	ASSERT_EQ(t1.head->index, 20);
+	ASSERT_EQ(t1.isTreeBalanced(), true);
 	//left left
 	BTree_rb<int, int> t2;
 	t2.insert(30, 30);
 	t2.insert(20, 20);
 	t2.insert(10, 10);
+	ASSERT_EQ(t2.head->color, t2.black);
+	ASSERT_EQ(t2.head->index, 20);
+	ASSERT_EQ(t2.head->left->index, 10);
+	ASSERT_EQ(t2.isTreeBalanced(), true);
 	//left right
 	BTree_rb<int, int> t3;
 	t3.insert(30, 30);
 	t3.insert(20, 20);
 	t3.insert(25, 25);
+	ASSERT_EQ(t3.head->color, t3.black);
+	ASSERT_EQ(t3.head->index, 25);
+	ASSERT_EQ(t3.head->left->index, 20);
+	ASSERT_EQ(t3.isTreeBalanced(), true);
 	//right left
 	BTree_rb<int, int> t4;
 	t4.insert(20, 20);
 	t4.insert(30, 30);
 	t4.insert(25, 25);
+	ASSERT_EQ(t4.head->color, t4.black);
+	ASSERT_EQ(t4.head->index, 25);
+	ASSERT_EQ(t4.head->right->index, 30);
+	ASSERT_EQ(t4.head->right->color, t4.red);
+	ASSERT_EQ(t4.isTreeBalanced(), true);
+	//real example
+	BTree_rb<int, int> t5;
+	//black
+	t5.insert(47, 47);
+	//red
+	t5.insert(32, 32);
+	//red
+	t5.insert(71, 71);
+	//recoloring: all black instead of this
+	t5.insert(93, 93);
+	//red
+	t5.insert(65, 65);
+	//recoloring
+	t5.insert(82, 82);
+	//left right rotation
+	t5.insert(87, 87);
+	ASSERT_EQ(t5.count, 7);
+	ASSERT_EQ(t5.head->right->color, t5.red);
+	ASSERT_EQ(t5.head->right->right->value, 87);
+	//another real example
+	BTree_rb<int, int> t6;
+	t6.insert(2, 2);
+	t6.insert(1, 1);
+	t6.insert(4, 4);
+	t6.insert(5, 5);
+	t6.insert(9, 9);
+	t6.insert(3, 3);
+	t6.insert(6, 6);
+	t6.insert(7, 7);
+	ASSERT_EQ(t6.count, 8);
+	ASSERT_EQ(t6.head->right->color, t6.red);
+	ASSERT_EQ(t6.head->right->right->color, t6.black);
+	ASSERT_EQ(t6.head->right->right->left->color, t6.red);
+	ASSERT_EQ(t6.head->right->right->left->value, 6);
+	ASSERT_EQ(t6.head->right->right->value, 7);
+	ASSERT_EQ(t6.head->right->left->value, 4);
+	ASSERT_EQ(t6.head->right->left->color, t6.black);
+	ASSERT_EQ(t6.head->left->value, 1);
+	ASSERT_EQ(t6.head->right->left->left->color, t6.red);
+	ASSERT_EQ(t6.head->right->left->left->value, 3);
 }

@@ -120,7 +120,6 @@ protected:
 	//First uprocessed node and last node of final vine
 	l_sts rightRotation(Node** remaining, Node* vineTail) {
 		Node* temp = (*remaining)->left;
-
 		//reassign one of subtrees from temp to remainder
 		(*remaining)->left = temp->right;
 		if (temp->right)
@@ -451,6 +450,11 @@ public:
 #else
 protected:
 #endif
+	l_sts setCorrectHead() {
+		while (head->parent != nullptr)
+			head = head->parent;
+		return SUCCESS;
+	}
 
 	l_sts findUncle(BTree<T, I>::Node* current, BTree<T, I>::Node** uncle) {
 		if (!current->parent) {
@@ -475,11 +479,11 @@ protected:
 	l_sts leftLeftCase(BTree<T, I>::Node* current) {	
 		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == leftNode) {
 			BTree<T, I>::Node* grandParent = current->parent->parent;
-			grandParent->color = red;
-			current->parent->color = black;
+			NodeColor tempColor = grandParent->color;
+			grandParent->color = current->parent->color;
+			current->parent->color = tempColor;
 			BTree<T, I>::rightRotation(&grandParent, grandParent->parent);
-			//we rotated grandParent-parent nodes and after set grandParent pointer to "grand parent" so head have to be grandParent
-			head = grandParent;
+			setCorrectHead();
 			return SUCCESS;
 		}
 		return NOT_FOUND;
@@ -502,14 +506,19 @@ protected:
 			current->parent->color = temp;
 			//due of realisation of left rotation as in BSW algorithm (where fake node is used) we have to add fake node for left rotation too
 			//if we want to rotate grandparent
-			Node* fake = new Node();
-			fake->right = grandParent;
-			grandParent->parent = fake;
-			//we have to make left rotate of grandParent so we need to pass grand parent node and its parent
-			BTree<T, I>::leftRotation(&fake, grandParent);
-			delete fake->parent;
-			fake->parent = nullptr;
-			head = fake;
+			if (!grandParent->parent) {
+				Node* fake = new Node();
+				fake->right = grandParent;
+				grandParent->parent = fake;
+				//we have to make left rotate of grandParent so we need to pass grand parent node and its parent
+				BTree<T, I>::leftRotation(&fake, grandParent);
+				delete fake->parent;
+				fake->parent = nullptr;
+			}
+			else {
+				BTree<T, I>::leftRotation(&(grandParent->parent), grandParent);
+			}
+			setCorrectHead();
 			return SUCCESS;
 		}
 		return NOT_FOUND;
@@ -517,9 +526,9 @@ protected:
 
 	l_sts rightLeftCase(BTree<T, I>::Node* current) {
 		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == rightNode) {
-			BTree<T, I>::Node* grandParent = current->parent->parent;
-			BTree<T, I>::rightRotation(&(current->parent), grandParent);
-			return rightRightCase(current);
+			BTree<T, I>::Node* parentNode = current->parent;
+			BTree<T, I>::rightRotation(&parentNode, parentNode->parent);
+			return rightRightCase(current->right);
 		}
 		return NOT_FOUND;
 	}
