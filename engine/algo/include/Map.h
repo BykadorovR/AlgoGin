@@ -462,7 +462,7 @@ protected:
 			return NOT_FOUND;
 		}
 		typename BTree<T, I>::Node* parent = current->parent;
-		NodeType parentType = childType(parent);
+		BTree<T, I>::NodeType parentType = childType(parent);
 		if (parentType == rightNode)
 			*uncle = parent->parent->left;
 		else
@@ -477,9 +477,9 @@ protected:
 
 	//left left case - curent left child and parent left child
 	l_sts leftLeftCase(typename BTree<T, I>::Node* current) {	
-		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == leftNode) {
+		if (BTree<T, I>::childType(current) == BTree<T, I>::leftNode && BTree<T, I>::childType(current->parent) == BTree<T, I>::leftNode) {
 			typename BTree<T, I>::Node* grandParent = current->parent->parent;
-			NodeColor tempColor = grandParent->color;
+			BTree<T, I>::NodeColor tempColor = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = tempColor;
 			BTree<T, I>::rightRotation(&grandParent, grandParent->parent);
@@ -490,7 +490,7 @@ protected:
 	}
 
 	l_sts leftRightCase(typename BTree<T, I>::Node* current) {
-		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == leftNode) {
+		if (BTree<T, I>::childType(current) == BTree<T, I>::rightNode && BTree<T, I>::childType(current->parent) == BTree<T, I>::leftNode) {
 			typename BTree<T, I>::Node* grandParent = current->parent->parent;
 			BTree<T, I>::leftRotation(&grandParent, current->parent);
 			return leftLeftCase(grandParent->left);
@@ -499,9 +499,9 @@ protected:
 	}
 
 	l_sts rightRightCase(typename BTree<T, I>::Node* current) {
-		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == rightNode) {
+		if (BTree<T, I>::childType(current) == BTree<T, I>::rightNode && BTree<T, I>::childType(current->parent) == BTree<T, I>::rightNode) {
 			typename BTree<T, I>::Node* grandParent = current->parent->parent;
-			NodeColor temp = grandParent->color;
+			BTree<T, I>::NodeColor temp = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = temp;
 			//due of realisation of left rotation as in BSW algorithm (where fake node is used) we have to add fake node for left rotation too
@@ -525,7 +525,7 @@ protected:
 	}
 
 	l_sts rightLeftCase(typename BTree<T, I>::Node* current) {
-		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == rightNode) {
+		if (BTree<T, I>::childType(current) == BTree<T, I>::leftNode && BTree<T, I>::childType(current->parent) == BTree<T, I>::rightNode) {
 			typename BTree<T, I>::Node* parentNode = current->parent;
 			BTree<T, I>::rightRotation(&parentNode, parentNode->parent);
 			return rightRightCase(current->right);
@@ -539,25 +539,25 @@ protected:
 		while (current != nullptr) {
 			//If inserted node is first in tree
 			if (current == BTree<T, I>::head) {
-				current->color = black;
+				current->color = BTree<T, I>::black;
 				return SUCCESS;
 			}
 			//parent is black node so it's ok
-			if (current->parent->color == black) {
+			if (current->parent->color == BTree<T, I>::black) {
 				return SUCCESS;
 			}
 
 			typename BTree<T, I>::Node* uncle;
 			findUncle(current, &uncle);
-			if (uncle && uncle->color == red) {
+			if (uncle && uncle->color == BTree<T, I>::red) {
 				//current->parent exists because in other case current is head node and we would exit from this loop
-				current->parent->color = black;
-				uncle->color = black;
+				current->parent->color = BTree<T, I>::black;
+				uncle->color = BTree<T, I>::black;
 				if (current->parent->parent)
-					current->parent->parent->color = red;
+					current->parent->parent->color = BTree<T, I>::red;
 				current = current->parent->parent;
 			}
-			else if (!uncle || uncle->color == black) {
+			else if (!uncle || uncle->color == BTree<T, I>::black) {
 				l_sts sts = leftLeftCase(current);
 				if (sts == SUCCESS)
 					return sts;
@@ -586,7 +586,7 @@ public:
 		typename BTree<T, I>::Node* inserted;
 		l_sts sts = BTree<T, I>::_insert(value, index, &inserted);
 		//Newly inserted nodes have to be red
-		inserted->color = red;
+		inserted->color = BTree<T, I>::red;
 
 		//try to do rebalancing if needed
 		rebalancing(inserted);
