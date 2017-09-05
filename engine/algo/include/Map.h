@@ -462,7 +462,7 @@ protected:
 			return NOT_FOUND;
 		}
 		typename BTree<T, I>::Node* parent = current->parent;
-		BTree<T, I>::NodeType parentType = childType(parent);
+		typename BTree<T, I>::NodeType parentType = childType(parent);
 		if (parentType == rightNode)
 			*uncle = parent->parent->left;
 		else
@@ -479,7 +479,7 @@ protected:
 	l_sts leftLeftCase(typename BTree<T, I>::Node* current) {	
 		if (BTree<T, I>::childType(current) == BTree<T, I>::leftNode && BTree<T, I>::childType(current->parent) == BTree<T, I>::leftNode) {
 			typename BTree<T, I>::Node* grandParent = current->parent->parent;
-			BTree<T, I>::NodeColor tempColor = grandParent->color;
+			typename BTree<T, I>::NodeColor tempColor = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = tempColor;
 			BTree<T, I>::rightRotation(&grandParent, grandParent->parent);
@@ -501,7 +501,7 @@ protected:
 	l_sts rightRightCase(typename BTree<T, I>::Node* current) {
 		if (BTree<T, I>::childType(current) == BTree<T, I>::rightNode && BTree<T, I>::childType(current->parent) == BTree<T, I>::rightNode) {
 			typename BTree<T, I>::Node* grandParent = current->parent->parent;
-			BTree<T, I>::NodeColor temp = grandParent->color;
+			typename BTree<T, I>::NodeColor temp = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = temp;
 			//due of realisation of left rotation as in BSW algorithm (where fake node is used) we have to add fake node for left rotation too
