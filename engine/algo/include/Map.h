@@ -451,17 +451,17 @@ public:
 protected:
 #endif
 	l_sts setCorrectHead() {
-		while (head->parent != nullptr)
-			head = head->parent;
+		while (BTree<T, I>::head->parent != nullptr)
+			BTree<T, I>::head = BTree<T, I>::head->parent;
 		return SUCCESS;
 	}
 
-	l_sts findUncle(BTree<T, I>::Node* current, BTree<T, I>::Node** uncle) {
+	l_sts findUncle(typename BTree<T, I>::Node* current, typename BTree<T, I>::Node** uncle) {
 		if (!current->parent) {
 			*uncle = nullptr;
 			return NOT_FOUND;
 		}
-		BTree<T, I>::Node* parent = current->parent;
+		typename BTree<T, I>::Node* parent = current->parent;
 		NodeType parentType = childType(parent);
 		if (parentType == rightNode)
 			*uncle = parent->parent->left;
@@ -476,9 +476,9 @@ protected:
 	}
 
 	//left left case - curent left child and parent left child
-	l_sts leftLeftCase(BTree<T, I>::Node* current) {	
+	l_sts leftLeftCase(typename BTree<T, I>::Node* current) {	
 		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == leftNode) {
-			BTree<T, I>::Node* grandParent = current->parent->parent;
+			typename BTree<T, I>::Node* grandParent = current->parent->parent;
 			NodeColor tempColor = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = tempColor;
@@ -489,25 +489,25 @@ protected:
 		return NOT_FOUND;
 	}
 
-	l_sts leftRightCase(BTree<T, I>::Node* current) {
+	l_sts leftRightCase(typename BTree<T, I>::Node* current) {
 		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == leftNode) {
-			BTree<T, I>::Node* grandParent = current->parent->parent;
+			typename BTree<T, I>::Node* grandParent = current->parent->parent;
 			BTree<T, I>::leftRotation(&grandParent, current->parent);
 			return leftLeftCase(grandParent->left);
 		}
 		return NOT_FOUND;
 	}
 
-	l_sts rightRightCase(BTree<T, I>::Node* current) {
+	l_sts rightRightCase(typename BTree<T, I>::Node* current) {
 		if (BTree<T, I>::childType(current) == rightNode && BTree<T, I>::childType(current->parent) == rightNode) {
-			BTree<T, I>::Node* grandParent = current->parent->parent;
+			typename BTree<T, I>::Node* grandParent = current->parent->parent;
 			NodeColor temp = grandParent->color;
 			grandParent->color = current->parent->color;
 			current->parent->color = temp;
 			//due of realisation of left rotation as in BSW algorithm (where fake node is used) we have to add fake node for left rotation too
 			//if we want to rotate grandparent
 			if (!grandParent->parent) {
-				Node* fake = new Node();
+				typename BTree<T, I>::Node* fake = new typename BTree<T, I>::Node();
 				fake->right = grandParent;
 				grandParent->parent = fake;
 				//we have to make left rotate of grandParent so we need to pass grand parent node and its parent
@@ -524,9 +524,9 @@ protected:
 		return NOT_FOUND;
 	}
 
-	l_sts rightLeftCase(BTree<T, I>::Node* current) {
+	l_sts rightLeftCase(typename BTree<T, I>::Node* current) {
 		if (BTree<T, I>::childType(current) == leftNode && BTree<T, I>::childType(current->parent) == rightNode) {
-			BTree<T, I>::Node* parentNode = current->parent;
+			typename BTree<T, I>::Node* parentNode = current->parent;
 			BTree<T, I>::rightRotation(&parentNode, parentNode->parent);
 			return rightRightCase(current->right);
 		}
@@ -535,7 +535,7 @@ protected:
 	//if x is root change color of x as BLACK
 	//if color of x's parent is RED and x isn't root do:
 	//change color of parent and uncle as BLACK; color of grand parent as RED; x = x's grandparent and repeat;
-	l_sts rebalancing(BTree<T, I>::Node* current) {
+	l_sts rebalancing(typename BTree<T, I>::Node* current) {
 		while (current != nullptr) {
 			//If inserted node is first in tree
 			if (current == BTree<T, I>::head) {
@@ -547,7 +547,7 @@ protected:
 				return SUCCESS;
 			}
 
-			BTree<T, I>::Node* uncle;
+			typename BTree<T, I>::Node* uncle;
 			findUncle(current, &uncle);
 			if (uncle && uncle->color == red) {
 				//current->parent exists because in other case current is head node and we would exit from this loop
@@ -583,7 +583,7 @@ public:
 	}
 
 	l_sts insert(T value, I index) {
-		BTree<T, I>::Node* inserted;
+		typename BTree<T, I>::Node* inserted;
 		l_sts sts = BTree<T, I>::_insert(value, index, &inserted);
 		//Newly inserted nodes have to be red
 		inserted->color = red;
