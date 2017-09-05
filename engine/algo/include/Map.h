@@ -432,7 +432,7 @@ public:
 		BTree<T, I>::head->parent = temp;
 		treeToVine(temp);
 		vineToTree(temp);
-		head = temp->right;
+		BTree<T, I>::head = temp->right;
 		delete temp;
 		BTree<T, I>::head->parent = nullptr;
 		return SUCCESS;
