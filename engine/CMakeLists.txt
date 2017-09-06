@@ -41,4 +41,5 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS} ${GLUT_LIBRARIES} glew_s)
+add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS})
+target_link_libraries(${PROJECT_NAME} ${GLUT_LIBRARIES} glew_s)
