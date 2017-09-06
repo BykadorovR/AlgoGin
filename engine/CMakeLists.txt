@@ -13,12 +13,9 @@ endif(NOT GLUT_FOUND)
 #########################################################
 # FIND GLEW
 #########################################################
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
-link_libraries(${GLEW_LIBRARIES})
-if (NOT GLEW_FOUND)
-    message(ERROR " GLEW not found. Need to specify path to glew folder and to dynamic/static libraries!") 
-endif()
+ADD_SUBDIRECTORY ("../dependencies/glew/build/cmake" glew)
+set(GLEW_DIR "../dependencies/glew")
+include_directories(${GLEW_DIR}/include)
 
 #include algo headers
 include_directories(algo/include)
@@ -44,4 +41,4 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
-add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
+add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS} ${GRAPHIC_SOURCE} ${GRAPHIC_HEADERS} ${GLUT_LIBRARIES} glew_s)
