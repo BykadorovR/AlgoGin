@@ -16,7 +16,6 @@ install:
   - sudo apt-get install -qq g++-4.8
   - export CXX="g++-4.8"
   - sudo apt-get install ggcov
-  - sudo apt-get install libgl1-mesa-dev
   - sudo apt-get install libglew-dev
   - sudo apt-get install freeglut3 freeglut3-dev
   - sudo apt-get install libxmu-dev libxi-dev
@@ -28,17 +27,17 @@ script:
   - mkdir _build
   - cd _build
   - cmake ..
-  - make
+  - make VERBOSE=1
   - cd ../../app
   - mkdir _build
   - cd _build
   - cmake ..
-  - make
+  - make VERBOSE=1
   - cd ../../tests
   - mkdir _build
   - cd _build
   - cmake ..
-  - make
+  - make VERBOSE=1
   - ./engine_tests
 
 after_success:
