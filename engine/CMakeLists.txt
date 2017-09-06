@@ -10,9 +10,9 @@ add_definitions(${GLUT_DEFINITIONS})
 if(NOT GLUT_FOUND)
     message(ERROR " GLUT not found. Need to specify path to freeglut folder and to dynamic/static libraries!")
 endif(NOT GLUT_FOUND)
-#########################################################
+########################################################
 # FIND GLEW
-#########################################################
+########################################################
 ADD_SUBDIRECTORY ("../dependencies/glew/build/cmake" glew)
 set(GLEW_DIR "../dependencies/glew")
 include_directories(${GLEW_DIR}/include)
