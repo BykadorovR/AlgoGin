@@ -16,6 +16,9 @@ endif(NOT GLUT_FOUND)
 ADD_SUBDIRECTORY ("../dependencies/glew/build/cmake" glew)
 set(GLEW_DIR "../dependencies/glew")
 include_directories(${GLEW_DIR}/include)
+MESSAGE(STATUS glew)
+MESSAGE(STATUS glew_s)
+MESSAGE(STATUS ${GLEW_LIBRARIES})
 
 #include app source
 FILE(GLOB_RECURSE APP_SOURCE "src/*.c*")
