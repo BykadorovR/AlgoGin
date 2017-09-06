@@ -13,12 +13,9 @@ endif(NOT GLUT_FOUND)
 #########################################################
 # FIND GLEW
 #########################################################
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
-link_libraries(${GLEW_LIBRARIES})
-if (NOT GLEW_FOUND)
-    message(ERROR " GLEW not found. Need to specify path to glew folder and to dynamic/static libraries!") 
-endif()
+ADD_SUBDIRECTORY ("../dependencies/glew/build/cmake" glew)
+set(GLEW_DIR "../dependencies/glew")
+include_directories(${GLEW_DIR}/include)
 
 #include app source
 FILE(GLOB_RECURSE APP_SOURCE "src/*.c*")
@@ -53,4 +50,4 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
 endif()
-target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${GLUT_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${GLUT_LIBRARIES} glew_s)
