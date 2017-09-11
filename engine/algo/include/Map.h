@@ -243,8 +243,12 @@ protected:
 		return WRONG_ARGS;
 	}
 
-	l_sts _removeRecursively(Node** current) {
+	l_sts _removeRecursively(Node** current, Node* deleted) {
 		if ((*current)->left == nullptr && (*current)->right == nullptr) {
+			//we want to memory deleted node for further handling
+			deleted->parent = (*current)->parent;
+			deleted->color = (*current)->color;
+			//
 			NodeType type = childType(*current);
 			if (type == leftNode)
 				(*current)->parent->left = nullptr;
@@ -272,14 +276,14 @@ protected:
 			(*current) = nearest;
 		}
 
-		return _removeRecursively(current);
+		return _removeRecursively(current, deleted);
 	}
 
 	l_sts _removeTwoChild(Node** current) {
 		return SUCCESS;
 	}
 
-	l_sts _remove(I index) {
+	l_sts _remove(I index, Node* deleted) {
 		if (head == nullptr)
 			return EMPTY;
 		if (head->index == index && !head->left && !head->right) {
@@ -291,7 +295,7 @@ protected:
 		l_sts sts = find_node(&current, index);
 
 		if (sts == SUCCESS) {
-			_removeRecursively(&current);
+			_removeRecursively(&current, deleted);
 			count--;
 		}
 		return sts;
@@ -605,6 +609,7 @@ public:
 	}
 
 	l_sts remove(I index) {
-		return BTree<T, I>::_remove(index);
+		typename BTree<T, I>::Node* deleted = new typename BTree<T, I>::Node();
+		BTree<T, I>::_remove(index, deleted);
 	}
 };
