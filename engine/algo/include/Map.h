@@ -611,5 +611,74 @@ public:
 	l_sts remove(I index) {
 		typename BTree<T, I>::Node* deleted = new typename BTree<T, I>::Node();
 		BTree<T, I>::_remove(index, deleted);
+		//repeat it for case when sibling and children are black
+		NodeType deletedType = childType(deleted);
+		typename BTree<T, I>::Node* parent = deleted->parent;
+		typename BTree<T, I>::Node* sibling = deletedType == leftNode ? parent->right : parent->left;
+		NodeType siblingType = childType(sibling);
+		if (deleted->color == black && parent->color == red) {
+			parent->color = black;
+		}
+		else
+		if (deleted->color == black && parent->color == black) {
+			//
+			if (sibling->color == black) {
+				typename BTree<T, I>::Node* current = nullptr;
+				if (sibling->right && sibling->right->color == red)
+					current = sibling->right;
+				else if (sibling->left && sibling->left->color == red)
+					current = sibling->left;
+				if (current) {
+					l_sts sts = leftLeftCase(current);
+					if (sts == SUCCESS)
+						return sts;
+					sts = leftRightCase(current);
+					if (sts == SUCCESS)
+						return sts;
+					sts = rightRightCase(current);
+					if (sts == SUCCESS)
+						return sts;
+					sts = rightLeftCase(current);
+					if (sts == SUCCESS)
+						return sts;
+				}
+				//children are either black or empty
+				else {
+					typename BTree<T, I>::Node* current = sibling;
+					//perform recoloring
+					sibling->color = red;
+					if (sibling->parent != head) {
+						if (sibling->parent->color == red)
+							sibling->parent->color == black;
+						else
+							deleted = sibling->parent;
+						//repeat it for case when sibling and children are black
+					}
+				}
+			} else
+			if (sibling->color == red) {
+				if (siblingType == leftNode) {
+					//left rotate the sibling's parent
+					if (!parent) {
+						typename BTree<T, I>::Node* fake = new typename BTree<T, I>::Node();
+						fake->right = parent;
+						parent->parent = fake;
+						//we have to make left rotate of grandParent so we need to pass grand parent node and its parent
+						BTree<T, I>::leftRotation(&fake, parent);
+						delete fake->parent;
+						fake->parent = nullptr;
+					}
+					else {
+						BTree<T, I>::leftRotation(&(parent->parent), parent);
+					}
+				}
+				else {
+
+				}
+				setCorrectHead();
+			}
+		}
+		delete deleted;
+		return SUCCESS;
 	}
 };
