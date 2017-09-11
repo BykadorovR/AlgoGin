@@ -325,6 +325,90 @@ TEST(BTree_mb, Remove) {
 	t.remove(8);
 	ASSERT_EQ(t.getNodeCount(), 5);
 	ASSERT_EQ(t[4], 6);
+	//complex real case
+	BTree_mb<int, int> t1;
+	t1.insert(7, 7);
+	t1.insert(8, 8);
+	t1.insert(9, 9);
+	t1.insert(4, 4);
+	t1.insert(2, 2);
+	t1.insert(5, 5);
+	t1.remove(7);
+	ASSERT_EQ(t1.head->value, 8);
+	ASSERT_EQ(t1.head->right->value, 9);
+	//another complex real case
+	//            12
+	//        /       \ 
+	//       5         15
+	//      / \       /  \
+	//     3   7     13   17
+	//    /     \      \    \
+	//   1       9     14    20
+	//          / \         /  \
+	//         8   11     18    21   
+	//
+	//want to delete 15
+	BTree_mb<int, int> t2;
+	t2.insert(12, 12);
+	t2.insert(15, 15);
+	t2.insert(13, 13);
+	t2.insert(14, 14);
+	t2.insert(17, 17);
+	t2.insert(20, 20);
+	t2.insert(18, 18);
+	t2.insert(21, 21);
+	t2.insert(5, 5);
+	t2.insert(7, 7);
+	t2.insert(9, 9);
+	t2.insert(8, 8);
+	t2.insert(11, 11);
+	t2.insert(3, 3);
+	t2.insert(1, 1);
+
+	t2.remove(15);
+	ASSERT_EQ(t2.head->right->value, 17);
+	ASSERT_EQ(t2.head->right->right->value, 20);
+	ASSERT_EQ(t2.head->right->right->right->value, 21);
+	t2.remove(7);
+	ASSERT_EQ(t2.head->left->right->value, 9);
+	ASSERT_EQ(t2.head->left->right->right->value, 11);
+	ASSERT_EQ(t2.head->left->right->right->left->value, 8);
+	//another complex real case
+	//            12
+	//        /       \ 
+	//       5         15
+	//      / \       /  \
+	//     3   7     13   17
+    //    /   / \      \    \
+	//   1   6   9     14    20
+    //          / \         /  \
+	//         8   11     18    21   
+    //
+    //want to delete 15
+	BTree_mb<int, int> t3;
+	t3.insert(12, 12);
+	t3.insert(15, 15);
+	t3.insert(13, 13);
+	t3.insert(14, 14);
+	t3.insert(17, 17);
+	t3.insert(20, 20);
+	t3.insert(18, 18);
+	t3.insert(21, 21);
+	t3.insert(5, 5);
+	t3.insert(7, 7);
+	t3.insert(6, 6);
+	t3.insert(9, 9);
+	t3.insert(8, 8);
+	t3.insert(11, 11);
+	t3.insert(3, 3);
+	t3.insert(1, 1);
+
+	t3.remove(7);
+	ASSERT_EQ(t3.head->left->right->value, 8);
+	ASSERT_EQ(t3.head->left->right->left->value, 6);
+	ASSERT_EQ(t3.head->left->right->right->value, 9);
+	ASSERT_EQ(t3.head->left->right->right->left, nullptr);
+	ASSERT_EQ(t3.head->left->right->right->right->value, 11);
 }
 
 TEST(BTree_mb, Remove_String_Value) {
@@ -408,6 +492,7 @@ TEST(BTree_mb, Balancing) {
 	BTree_mb<int, int> t1;
 	ASSERT_EQ(t1.balanceTree(), EMPTY);
 	ASSERT_EQ(t1.isTreeBalanced(), false);
+	//TODO: make up another example
 }
 
 //checking correctness of insertion and structure of tree: left, right, parent nodes have to be correct

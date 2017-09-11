@@ -59,18 +59,14 @@ protected:
 			return SUCCESS;
 		return NOT_FOUND;
 	}
-
-	l_sts find_nearest(Node** res, I index) {
-		Node* start = *res;
-		while (*res) {
-			*res = (*res)->right;
-			if ((*res) != nullptr && (*res)->left) {
-				*res = (*res)->left;
-				return SUCCESS;
-			}
+	//smallest in the right subtree
+	l_sts findNearest(Node** res) {
+		Node* start = (*res)->right;
+		while (start->left != nullptr) {
+			start = start->left;
 		}
 
-		*res = start->left;
+		*res = start;
 		return SUCCESS;
 	}
 
@@ -242,6 +238,47 @@ protected:
 		maximum_recursively(head, max);
 		return max;
 	}
+
+	l_sts _removeLeaf(Node** current) {
+		return WRONG_ARGS;
+	}
+
+	l_sts _removeRecursively(Node** current) {
+		if ((*current)->left == nullptr && (*current)->right == nullptr) {
+			NodeType type = childType(*current);
+			if (type == leftNode)
+				(*current)->parent->left = nullptr;
+			else if (type == rightNode)
+				(*current)->parent->right = nullptr;
+			delete (*current);
+			return SUCCESS;
+		} else
+		if ((*current)->left && (*current)->right == nullptr) {
+			//not deep copy, only index and value
+			(*current)->index = (*current)->left->index;
+			(*current)->value = (*current)->left->value;
+			(*current) = (*current)->left;
+		} else 
+		if ((*current)->right && (*current)->left == nullptr) {
+			(*current)->index = (*current)->right->index;
+			(*current)->value = (*current)->right->value;
+			(*current) = (*current)->right;
+		} else
+		if ((*current)->right && (*current)->left) {
+			Node* nearest = (*current);
+			findNearest(&nearest);
+			(*current)->index = nearest->index;
+			(*current)->value = nearest->value;
+			(*current) = nearest;
+		}
+
+		return _removeRecursively(current);
+	}
+
+	l_sts _removeTwoChild(Node** current) {
+		return SUCCESS;
+	}
+
 	l_sts _remove(I index) {
 		if (head == nullptr)
 			return EMPTY;
@@ -254,45 +291,7 @@ protected:
 		l_sts sts = find_node(&current, index);
 
 		if (sts == SUCCESS) {
-			//if node is leaf
-			if (current->left == nullptr && current->right == nullptr) {
-				NodeType type = childType(current);
-				if (type == leftNode)
-					current->parent->left = nullptr;
-				else if (type == rightNode)
-					current->parent->right = nullptr;
-				delete current;
-			}
-			else
-				//if there is 1 child
-				if (current->left && current->right == nullptr) {
-					//not deep copy, only index and value
-					current->index = current->left->index;
-					current->value = current->left->value;
-					delete current->left;
-					current->left = nullptr;
-				}
-				else
-					if (current->right && current->left == nullptr) {
-						current->index = current->right->index;
-						current->value = current->right->value;
-						delete current->right;
-						current->right = nullptr;
-					}
-					else
-						//if there are 2 children
-						if (current->right && current->left) {
-							Node* nearest = current;
-							sts = find_nearest(&nearest, index);
-							current->index = nearest->index;
-							current->value = nearest->value;
-							NodeType type = childType(nearest);
-							if (type == leftNode)
-								nearest->parent->left = nullptr;
-							else if (type == rightNode)
-								nearest->parent->right = nullptr;
-							delete nearest;
-						}
+			_removeRecursively(&current);
 			count--;
 		}
 		return sts;
@@ -407,7 +406,7 @@ public:
 		l_sts sts;
 		sts = BTree<T, I>::_insert(value, index);
 		//balancing
-		if (BTree<T, I>::count > 10)
+		if (BTree<T, I>::count > 20)
 			sts = getWorst(balanceTree(), sts);
 		return sts;
 	}
