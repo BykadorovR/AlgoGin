@@ -13,6 +13,7 @@ protected:
 		none = 0,
 		red,
 		black,
+		doubleBlack,
 	};
 
 	enum NodeType {
@@ -103,6 +104,28 @@ protected:
 		}
 		return headNode;
 	}
+
+	bool isOnlyChild(Node* current) {
+		NodeType currentType = childType(current);
+		if (leftNode)
+			if (current->parent->right != nullptr)
+				return false;
+		if (rightNode)
+			if (current->parent->left != nullptr)
+				return false;
+		if (headNode)
+			return false;
+
+		return true;
+		
+	}
+
+	bool isLeaf(Node* current) {
+		if (current->right == nullptr && current->left == nullptr)
+			return true;
+		return false;
+	}
+
 
 	/*
         (1) vt.          (1) vt.
@@ -611,51 +634,67 @@ public:
 	l_sts remove(I index) {
 		typename BTree<T, I>::Node* deleted = new typename BTree<T, I>::Node();
 		BTree<T, I>::_remove(index, deleted);
-		//repeat it for case when sibling and children are black
-		NodeType deletedType = childType(deleted);
-		typename BTree<T, I>::Node* parent = deleted->parent;
-		typename BTree<T, I>::Node* sibling = deletedType == leftNode ? parent->right : parent->left;
-		NodeType siblingType = childType(sibling);
-		if (deleted->color == black && parent->color == red) {
-			parent->color = black;
+
+		//if deleted node is red so no addtitional actions are required
+		if (deleted->color == red) {
+			delete deleted;
+			deleted = nullptr;
+			return SUCCESS;
 		}
-		else
-		if (deleted->color == black && parent->color == black) {
-			//
-			if (sibling->color == black) {
-				typename BTree<T, I>::Node* current = nullptr;
-				if (sibling->right && sibling->right->color == red)
-					current = sibling->right;
-				else if (sibling->left && sibling->left->color == red)
-					current = sibling->left;
-				if (current) {
-					l_sts sts = leftLeftCase(current);
-					if (sts == SUCCESS)
+		//if one child and deleted node is black and parent red this case is applicable
+		if (isOnlyChild(deleted) && deleted->color == black && deleted->parent->color == red) {
+			deleted->parent->color = black;
+			delete deleted;
+			deleted = nullptr;
+			return SUCCESS;
+		}
+		//otherwise, if deleted node is black and has sibling
+		if (!isOnlyChild(deleted) && deleted->color == black) {
+			typename BTree<T, I>::Node* current = deleted->parent;
+			current->color = doubleBlack;
+			while (current->color == doubleBlack && current != head) {
+				typename BTree<T, I>::Node* sibling = childType(current) == leftNode ? current->parent->right : current->parent->left;
+				//if sibling is black and at lease one child is red perform rotation
+				if (sibling->color == red && ((sibling->right && sibling->right->color == red)
+					                       || (sibling->left && sibling->left->color == red))) {
+					typename BTree<T, I>::Node* redChild;
+					if (sibling->right && sibling->right->color == red)
+						redChild = sibling->right;
+					else if (sibling->left && sibling->left->color == red)
+						redChild = sibling->left;
+
+					//deleted node isn't contained in tree so no problems will be observed in case of rotation
+					l_sts sts = leftLeftCase(redChild);
+					if (sts == SUCCESS) {
+						delete deleted;
+						deleted = nullptr;
 						return sts;
-					sts = leftRightCase(current);
-					if (sts == SUCCESS)
+					}
+					sts = leftRightCase(redChild);
+					if (sts == SUCCESS) {
+						delete deleted;
+						deleted = nullptr;
 						return sts;
-					sts = rightRightCase(current);
-					if (sts == SUCCESS)
+					}
+					sts = rightRightCase(redChild);
+					if (sts == SUCCESS) {
+						delete deleted;
+						deleted = nullptr;
 						return sts;
-					sts = rightLeftCase(current);
-					if (sts == SUCCESS)
+					}
+					sts = rightLeftCase(redChild);
+					if (sts == SUCCESS) {
+						delete deleted;
+						deleted = nullptr;
 						return sts;
-				}
-				//children are either black or empty
-				else {
-					typename BTree<T, I>::Node* current = sibling;
-					//perform recoloring
-					sibling->color = red;
-					if (sibling->parent != head) {
-						if (sibling->parent->color == red)
-							sibling->parent->color == black;
-						else
-							deleted = sibling->parent;
-						//repeat it for case when sibling and children are black
 					}
 				}
-			} else
+				//if sibling is black and it's both children are black: recoloring and recur for new doubleBlack node (new iteration of while loop)
+
+
+			}
+		}
+		/*
 			if (sibling->color == red) {
 				if (siblingType == leftNode) {
 					//left rotate the sibling's parent
@@ -678,7 +717,7 @@ public:
 				setCorrectHead();
 			}
 		}
-		delete deleted;
+		*/
 		return SUCCESS;
 	}
 };
