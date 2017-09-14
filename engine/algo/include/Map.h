@@ -635,31 +635,31 @@ public:
 		BTree<T, I>::_remove(index, deleted);
 
 		//if deleted node is red so no addtitional actions are required
-		if (deleted->color == red) {
+		if (deleted->color == BTree<T, I>::red) {
 			delete deleted;
 			deleted = nullptr;
 			return SUCCESS;
 		} else
 		//if one child and deleted node is black and parent red this case is applicable
-		if (isOnlyChild(deleted) && deleted->color == black && deleted->parent->color == red) {
-			deleted->parent->color = black;
+		if (BTree<T, I>::isOnlyChild(deleted) && deleted->color == BTree<T, I>::black && deleted->parent->color == BTree<T, I>::red) {
+			deleted->parent->color = BTree<T, I>::black;
 			delete deleted;
 			deleted = nullptr;
 			return SUCCESS;
 		} else
 		//otherwise, if deleted node is black and has sibling
-		if (!isOnlyChild(deleted) && deleted->color == black) {
+		if (!BTree<T, I>::isOnlyChild(deleted) && deleted->color == BTree<T, I>::black) {
 			typename BTree<T, I>::Node* current = deleted;
-			current->color = doubleBlack;
-			while (current->color == doubleBlack && current != head) {
-				typename BTree<T, I>::Node* sibling = childType(current) == leftNode ? current->parent->right : current->parent->left;
+			current->color = BTree<T, I>::doubleBlack;
+			while (current->color == BTree<T, I>::doubleBlack && current != BTree<T, I>::head) {
+				typename BTree<T, I>::Node* sibling = BTree<T, I>::childType(current) == leftNode ? current->parent->right : current->parent->left;
 				//if sibling is black and at lease one child is red perform rotation
-				if (sibling->color == black && ((sibling->right && sibling->right->color == red)
-					                       || (sibling->left && sibling->left->color == red))) {
+				if (sibling->color == BTree<T, I>::black && ((sibling->right && sibling->right->color == BTree<T, I>::red)
+					                       || (sibling->left && sibling->left->color == BTree<T, I>::red))) {
 					typename BTree<T, I>::Node* redChild;
-					if (sibling->right && sibling->right->color == red)
+					if (sibling->right && sibling->right->color == BTree<T, I>::red)
 						redChild = sibling->right;
-					else if (sibling->left && sibling->left->color == red)
+					else if (sibling->left && sibling->left->color == BTree<T, I>::red)
 						redChild = sibling->left;
 
 					//deleted node isn't contained in tree so no problems will be observed in case of rotation
@@ -689,24 +689,24 @@ public:
 					}
 				} else
 				//if sibling is black and it's both children are black: recoloring and recur for new doubleBlack node (new iteration of while loop)
-				if (sibling->color == black && ((sibling->right && sibling->right->color == black) || sibling->right == nullptr)
-					                        && ((sibling->left && sibling->left->color == black) || sibling->left == nullptr)) {
+				if (sibling->color == BTree<T, I>::black && ((sibling->right && sibling->right->color == BTree<T, I>::black) || sibling->right == nullptr)
+					                                     && ((sibling->left && sibling->left->color == BTree<T, I>::black) || sibling->left == nullptr)) {
 					//remove one black from current node and from sibling, so current node will be black and sibling will be red. Also parent will be doubleBlack
-					sibling->color = red;
-					current->color = black;
-					if (sibling->parent->color == red) {
-						sibling->parent->color = black;
+					sibling->color = BTree<T, I>::red;
+					current->color = BTree<T, I>::black;
+					if (sibling->parent->color == BTree<T, I>::red) {
+						sibling->parent->color = BTree<T, I>::black;
 					}
 					else {
-						sibling->parent->color = doubleBlack;
+						sibling->parent->color = BTree<T, I>::doubleBlack;
 						current = sibling->parent;
 					}
 				} else
-				if (sibling->color == red) {
+				if (sibling->color == BTree<T, I>::red) {
 					typename BTree<T, I>::Node* redChild;
-					if (sibling->right && sibling->right->color == red)
+					if (sibling->right && sibling->right->color == BTree<T, I>::red)
 						redChild = sibling->right;
-					else if (sibling->left && sibling->left->color == red)
+					else if (sibling->left && sibling->left->color == BTree<T, I>::red)
 						redChild = sibling->left;
 					//right case: sibling is right child so left rotate parent and after that previous case is applicable
 					typename BTree<T, I>::Node* siblingParent = sibling->parent;
@@ -728,8 +728,8 @@ public:
 					setCorrectHead();
 				}
 			}
-			if (current == head)
-				current->color = black;
+			if (current == BTree<T, I>::head)
+				current->color = BTree<T, I>::black;
 		}
 		delete deleted;
 		deleted = nullptr;
