@@ -652,7 +652,7 @@ public:
 			typename BTree<T, I>::Node* current = deleted;
 			current->color = BTree<T, I>::doubleBlack;
 			while (current->color == BTree<T, I>::doubleBlack && current != BTree<T, I>::head) {
-				typename BTree<T, I>::Node* sibling = BTree<T, I>::childType(current) == leftNode ? current->parent->right : current->parent->left;
+				typename BTree<T, I>::Node* sibling = BTree<T, I>::childType(current) == BTree<T, I>::leftNode ? current->parent->right : current->parent->left;
 				//if sibling is black and at lease one child is red perform rotation
 				if (sibling->color == BTree<T, I>::black && ((sibling->right && sibling->right->color == BTree<T, I>::red)
 					                       || (sibling->left && sibling->left->color == BTree<T, I>::red))) {
