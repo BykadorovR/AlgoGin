@@ -585,6 +585,7 @@ TEST(BTree_rb, Remove) {
 	t.insert(10, 10);
 	//remove red leaf
 	t.remove(10);
+	ASSERT_EQ(t.getNodeCount(), 3);
 	ASSERT_EQ(t.count, 3);
 	ASSERT_EQ(t.head->left->left, nullptr);
 	ASSERT_EQ(t.head->left->color, t.black);
@@ -593,6 +594,7 @@ TEST(BTree_rb, Remove) {
 	t.head->left->left->color = t.black;
 	t.head->left->color = t.red;
 	t.remove(10);
+	ASSERT_EQ(t.getNodeCount(), 3);
 	ASSERT_EQ(t.head->left->left, nullptr);
 	ASSERT_EQ(t.head->left->color, t.black);
 /**/
@@ -604,6 +606,7 @@ TEST(BTree_rb, Remove) {
 	t1.insert(40, 40);
 	t1.insert(50, 50);
 	t1.remove(20);
+	ASSERT_EQ(t1.getNodeCount(), 3);
 	ASSERT_EQ(t1.head->value, 40);
 	ASSERT_EQ(t1.head->color, t1.black);
 	ASSERT_EQ(t1.head->left->value, 30);
@@ -619,6 +622,7 @@ TEST(BTree_rb, Remove) {
 	t2.insert(40, 40);
 	t2.insert(35, 35);
 	t2.remove(20);
+	ASSERT_EQ(t2.getNodeCount(), 3);
 	ASSERT_EQ(t2.head->value, 35);
 	ASSERT_EQ(t2.head->color, t2.black);
 	ASSERT_EQ(t2.head->left->value, 30);
@@ -632,6 +636,7 @@ TEST(BTree_rb, Remove) {
 	t3.insert(10, 10);
 	t3.insert(5, 5);
 	t3.remove(35);
+	ASSERT_EQ(t3.getNodeCount(), 3);
 	ASSERT_EQ(t3.head->value, 10);
 	ASSERT_EQ(t3.head->color, t3.black);
 	ASSERT_EQ(t3.head->left->value, 5);
@@ -645,10 +650,80 @@ TEST(BTree_rb, Remove) {
 	t4.insert(10, 10);
 	t4.insert(15, 15);
 	t4.remove(35);
+	ASSERT_EQ(t4.getNodeCount(), 3);
 	ASSERT_EQ(t4.head->value, 15);
 	ASSERT_EQ(t4.head->color, t4.black);
 	ASSERT_EQ(t4.head->left->value, 10);
 	ASSERT_EQ(t4.head->left->color, t4.black);
 	ASSERT_EQ(t4.head->right->value, 20);
 	ASSERT_EQ(t4.head->right->color, t4.black);
+/*black sibling and black children*/
+	BTree_rb<int, int> t5;
+	t5.insert(35, 35);
+	t5.insert(20, 20);
+	t5.insert(40, 40);
+	t5.head->left->color = t5.black;
+	t5.head->right->color = t5.black;
+	t5.insert(10, 10);
+	t5.insert(30, 30);
+	t5.head->left->left->color = t5.black;
+	t5.head->left->right->color = t5.black;
+	t5.insert(37, 37);
+	t5.insert(50, 50);
+	t5.head->right->left->color = t5.black;
+	t5.head->right->right->color = t5.black;
+	t5.remove(10);
+	ASSERT_EQ(t5.getNodeCount(), 6);
+	ASSERT_EQ(t5.head->color, t5.black);
+	ASSERT_EQ(t5.head->left->color, t5.black);
+	ASSERT_EQ(t5.head->left->right->color, t5.red);
+	ASSERT_EQ(t5.head->right->color, t5.red);
+	ASSERT_EQ(t5.head->right->right->color, t5.black);
+	ASSERT_EQ(t5.head->right->left->color, t5.black);
+/*last case: sibling is red*/
+//right right case
+	BTree_rb<int, int> t6;
+	t6.insert(20, 20);
+	t6.insert(10, 10);
+	t6.head->left->color = t6.black;
+	t6.insert(30, 30);
+	t6.head->right->color = t6.black;
+	t6.insert(25, 25);
+	t6.insert(35, 35);
+	t6.head->right->right->color = t6.black;
+	t6.head->right->left->color = t6.black;
+	t6.head->right->color = t6.red;
+	t6.remove(10);
+	ASSERT_EQ(t6.getNodeCount(), 4);
+	ASSERT_EQ(t6.head->color, t6.black);
+	ASSERT_EQ(t6.head->left->color, t6.black);
+	ASSERT_EQ(t6.head->left->right->color, t6.red);
+	ASSERT_EQ(t6.head->left->left, nullptr);
+	ASSERT_EQ(t6.head->right->color, t6.black);
+	ASSERT_EQ(t6.head->right->value, 35);
+	ASSERT_EQ(t6.head->left->value, 20);
+	ASSERT_EQ(t6.head->left->right->value, 25);
+//left left case
+	BTree_rb<int, int> t7;
+	t7.insert(30, 30);
+	t7.insert(50, 50);
+	t7.head->right->color = t7.black;
+	t7.insert(25, 25);
+	t7.head->left->color = t7.black;
+	t7.insert(20, 20);
+	t7.insert(28, 28);
+	t7.head->left->left->color = t7.black;
+	t7.head->left->right->color = t7.black;
+	t7.head->left->color = t7.red;
+	t7.remove(50);
+	ASSERT_EQ(t7.getNodeCount(), 4);
+	ASSERT_EQ(t7.head->color, t7.black);
+	ASSERT_EQ(t7.head->left->color, t7.black);
+	ASSERT_EQ(t7.head->left->right, nullptr);
+	ASSERT_EQ(t7.head->left->left, nullptr);
+	ASSERT_EQ(t7.head->right->color, t7.black);
+	ASSERT_EQ(t7.head->right->left->color, t7.red);
+	ASSERT_EQ(t7.head->right->value, 30);
+	ASSERT_EQ(t7.head->left->value, 20);
+	ASSERT_EQ(t7.head->right->left->value, 28);
 }
