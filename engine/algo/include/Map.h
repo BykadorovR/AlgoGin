@@ -100,17 +100,18 @@ protected:
 		if (parent) {
 			if (parent->left && parent->left->index == child->index)
 				return leftNode;
-			return rightNode;
+			else if (parent->right && parent->right->index == child->index)
+				return rightNode;
 		}
 		return headNode;
 	}
 
 	bool isOnlyChild(Node* current) {
 		NodeType currentType = childType(current);
-		if (leftNode)
+		if (currentType == leftNode)
 			if (current->parent->right != nullptr)
 				return false;
-		if (rightNode)
+		if (currentType == rightNode)
 			if (current->parent->left != nullptr)
 				return false;
 		//lets head node be the only child
@@ -263,20 +264,21 @@ protected:
 		return WRONG_ARGS;
 	}
 
-	l_sts _removeRecursively(Node** current, Node* deleted = nullptr) {
+	l_sts _removeRecursively(Node** current, Node** deleted = nullptr) {
 		if ((*current)->left == nullptr && (*current)->right == nullptr) {
 			//we want to memory deleted node for further handling
 			if (deleted) {
-				deleted->parent = (*current)->parent;
-				deleted->color = (*current)->color;
+				(*deleted) = (*current);
 			}
-			//
-			NodeType type = childType(*current);
-			if (type == leftNode)
-				(*current)->parent->left = nullptr;
-			else if (type == rightNode)
-				(*current)->parent->right = nullptr;
-			delete (*current);
+			else {
+				//
+				NodeType type = childType(*current);
+				if (type == leftNode)
+					(*current)->parent->left = nullptr;
+				else if (type == rightNode)
+					(*current)->parent->right = nullptr;
+				delete (*current);
+			}
 			return SUCCESS;
 		} else
 		if ((*current)->left && (*current)->right == nullptr) {
@@ -305,7 +307,7 @@ protected:
 		return SUCCESS;
 	}
 
-	l_sts _remove(I index, Node* deleted = nullptr) {
+	l_sts _remove(I index, Node** deleted = nullptr) {
 		if (head == nullptr)
 			return EMPTY;
 		if (head->index == index && !head->left && !head->right) {
@@ -631,8 +633,16 @@ public:
 	}
 
 	l_sts remove(I index) {
-		typename BTree<T, I>::Node* deleted = new typename BTree<T, I>::Node();
-		BTree<T, I>::_remove(index, deleted);
+		typename BTree<T, I>::Node* deleted;
+		BTree<T, I>::_remove(index, &deleted);
+
+		NodeType currentType = BTree<T, I>::childType(deleted);
+		bool onlyOneChild = BTree<T, I>::isOnlyChild(deleted);
+
+		if (currentType == leftNode)
+			(deleted)->parent->left = nullptr;
+		else if (currentType == rightNode)
+			(deleted)->parent->right = nullptr;
 
 		//if deleted node is red so no addtitional actions are required
 		if (deleted->color == BTree<T, I>::red) {
@@ -641,18 +651,18 @@ public:
 			return SUCCESS;
 		} else
 		//if one child and deleted node is black and parent red this case is applicable
-		if (BTree<T, I>::isOnlyChild(deleted) && deleted->color == BTree<T, I>::black && deleted->parent->color == BTree<T, I>::red) {
+		if (onlyOneChild && deleted->color == BTree<T, I>::black && deleted->parent->color == BTree<T, I>::red) {
 			deleted->parent->color = BTree<T, I>::black;
 			delete deleted;
 			deleted = nullptr;
 			return SUCCESS;
 		} else
 		//otherwise, if deleted node is black and has sibling
-		if (!BTree<T, I>::isOnlyChild(deleted) && deleted->color == BTree<T, I>::black) {
+		if (!onlyOneChild && deleted->color == BTree<T, I>::black) {
 			typename BTree<T, I>::Node* current = deleted;
 			current->color = BTree<T, I>::doubleBlack;
 			while (current->color == BTree<T, I>::doubleBlack && current != BTree<T, I>::head) {
-				typename BTree<T, I>::Node* sibling = BTree<T, I>::childType(current) == BTree<T, I>::leftNode ? current->parent->right : current->parent->left;
+				typename BTree<T, I>::Node* sibling = currentType == BTree<T, I>::leftNode ? current->parent->right : current->parent->left;
 				//if sibling is black and at lease one child is red perform rotation
 				if (sibling->color == BTree<T, I>::black && ((sibling->right && sibling->right->color == BTree<T, I>::red)
 					                       || (sibling->left && sibling->left->color == BTree<T, I>::red))) {
@@ -665,24 +675,28 @@ public:
 					//deleted node isn't contained in tree so no problems will be observed in case of rotation
 					l_sts sts = leftLeftCase(redChild);
 					if (sts == SUCCESS) {
+						redChild->color = BTree<T, I>::black;
 						delete deleted;
 						deleted = nullptr;
 						return sts;
 					}
 					sts = leftRightCase(redChild);
 					if (sts == SUCCESS) {
+						redChild->right->color = BTree<T, I>::black;
 						delete deleted;
 						deleted = nullptr;
 						return sts;
 					}
 					sts = rightRightCase(redChild);
 					if (sts == SUCCESS) {
+						redChild->color = BTree<T, I>::black;
 						delete deleted;
 						deleted = nullptr;
 						return sts;
 					}
 					sts = rightLeftCase(redChild);
 					if (sts == SUCCESS) {
+						redChild->left->color = BTree<T, I>::black;
 						delete deleted;
 						deleted = nullptr;
 						return sts;
@@ -727,9 +741,15 @@ public:
 					//let's set head to correct node
 					setCorrectHead();
 				}
+				currentType = BTree<T, I>::childType(current);
 			}
 			if (current == BTree<T, I>::head)
 				current->color = BTree<T, I>::black;
+		}
+		else {
+			delete deleted;
+			deleted = nullptr;
+			return UNKNOWN;
 		}
 		delete deleted;
 		deleted = nullptr;

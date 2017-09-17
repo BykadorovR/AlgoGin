@@ -575,3 +575,80 @@ TEST(BTree_rb, Insert) {
 	ASSERT_EQ(t6.head->right->left->left->color, t6.red);
 	ASSERT_EQ(t6.head->right->left->left->value, 3);
 }
+
+TEST(BTree_rb, Remove) {
+/*simple case: u is red*/
+	BTree_rb<int, int> t;
+	t.insert(30, 30);
+	t.insert(20, 20);
+	t.insert(40, 40);
+	t.insert(10, 10);
+	//remove red leaf
+	t.remove(10);
+	ASSERT_EQ(t.count, 3);
+	ASSERT_EQ(t.head->left->left, nullptr);
+	ASSERT_EQ(t.head->left->color, t.black);
+	t.insert(10, 10);
+	//lets make u black and v red
+	t.head->left->left->color = t.black;
+	t.head->left->color = t.red;
+	t.remove(10);
+	ASSERT_EQ(t.head->left->left, nullptr);
+	ASSERT_EQ(t.head->left->color, t.black);
+/**/
+/*deleted node is black and parent is black, sibling is black with 1 red child*/
+/*right right case*/
+	BTree_rb<int, int> t1;
+	t1.insert(30, 30);
+	t1.insert(20, 20);
+	t1.insert(40, 40);
+	t1.insert(50, 50);
+	t1.remove(20);
+	ASSERT_EQ(t1.head->value, 40);
+	ASSERT_EQ(t1.head->color, t1.black);
+	ASSERT_EQ(t1.head->left->value, 30);
+	ASSERT_EQ(t1.head->left->color, t1.black);
+	ASSERT_EQ(t1.head->right->value, 50);
+	ASSERT_EQ(t1.head->right->color, t1.black);
+/**/
+/*as above but red child is left*/
+/*right left case*/
+	BTree_rb<int, int> t2;
+	t2.insert(30, 30);
+	t2.insert(20, 20);
+	t2.insert(40, 40);
+	t2.insert(35, 35);
+	t2.remove(20);
+	ASSERT_EQ(t2.head->value, 35);
+	ASSERT_EQ(t2.head->color, t2.black);
+	ASSERT_EQ(t2.head->left->value, 30);
+	ASSERT_EQ(t2.head->left->color, t2.black);
+	ASSERT_EQ(t2.head->right->value, 40);
+	ASSERT_EQ(t2.head->right->color, t2.black);
+/*left left case*/
+	BTree_rb<int, int> t3;
+	t3.insert(20, 20);
+	t3.insert(35, 35);
+	t3.insert(10, 10);
+	t3.insert(5, 5);
+	t3.remove(35);
+	ASSERT_EQ(t3.head->value, 10);
+	ASSERT_EQ(t3.head->color, t3.black);
+	ASSERT_EQ(t3.head->left->value, 5);
+	ASSERT_EQ(t3.head->left->color, t3.black);
+	ASSERT_EQ(t3.head->right->value, 20);
+	ASSERT_EQ(t3.head->right->color, t3.black);
+/*left right case*/
+	BTree_rb<int, int> t4;
+	t4.insert(20, 20);
+	t4.insert(35, 35);
+	t4.insert(10, 10);
+	t4.insert(15, 15);
+	t4.remove(35);
+	ASSERT_EQ(t4.head->value, 15);
+	ASSERT_EQ(t4.head->color, t4.black);
+	ASSERT_EQ(t4.head->left->value, 10);
+	ASSERT_EQ(t4.head->left->color, t4.black);
+	ASSERT_EQ(t4.head->right->value, 20);
+	ASSERT_EQ(t4.head->right->color, t4.black);
+}
