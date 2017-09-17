@@ -494,7 +494,7 @@ TEST(BTree_mb, Balancing) {
 	ASSERT_EQ(t1.isTreeBalanced(), false);
 	//TODO: make up another example
 }
-
+//http://www.geeksforgeeks.org/red-black-tree-set-3-delete-2/
 //checking correctness of insertion and structure of tree: left, right, parent nodes have to be correct
 TEST(BTree_rb, Insert) {
 	//right right

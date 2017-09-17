@@ -636,13 +636,13 @@ public:
 		typename BTree<T, I>::Node* deleted;
 		BTree<T, I>::_remove(index, &deleted);
 
-		NodeType currentType = BTree<T, I>::childType(deleted);
+		typename BTree<T, I>::NodeType currentType = BTree<T, I>::childType(deleted);
 		bool onlyOneChild = BTree<T, I>::isOnlyChild(deleted);
 
-		if (currentType == leftNode)
-			(deleted)->parent->left = nullptr;
-		else if (currentType == rightNode)
-			(deleted)->parent->right = nullptr;
+		if (currentType == BTree<T, I>::leftNode)
+			deleted->parent->left = nullptr;
+		else if (currentType == BTree<T, I>::rightNode)
+			deleted->parent->right = nullptr;
 
 		//if deleted node is red so no addtitional actions are required
 		if (deleted->color == BTree<T, I>::red) {
@@ -716,7 +716,7 @@ public:
 						current = sibling->parent;
 					}
 				} else if (sibling->color == BTree<T, I>::red) {
-					NodeType siblingType = BTree<T, I>::childType(sibling);
+					typename BTree<T, I>::NodeType siblingType = BTree<T, I>::childType(sibling);
 					typename BTree<T, I>::Node* siblingParent = sibling->parent;
 					typename BTree<T, I>::NodeColor temp = siblingParent->color;
 					siblingParent->color = sibling->color;
