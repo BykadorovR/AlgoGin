@@ -250,11 +250,15 @@ protected:
 		return sts;
 	}
 	T _minimum() {
+		if (!head)
+			throw;
 		T min = head->value;
 		minimum_recursively(head, min);
 		return min;
 	}
 	T _maximum() {
+		if (!head)
+			throw;
 		T max = head->value;
 		maximum_recursively(head, max);
 		return max;

@@ -727,3 +727,31 @@ TEST(BTree_rb, Remove) {
 	ASSERT_EQ(t7.head->left->value, 20);
 	ASSERT_EQ(t7.head->right->left->value, 28);
 }
+
+TEST(BTree_rb, Min_Max) {
+	BTree_rb<int, int> t;
+	t.insert(2, 2);
+	t.insert(1, 1);
+	t.insert(4, 4);
+	t.insert(5, 5);
+	t.insert(9, 9);
+	t.insert(3, 3);
+	t.insert(6, 6);
+	t.insert(7, 7);
+	ASSERT_EQ(t.minimum(), 1);
+	ASSERT_EQ(t.maximum(), 9);
+}
+
+TEST(BTree_rb, Operator) {
+	BTree_rb<int, int> t;
+	t.insert(2, 2);
+	t.insert(1, 1);
+	t.insert(4, 4);
+	t.insert(5, 5);
+	t.insert(9, 9);
+	t.insert(3, 3);
+	t.insert(6, 6);
+	t.insert(7, 7);
+	ASSERT_EQ(t[4], 4);
+	ASSERT_EQ(t[9], 9);
+}
