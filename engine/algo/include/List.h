@@ -15,7 +15,7 @@ protected:
     Node* tail;
     Node* head;
     int size;
-    //http ://geneura.ugr.es/~jmerelo/c++-faq/nondependent-name-lookup-types.html
+    //http://www.cs.technion.ac.il/users/yechiel/c++-faq/nondependent-name-lookup-types.html
     l_sts _insert(T data, int index) {
         if (index == 0) {
             _push_start(data);
