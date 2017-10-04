@@ -17,8 +17,8 @@ public:
 	}
 
 	Unique_ptr() {
-		std::cout << "Constructor " << data << std::endl;
 		data = new T();
+		std::cout << "Constructor " << data << std::endl;
 	}
 	
 	Unique_ptr(Unique_ptr<T>&& right) {
@@ -29,9 +29,9 @@ public:
 	}
 
 	~Unique_ptr() {
+		std::cout << "Destructor " << data << std::endl;
 		delete data;
 		data = nullptr;
-		std::cout << "Destructor " << data << std::endl;
 	}
 	Unique_ptr<T>& operator=(const Unique_ptr<T> right) {
 		std::cout << "Operator= " << this << std::endl;
