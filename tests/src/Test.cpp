@@ -5,11 +5,12 @@
 #include "Vector.h"
 #include "Sort.h"
 #include "Map.h"
+#include "Pointer.h"
 
 int main(int argc, char *argv[])
 {
 	testing::InitGoogleTest(&argc, argv);
-	//::testing::GTEST_FLAG(filter) = "BTree_rb.Insert";
+	::testing::GTEST_FLAG(filter) = "Pointer.Callstack";
 	return RUN_ALL_TESTS();
 	std::getchar(); // keep console window open until Return keystroke
 }
@@ -754,4 +755,15 @@ TEST(BTree_rb, Operator) {
 	t.insert(7, 7);
 	ASSERT_EQ(t[4], 4);
 	ASSERT_EQ(t[9], 9);
+}
+
+TEST(Pointer, Callstack) {
+	Unique_ptr<List1_ns<int> > t;
+	t->push_back(1);
+	t->push_back(2);
+	ASSERT_TRUE(t.data != nullptr);
+	Unique_ptr<List1_ns<int>> k(std::move(t));
+	ASSERT_TRUE(t.data == nullptr);
+	ASSERT_TRUE(k.data != nullptr);
+	ASSERT_EQ(k->getSize(), 2);
 }
