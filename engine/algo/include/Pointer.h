@@ -11,30 +11,25 @@ public:
 
 	friend void swap(Unique_ptr<T>& first, Unique_ptr<T>& second) // nothrow
 	{
-		std::cout << "Swap first: " << first.data << " second: " << second.data << std::endl;
 		using std::swap;
 		swap(first.data, second.data);
 	}
 
 	Unique_ptr() {
 		data = new T();
-		std::cout << "Constructor " << data << std::endl;
 	}
 	
 	Unique_ptr(Unique_ptr<T>&& right) {
-		std::cout << "Move constructor " << (right.data) << std::endl;
 		//just lets assign nullptr to rvalues not 0xCCCCCC and something like that
 		data = nullptr;
 		swap(*this, right);
 	}
 
 	~Unique_ptr() {
-		std::cout << "Destructor " << data << std::endl;
 		delete data;
 		data = nullptr;
 	}
-	Unique_ptr<T>& operator=(const Unique_ptr<T> right) {
-		std::cout << "Operator= " << this << std::endl;
+	Unique_ptr<T>& operator=(Unique_ptr<T> right) {
 		swap(*this, right);
 		return *this;
 	}

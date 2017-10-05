@@ -766,4 +766,10 @@ TEST(Pointer, Callstack) {
 	ASSERT_TRUE(t.data == nullptr);
 	ASSERT_TRUE(k.data != nullptr);
 	ASSERT_EQ(k->getSize(), 2);
+	Unique_ptr<List1_ns<int> > q;
+	q = std::move(k);
+	ASSERT_TRUE(k.data == nullptr);
+	ASSERT_TRUE(q.data != nullptr);
+	ASSERT_EQ(q->getSize(), 2);
+	ASSERT_EQ((*q)[0], 1);
 }
