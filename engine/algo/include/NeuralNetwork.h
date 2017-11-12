@@ -5,6 +5,9 @@
 using std::vector;
 using std::shared_ptr;
 using std::pair;
+using std::make_shared;
+
+
 
 enum layerType {
 	inputLayer,

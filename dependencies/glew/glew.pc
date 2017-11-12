@@ -1,6 +1,6 @@
-prefix=C:/Program Files (x86)/engine
+prefix=C:/Program Files (x86)/engine_app
 exec_prefix=${prefix}
-libdir=C:/Program Files (x86)/engine/lib
+libdir=C:/Program Files (x86)/engine_app/lib
 includedir=${prefix}/include
 
 Name: glew

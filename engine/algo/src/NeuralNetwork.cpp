@@ -1,5 +1,4 @@
 #include "NeuralNetwork.h"
-using std::make_shared;
 
 
 Neuron::Neuron(float _value) {

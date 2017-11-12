@@ -113,8 +113,8 @@ int main(int argc, char** argv)
 const int nodesCount = 5;
 int main() {
 	Layer input(nodesCount, inputLayer);
-	ActivationFunc firstLayer;
-	input.InitNeurons(&firstLayer)
+	shared_ptr<ActivationFunc> func = make_shared<ActivationFunc>();
+	input.InitNeurons(func);
 	//Create layer and say how many nodes in every layer
 	//default function for all nodes and opportunity to change for 
 	//every node. Call LayerBinder, it init all links between nodes
