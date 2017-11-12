@@ -1,7 +1,10 @@
 #pragma once
 #include <vector>
+#include <memory>
 
 using std::vector;
+using std::shared_ptr;
+using std::pair;
 
 enum layerType {
 	inputLayer,
@@ -9,11 +12,16 @@ enum layerType {
 	outputLayer
 };
 
+enum funcCalcMode {
+	funcValue,
+	derivValue
+};
+
 class ActivationFunc {
 public:
-	ActivationFunc(float _nodesSum);
+	ActivationFunc();
 	//Calc func, func derivation results
-	virtual float funcResult(int mode);
+	virtual float funcResult(funcCalcMode mode);
 	virtual ~ActivationFunc();
 private:
 	float nodesSum;
@@ -21,28 +29,43 @@ private:
 
 class SoftMax : public ActivationFunc {
 public:
-	SoftMax(float _nodesSum);
-	float funcResult(int mode);
+	SoftMax();
+	float funcResult(funcCalcMode mode);
 	SoftMax();
 };
 
+class Neuron {
+public:
+	//if func isn't defined so let's Layer class bind the func for all uninitialiazed neurons
+	Neuron(float _value = 0);
+	Neuron(shared_ptr<ActivationFunc> _func, float _value = 0);
+	~Neuron();
+	float getValue();
+	//function is available for every neuron separately
+	void applyFunc();
+	void setFunc(shared_ptr<ActivationFunc> _func);
+	//to simplify access
+	vector<pair<shared_ptr<Neuron>, float> > to;
+	vector<pair<shared_ptr<Neuron>, float> > out;
+private:
+	float value;
+	shared_ptr<ActivationFunc> func;
+};
 
 class Layer {
 public:
-	Layer(layerType _type, int _nodesCount);
-	Layer(layerType _type, int _nodesCount, ActivationFunc& _func);
-	//initial nodes values + bias (can be interpreted as x0)
-	void Init();
-	//count of nodes
-	int getSize();
-	void applyFunc(int nodeId);
+	//func by default
+	Layer(int _nodesCount, layerType _type);
+	//Init nodes
+	void InitNeurons(shared_ptr<ActivationFunc> _func);
 	~Layer();
 	float operator[](int index);
+	//to simplify access
+	vector<shared_ptr<Neuron> > nodes;
 private:
-	ActivationFunc func;
+	void initNeurons();
 	layerType type;
 	int nodesCount;
-	vector<float> nodes;
 };
 
 class LayerBinder {
@@ -54,5 +77,4 @@ public:
 	void ForwardPhase();
 private:
 	vector<Layer> layers;
-	vector<vector<float> > weights;
 };

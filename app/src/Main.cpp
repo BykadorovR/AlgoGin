@@ -1,4 +1,4 @@
-#include "Shader.h"
+/*#include "Shader.h"
 #include "MatrixHelper.h"
 #include "math.h"
 
@@ -106,5 +106,18 @@ int main(int argc, char** argv)
 	//TODO: add world matrix
 	glutMainLoop();
 
+	return 0;
+}
+*/
+#include "NeuralNetwork.h"
+const int nodesCount = 5;
+int main() {
+	Layer input(nodesCount, inputLayer);
+	ActivationFunc firstLayer;
+	input.InitNeurons(&firstLayer)
+	//Create layer and say how many nodes in every layer
+	//default function for all nodes and opportunity to change for 
+	//every node. Call LayerBinder, it init all links between nodes
+	//and after pass X and Y to LayerBinder
 	return 0;
 }

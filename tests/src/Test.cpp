@@ -6,6 +6,7 @@
 #include "Sort.h"
 #include "Map.h"
 #include "Pointer.h"
+#include "NeuralNetwork.h"
 
 int main(int argc, char *argv[])
 {
