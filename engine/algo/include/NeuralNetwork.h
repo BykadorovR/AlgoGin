@@ -34,18 +34,22 @@ class SoftMax : public ActivationFunc {
 public:
 	SoftMax();
 	float funcResult(funcCalcMode mode);
-	SoftMax();
+	~SoftMax();
+};
+
+class Relu : public ActivationFunc {
+public:
+	Relu();
+	float funcResult(funcCalcMode mode);
+	~Relu();
 };
 
 class Neuron {
 public:
 	//if func isn't defined so let's Layer class bind the func for all uninitialiazed neurons
-	Neuron(float _value = 0);
-	Neuron(shared_ptr<ActivationFunc> _func, float _value = 0);
+	Neuron();
 	~Neuron();
 	float getValue();
-	//function is available for every neuron separately
-	void applyFunc();
 	void setFunc(shared_ptr<ActivationFunc> _func);
 	//to simplify access
 	vector<pair<shared_ptr<Neuron>, float> > to;
@@ -60,13 +64,15 @@ public:
 	//func by default
 	Layer(int _nodesCount, layerType _type);
 	//Init nodes
-	void InitNeurons(shared_ptr<ActivationFunc> _func);
+	void initNeurons(shared_ptr<ActivationFunc> _func);
+	//Apply function for all neurons in layer
+	void applyFunc();
 	~Layer();
 	float operator[](int index);
 	//to simplify access
 	vector<shared_ptr<Neuron> > nodes;
 private:
-	void initNeurons();
+	float bias;
 	layerType type;
 	int nodesCount;
 };
@@ -74,10 +80,11 @@ private:
 class LayerBinder {
 public:
 	//init binds and weights between layers
-	LayerBinder(vector<Layer> _layers);
+	LayerBinder(vector<Layer>& _layers);
 	~LayerBinder();
 	//calculate new values of nodes using functions
-	void ForwardPhase();
+	void ForwardPhase(vector<float>& x, vector<float>& y);
+	void BackwardPhase();
 private:
 	vector<Layer> layers;
 };

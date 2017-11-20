@@ -16,6 +16,12 @@ Neuron::~Neuron() {
 	out.clear();
 }
 
+void Neuron::applyFunc() {
+	if (func) {
+		//recompute values of nodes
+	}
+}
+
 float Neuron::getValue() {
 	return value;
 }
@@ -25,6 +31,7 @@ Layer::Layer(int _nodesCount, layerType _type) {
 	type = _type;
 }
 
+//for hidden and output layers
 void Layer::InitNeurons(shared_ptr<ActivationFunc> _func) {
 	vector<shared_ptr<Neuron> >::iterator itNodes;
 	for (itNodes = nodes.begin(); itNodes != nodes.end(); itNodes++) {
@@ -38,4 +45,9 @@ float Layer::operator[](int index) {
 
 Layer::~Layer() {
 	nodes.clear();
+}
+
+//init to and out neurons for every neuron
+LayerBinder::LayerBinder(vector<Layer>& _layers) {
+	
 }

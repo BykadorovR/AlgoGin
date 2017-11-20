@@ -113,8 +113,23 @@ int main(int argc, char** argv)
 const int nodesCount = 5;
 int main() {
 	Layer input(nodesCount, inputLayer);
-	shared_ptr<ActivationFunc> func = make_shared<ActivationFunc>();
-	input.InitNeurons(func);
+	Layer hidden(nodesCount, hiddenLayer);
+	Layer output(nodesCount, outputLayer);
+
+	shared_ptr<ActivationFunc> func_name_1 = make_shared<Relu>();
+	shared_ptr<ActivationFunc> func_name_2 = make_shared<SoftMax>();
+	
+	input.initNeurons(nullptr);
+	hidden.initNeurons(func_name_1);
+	output.initNeurons(func_name_2);
+
+	vector<Layer> layers = {input, hidden, output};
+	LayerBinder digitalRecognition(layers);
+
+	vector<float> inputValues = { 1, 2, 3, 4, 5 };
+	vector<float> responceValues = { 1, 2, 3, 4, 5 };
+	digitalRecognition.ForwardPhase(inputValues, responceValues);
+	digitalRecognition.BackwardPhase();
 	//Create layer and say how many nodes in every layer
 	//default function for all nodes and opportunity to change for 
 	//every node. Call LayerBinder, it init all links between nodes
