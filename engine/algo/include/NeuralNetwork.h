@@ -46,11 +46,13 @@ public:
 
 class Neuron {
 public:
-	//if func isn't defined so let's Layer class bind the func for all uninitialiazed neurons
 	Neuron();
 	~Neuron();
+	void setValue(float _value);
 	float getValue();
+	float calculateValues();
 	void setFunc(shared_ptr<ActivationFunc> _func);
+	shared_ptr<ActivationFunc> getFunc();
 	//to simplify access
 	vector<pair<shared_ptr<Neuron>, float> > to;
 	vector<pair<shared_ptr<Neuron>, float> > out;
@@ -65,8 +67,11 @@ public:
 	Layer(int _nodesCount, layerType _type);
 	//Init nodes
 	void initNeurons(shared_ptr<ActivationFunc> _func);
-	//Apply function for all neurons in layer
-	void applyFunc();
+	void setNeuronValues(vector<float> _values);
+	layerType getType();
+	//spread values from this layer to next layers
+	//accumulate values for every neuron from previous stage
+	void propagateValues();
 	~Layer();
 	float operator[](int index);
 	//to simplify access
