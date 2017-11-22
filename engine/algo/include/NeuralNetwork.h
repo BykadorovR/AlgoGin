@@ -1,10 +1,12 @@
 #pragma once
 #include <vector>
 #include <memory>
+#include <map>
 
 using std::vector;
 using std::shared_ptr;
 using std::pair;
+using std::map;
 using std::make_shared;
 
 
@@ -22,39 +24,34 @@ enum funcCalcMode {
 
 class ActivationFunc {
 public:
-	ActivationFunc();
 	//Calc func, func derivation results
-	virtual float funcResult(funcCalcMode mode);
-	virtual ~ActivationFunc();
-private:
+	virtual float funcResult(float value, funcCalcMode mode) = 0;
+protected:
 	float nodesSum;
 };
 
 class SoftMax : public ActivationFunc {
 public:
 	SoftMax();
-	float funcResult(funcCalcMode mode);
-	~SoftMax();
+	float funcResult(float value, funcCalcMode mode);
 };
 
 class Relu : public ActivationFunc {
 public:
 	Relu();
-	float funcResult(funcCalcMode mode);
-	~Relu();
+	float funcResult(float value, funcCalcMode mode);
 };
 
 class Neuron {
 public:
-	Neuron();
+	Neuron(shared_ptr<ActivationFunc> _func);
 	~Neuron();
 	void setValue(float _value);
 	float getValue();
-	float calculateValues();
 	void setFunc(shared_ptr<ActivationFunc> _func);
 	shared_ptr<ActivationFunc> getFunc();
 	//to simplify access
-	vector<pair<shared_ptr<Neuron>, float> > to;
+	vector<pair<shared_ptr<Neuron>, float> > in;
 	vector<pair<shared_ptr<Neuron>, float> > out;
 private:
 	float value;
@@ -67,17 +64,17 @@ public:
 	Layer(int _nodesCount, layerType _type);
 	//Init nodes
 	void initNeurons(shared_ptr<ActivationFunc> _func);
-	void setNeuronValues(vector<float> _values);
+	void setNeuronValues(vector<float>& _values);
+	void applyFunc();
 	layerType getType();
 	//spread values from this layer to next layers
 	//accumulate values for every neuron from previous stage
 	void propagateValues();
 	~Layer();
-	float operator[](int index);
 	//to simplify access
 	vector<shared_ptr<Neuron> > nodes;
-private:
 	float bias;
+private:
 	layerType type;
 	int nodesCount;
 };
@@ -85,11 +82,10 @@ private:
 class LayerBinder {
 public:
 	//init binds and weights between layers
-	LayerBinder(vector<Layer>& _layers);
-	~LayerBinder();
+	LayerBinder(vector<shared_ptr<Layer>>& _layers);
 	//calculate new values of nodes using functions
 	void ForwardPhase(vector<float>& x, vector<float>& y);
 	void BackwardPhase();
 private:
-	vector<Layer> layers;
+	vector<shared_ptr<Layer> > layers;
 };

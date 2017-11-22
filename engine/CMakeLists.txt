@@ -28,11 +28,11 @@ FILE(GLOB_RECURSE GRAPHIC_HEADERS "graphic/*.h*")
 source_group("graphic\\include" FILES ${GRAPHIC_HEADERS})
 
 #include algo source
-FILE(GLOB_RECURSE ALGO_SOURCE "algo/*.c*")
+FILE(GLOB_RECURSE ALGO_SOURCE "algo/src/*.c*")
 source_group("algo\\src" FILES ${ALGO_SOURCE})
 
 #include graphic source
-FILE(GLOB_RECURSE GRAPHIC_SOURCE "graphic/*.c*")
+FILE(GLOB_RECURSE GRAPHIC_SOURCE "graphic/src/*.c*")
 source_group("graphic\\src" FILES ${GRAPHIC_SOURCE})
 
 if(NOT CMAKE_VERSION VERSION_LESS 3.1)
