@@ -22,6 +22,25 @@ enum funcCalcMode {
 	derivValue
 };
 
+template<class T>
+class RandomWeights {
+public:
+	static RandomWeights& getInstance() {
+		static RandomWeights generator;
+		return generator;
+	}
+
+	T generate() {
+		return static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+	}
+
+	RandomWeights(RandomWeights const&) = delete;
+	void operator=(RandomWeights const&) = delete;
+private:
+	RandomWeights() {
+	}
+};
+
 class ActivationFunc {
 public:
 	//Calc func, func derivation results
@@ -61,30 +80,33 @@ private:
 class Layer {
 public:
 	//func by default
-	Layer(int _nodesCount, layerType _type);
+	Layer(layerType _type);
 	//Init nodes
-	void initNeurons(shared_ptr<ActivationFunc> _func);
-	void setNeuronValues(vector<float>& _values);
+	void initNeurons(int _nodesCount, shared_ptr<ActivationFunc> _func = nullptr);
+	void setNeuronValues(vector<float> _values);
+	float getBias();
+	void setBias(float _bias);
 	void applyFunc();
 	layerType getType();
 	//spread values from this layer to next layers
 	//accumulate values for every neuron from previous stage
-	void propagateValues();
+	void propagateValuesFrom(shared_ptr<Layer> previousLayer);
 	~Layer();
 	//to simplify access
 	vector<shared_ptr<Neuron> > nodes;
-	float bias;
+
 private:
+	float bias;
 	layerType type;
-	int nodesCount;
 };
 
 class LayerBinder {
 public:
 	//init binds and weights between layers
-	LayerBinder(vector<shared_ptr<Layer>>& _layers);
+	LayerBinder(vector<shared_ptr<Layer>> _layers);
+	void printNetwork();
 	//calculate new values of nodes using functions
-	void ForwardPhase(vector<float>& x, vector<float>& y);
+	void ForwardPhase(vector<float> x, vector<float> y);
 	void BackwardPhase();
 private:
 	vector<shared_ptr<Layer> > layers;
