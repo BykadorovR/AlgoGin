@@ -30,10 +30,11 @@ public:
 		return generator;
 	}
 
-	T generate() {
-		return static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+	T get() {
+		static int num = 0;
+		return static_cast<T>((num++) % 5) / static_cast<T>(100);
+		//return static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
 	}
-
 	RandomWeights(RandomWeights const&) = delete;
 	void operator=(RandomWeights const&) = delete;
 private:
@@ -43,8 +44,8 @@ private:
 
 class ActivationFunc {
 public:
-	//Calc func, func derivation results
-	virtual float funcResult(float value, funcCalcMode mode) = 0;
+	//sum is needed for normalization
+	virtual float funcResult(vector<float> values, int current) = 0;
 protected:
 	float nodesSum;
 };
@@ -52,13 +53,15 @@ protected:
 class SoftMax : public ActivationFunc {
 public:
 	SoftMax();
-	float funcResult(float value, funcCalcMode mode);
+	//sum is needed for normalization
+	float funcResult(vector<float> values, int current);
+	float derivativeResult(vector<float> values, int current);
 };
 
 class Relu : public ActivationFunc {
 public:
 	Relu();
-	float funcResult(float value, funcCalcMode mode);
+	float funcResult(vector<float> values, int current);
 };
 
 class Neuron {
@@ -106,8 +109,8 @@ public:
 	LayerBinder(vector<shared_ptr<Layer>> _layers);
 	void printNetwork();
 	//calculate new values of nodes using functions
-	void ForwardPhase(vector<float> x, vector<float> y);
-	void BackwardPhase();
+	void ForwardPhase(vector<float> x);
+	void BackwardPhase(vector<float> y);
 private:
 	vector<shared_ptr<Layer> > layers;
 };

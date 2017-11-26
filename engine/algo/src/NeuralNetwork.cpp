@@ -6,28 +6,20 @@ Relu::Relu() {
 	nodesSum = 0;
 }
 
-float Relu::funcResult(float value, funcCalcMode mode) {
-	float output = 0;
-	switch (mode) {
-	case funcValue:
-		output = value;
-		break;
-	case derivValue:
-		break;
-	}
-	return output;
+float Relu::funcResult(vector<float> values, int current) {
+	return current;
 }
 
-float SoftMax::funcResult(float value, funcCalcMode mode) {
-	float output = 0;
-	switch (mode) {
-	case funcValue:
-		output = value;
-		break;
-	case derivValue:
-		break;
+float SoftMax::funcResult(vector<float> values, int current) {
+	vector<float> expValues = values;
+	for (int i = 0; i < expValues.size(); i++) {
+		expValues[i] = exp(expValues[i]);
 	}
-	return output;
+	float expSum = 0;
+	for (auto& expValue : expValues)
+		expSum += expValue;
+
+	return expValues[current] / expSum;
 }
 
 SoftMax::SoftMax() {
@@ -74,9 +66,16 @@ void Layer::initNeurons(int _nodesCount, shared_ptr<ActivationFunc> _func) {
 
 //apply func for all neurons
 void Layer::applyFunc() {
-	for (auto current = nodes.begin(); current != nodes.end(); ++current) {
-		auto currentFunc = (*current)->getFunc();
-		(*current)->setValue(currentFunc->funcResult((*current)->getValue(), funcValue));
+	vector<float> values;
+	//some functions need to do normalization
+	for (auto& current : nodes) {
+		values.push_back(current->getValue());
+	}
+	for (int i = 0; i < nodes.size(); i++) {
+		auto activationFunc = nodes[i]->getFunc();
+		if (activationFunc == nullptr)
+			continue;
+		nodes[i]->setValue(activationFunc->funcResult(values, i));
 	}
 }
 
@@ -87,7 +86,7 @@ void Layer::propagateValuesFrom(shared_ptr<Layer> previousLayer) {
 			float weightBetween = (*previous).second;
 			(*current)->setValue((*current)->getValue() + previousNeuron->getValue() * weightBetween);
 		}
-		(*current)->setValue((*current)->getValue() + bias);
+		(*current)->setValue((*current)->getValue() + previousLayer->bias);
 	}
 }
 
@@ -96,9 +95,11 @@ layerType Layer::getType() {
 }
 
 void Layer::setNeuronValues(vector<float> _values) {
-	assert(_values.size() != nodes.size());
+	assert(_values.size() == nodes.size());
 	for (int nodeIndex = 0; nodeIndex <  nodes.size(); ++nodeIndex) {
 		nodes[nodeIndex]->setValue(_values[nodeIndex]);
+		if (type == inputLayer)
+			nodes[nodeIndex]->setValue(_values[nodeIndex]);
 	}
 }
 
@@ -119,12 +120,13 @@ void initWeights(shared_ptr<Layer> _layer1, shared_ptr<Layer> _layer2) {
 	RandomWeights<float>& generator = RandomWeights<float>::getInstance();
 	for (auto node1 = _layer1->nodes.begin(); node1 != _layer1->nodes.end(); ++node1) {
 		for (auto node2 = _layer2->nodes.begin(); node2 != _layer2->nodes.end(); ++node2) {
-			(*node1)->out.push_back(pair<shared_ptr<Neuron>, float>(*node2, generator.generate()));
-			(*node2)->in.push_back(pair<shared_ptr<Neuron>, float>(*node1, generator.generate()));
+			float randomWeight = generator.get();
+			(*node1)->out.push_back(pair<shared_ptr<Neuron>, float>(*node2, randomWeight));
+			(*node2)->in.push_back(pair<shared_ptr<Neuron>, float>(*node1, randomWeight));
 		}
 	}
 	//bias has to be initialized for all layers instead of output
-	_layer1->setBias(generator.generate());
+	_layer1->setBias(generator.get());
 }
 
 LayerBinder::LayerBinder(vector<shared_ptr<Layer> > _layers) {
@@ -150,13 +152,13 @@ void LayerBinder::printNetwork() {
 				for (auto node = (*layer)->nodes[j]->in.begin(); node != (*layer)->nodes[j]->in.end(); ++node) {
 					//print weghts bettween all nodes from previous layer and node from this layer
 					if ((*layer)->nodes.size() > i)
-						printf("%.2f ", (*node).second);
+						printf("%6.3f ", (*node).second);
 					else
-						printf("%c ", "-");
+						printf("%s ", "-");
 				}
 			}
 			if ((*layer)->nodes.size() > i) {
-				printf("| %.2f | ", (*layer)->nodes[i]->getValue());
+				printf("| %6.3f | ", (*layer)->nodes[i]->getValue());
 			}
 			else {
 				printf("| %c | ", "-");
@@ -164,17 +166,36 @@ void LayerBinder::printNetwork() {
 		}
 		printf("\n");
 	}
+	//print bias for all layers exclude last
+	for (auto layer = layers.begin(); layer != layers.end(); ++layer) {
+		printf("b %6.3f | ", (*layer)->getBias());
+		if ((*layer)->getType() != outputLayer) {
+			for (int i = 0; i < maxNodes; i++) {
+				printf("%s ", "  --- ");
+			}
+		}
+	}
+	printf("\n");
+	printf("\n");
 }
 
-void LayerBinder::ForwardPhase(vector<float> x, vector<float> y) {
+void LayerBinder::ForwardPhase(vector<float> x) {
 	assert(layers.size() > 0);
+	printf("Start\n");
+	printNetwork();
 	layers[0]->setNeuronValues(x);
+	printf("Initial values are applied\n");
+	printNetwork();
 	for (size_t i = 1; i < layers.size(); i++) {
 		layers[i]->propagateValuesFrom(layers[i-1]);
+		printf("Values for layer %d were propagated from layer %d\n", i, i-1);
+		printNetwork();
 		layers[i]->applyFunc();
+		printf("Activation func was appliad to layer %d\n", i);
+		printNetwork();
 	}
 }
 
-void LayerBinder::BackwardPhase() {
+void LayerBinder::BackwardPhase(vector<float> y) {
 
 }
