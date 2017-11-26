@@ -42,20 +42,30 @@ private:
 	}
 };
 
+class ErrorFunction {
+public:
+	virtual float funcResult(float current, float expected) = 0;
+protected:
+};
+
+class CrossEntropy : public ErrorFunction {
+public:
+	float funcResult(float current, float expected);
+};
+
 class ActivationFunc {
 public:
 	//sum is needed for normalization
 	virtual float funcResult(vector<float> values, int current) = 0;
-protected:
-	float nodesSum;
+	virtual float derivativeResult(vector<float> values, int indexFunc, int indexArg) = 0;
 };
+
 
 class SoftMax : public ActivationFunc {
 public:
-	SoftMax();
 	//sum is needed for normalization
 	float funcResult(vector<float> values, int current);
-	float derivativeResult(vector<float> values, int current);
+	float derivativeResult(vector<float> values, int indexFunc, int indexArg);
 };
 
 class Relu : public ActivationFunc {
@@ -64,19 +74,29 @@ public:
 	float funcResult(vector<float> values, int current);
 };
 
+struct Weight {
+	Weight(float _weight) : weight(_weight) {
+
+	}
+	float weight;
+};
+
 class Neuron {
 public:
 	Neuron(shared_ptr<ActivationFunc> _func);
 	~Neuron();
 	void setValue(float _value);
 	float getValue();
+	float getAdj();
+	void setAdj(float _adjustment);
 	void setFunc(shared_ptr<ActivationFunc> _func);
 	shared_ptr<ActivationFunc> getFunc();
 	//to simplify access
-	vector<pair<shared_ptr<Neuron>, float> > in;
-	vector<pair<shared_ptr<Neuron>, float> > out;
+	vector<pair<shared_ptr<Neuron>, shared_ptr<Weight> > > in;
+	vector<pair<shared_ptr<Neuron>, shared_ptr<Weight> > > out;
 private:
 	float value;
+	float adjustment; // for back propagation
 	shared_ptr<ActivationFunc> func;
 };
 
@@ -110,7 +130,7 @@ public:
 	void printNetwork();
 	//calculate new values of nodes using functions
 	void ForwardPhase(vector<float> x);
-	void BackwardPhase(vector<float> y);
+	void BackwardPhase(vector<float> y, float speed);
 private:
 	vector<shared_ptr<Layer> > layers;
 };

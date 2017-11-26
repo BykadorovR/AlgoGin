@@ -2,9 +2,6 @@
 #include <cassert>
 #include <algorithm>
 
-Relu::Relu() {
-	nodesSum = 0;
-}
 
 float Relu::funcResult(vector<float> values, int current) {
 	return current;
@@ -22,11 +19,16 @@ float SoftMax::funcResult(vector<float> values, int current) {
 	return expValues[current] / expSum;
 }
 
-SoftMax::SoftMax() {
-	nodesSum = 0;
+float SoftMax::derivativeResult(vector<float> values, int indexFunc, int indexArg) {
+	if (indexFunc == indexArg) {
+		return values[indexFunc] * (1 - values[indexFunc]);
+	}
+	return -values[indexFunc] * values[indexArg];
 }
 
-
+float CrossEntropy::funcResult(float current, float expected) {
+	return (current - expected) / (current * (1 - current));
+}
 
 Neuron::Neuron(shared_ptr<ActivationFunc> _func) {
 	value = 0;
@@ -49,6 +51,14 @@ float Neuron::getValue() {
 
 shared_ptr<ActivationFunc> Neuron::getFunc() {
 	return func;
+}
+
+float Neuron::getAdj() {
+	return adjustment;
+}
+
+void Neuron::setAdj(float _adjustment) {
+	adjustment = _adjustment;
 }
 
 Layer::Layer(layerType _type) {
@@ -83,8 +93,7 @@ void Layer::propagateValuesFrom(shared_ptr<Layer> previousLayer) {
 	for (auto current = nodes.begin(); current != nodes.end(); ++current) {
 		for (auto previous = (*current)->in.begin(); previous != (*current)->in.end(); ++previous) {
 			shared_ptr<Neuron> previousNeuron = (*previous).first;
-			float weightBetween = (*previous).second;
-			(*current)->setValue((*current)->getValue() + previousNeuron->getValue() * weightBetween);
+			(*current)->setValue((*current)->getValue() + previousNeuron->getValue() * (*previous).second->weight);
 		}
 		(*current)->setValue((*current)->getValue() + previousLayer->bias);
 	}
@@ -120,9 +129,9 @@ void initWeights(shared_ptr<Layer> _layer1, shared_ptr<Layer> _layer2) {
 	RandomWeights<float>& generator = RandomWeights<float>::getInstance();
 	for (auto node1 = _layer1->nodes.begin(); node1 != _layer1->nodes.end(); ++node1) {
 		for (auto node2 = _layer2->nodes.begin(); node2 != _layer2->nodes.end(); ++node2) {
-			float randomWeight = generator.get();
-			(*node1)->out.push_back(pair<shared_ptr<Neuron>, float>(*node2, randomWeight));
-			(*node2)->in.push_back(pair<shared_ptr<Neuron>, float>(*node1, randomWeight));
+			shared_ptr<Weight> randomWeight = make_shared<Weight>(generator.get());
+			(*node1)->out.push_back(pair<shared_ptr<Neuron>, shared_ptr<Weight> >(*node2, randomWeight));
+			(*node2)->in.push_back(pair<shared_ptr<Neuron>, shared_ptr<Weight> >(*node1, randomWeight));
 		}
 	}
 	//bias has to be initialized for all layers instead of output
@@ -152,9 +161,9 @@ void LayerBinder::printNetwork() {
 				for (auto node = (*layer)->nodes[j]->in.begin(); node != (*layer)->nodes[j]->in.end(); ++node) {
 					//print weghts bettween all nodes from previous layer and node from this layer
 					if ((*layer)->nodes.size() > i)
-						printf("%6.3f ", (*node).second);
+						printf("%6.3f ", (*node).second->weight);
 					else
-						printf("%s ", "-");
+						printf("%s ", "  --- ");
 				}
 			}
 			if ((*layer)->nodes.size() > i) {
@@ -196,6 +205,60 @@ void LayerBinder::ForwardPhase(vector<float> x) {
 	}
 }
 
-void LayerBinder::BackwardPhase(vector<float> y) {
+void LayerBinder::BackwardPhase(vector<float> y, float speed) {
+	shared_ptr<Layer> lastLayer = layers[layers.size() - 1];
+	vector<float> nodesValue;
+	vector<float> errorFuncDerivative;
+	CrossEntropy crossFunction;
 
+	//lets fill nodeValue array and calculate errorFuncDerivative
+	for (int i = 0; i < lastLayer->nodes.size(); i++) {
+		nodesValue.push_back(lastLayer->nodes[i]->getValue());
+		errorFuncDerivative.push_back(crossFunction.funcResult(lastLayer->nodes[i]->getValue(), y[i]));
+	}
+
+	//iterate through output nodes
+	for (int j = 0; j < lastLayer->nodes.size(); j++) { // j = arg
+		float adjustment = 0;
+		//due to dependencies between function and all nodes:
+		for (int i = 0; i < lastLayer->nodes.size(); i++) { //i = func
+			float errorFunc = errorFuncDerivative[i];
+			float activationFuncDerivative = lastLayer->nodes[i]->getFunc()->derivativeResult(nodesValue, i, j);
+			adjustment += errorFunc * activationFuncDerivative;
+		}
+		lastLayer->nodes[j]->setAdj(adjustment);
+	}
+
+
+	printf("Output layer\nError func derivative, node adjustment\n");
+	for (int i = 0; i < lastLayer->nodes.size(); i++) {
+		printf("%16.3f, %16.3f\n", errorFuncDerivative[i], lastLayer->nodes[i]->getAdj());
+	}
+	printf("\n");
+	//lets calculate error for all hidden layers (not input, not output)
+	for (int i = layers.size() - 2; i > 0; i--) { // i = layer
+		for (int j = 0; j < layers[i]->nodes.size(); j++) { //j = current node in hidden layer
+			float adjustment = 0;
+			for (int k = 0; k < layers[i]->nodes[j]->out.size(); k++) { // k = all nodes in next layer related to this one
+				//we don't calculate func due to linear dependencies
+				adjustment += layers[i]->nodes[j]->out[k].first->getAdj()*layers[i]->nodes[j]->out[k].second->weight;
+			}
+			layers[i]->nodes[j]->setAdj(adjustment);
+			printf("%34.3f\n", adjustment);
+		}
+	}
+
+	//fix edges using calculated adjustments and biases!!!
+	for (int i = layers.size() - 2; i >= 0; i--) { // i = layer
+		for (int j = 0; j < layers[i]->nodes.size(); j++) { // j = current node in layer
+			for (int k = 0; k < layers[i]->nodes[j]->out.size(); k++) { // k = node in next layer
+				layers[i]->nodes[j]->out[k].second->weight += -speed * layers[i]->nodes[j]->out[k].first->getAdj()*layers[i]->nodes[j]->getValue();
+			}
+		}
+		//bias
+		for (int k = 0; k < layers[i + 1]->nodes.size(); k++) {
+			layers[i]->setBias(layers[i]->getBias() - (speed * layers[i + 1]->nodes[k]->getAdj() * 1));
+		}
+	}
+	printNetwork();
 }
