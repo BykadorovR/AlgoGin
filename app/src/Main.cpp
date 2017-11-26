@@ -15,10 +15,14 @@ int main() {
 	vector<shared_ptr<Layer> > layers = { input, hidden, output };
 	LayerBinder digitalRecognition(layers);
 
-	vector<float> inputValues = { 0.05f, 0.1f };
-	vector<float> responceValues = { 0.1f, 0.99f };
-	digitalRecognition.ForwardPhase(inputValues);
-	digitalRecognition.BackwardPhase(responceValues, speed);
+	vector<float> inputValues = { 0.1f, 0.7f };
+	vector<float> responceValues = { 0.01f, 0.99f };
+	float error = 1;
+	float expectedError = 0.1f;
+	while (abs(error) > expectedError) {
+		digitalRecognition.ForwardPhase(inputValues);
+		error = digitalRecognition.BackwardPhase(responceValues, speed, expectedError);
+	}
 	//Create layer and say how many nodes in every layer
 	//default function for all nodes and opportunity to change for 
 	//every node. Call LayerBinder, it init all links between nodes

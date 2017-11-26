@@ -44,20 +44,21 @@ private:
 
 class ErrorFunction {
 public:
-	virtual float funcResult(float current, float expected) = 0;
+	virtual float funcDerivResult(float current, float expected) = 0;
+	virtual float funcResult(vector<float> current, vector<float> expected) = 0;
 protected:
 };
 
 class CrossEntropy : public ErrorFunction {
 public:
-	float funcResult(float current, float expected);
+	float funcDerivResult(float current, float expected);
+	float funcResult(vector<float> current, vector<float> expected);
 };
 
 class ActivationFunc {
 public:
 	//sum is needed for normalization
 	virtual float funcResult(vector<float> values, int current) = 0;
-	virtual float derivativeResult(vector<float> values, int indexFunc, int indexArg) = 0;
 };
 
 
@@ -65,7 +66,6 @@ class SoftMax : public ActivationFunc {
 public:
 	//sum is needed for normalization
 	float funcResult(vector<float> values, int current);
-	float derivativeResult(vector<float> values, int indexFunc, int indexArg);
 };
 
 class Relu : public ActivationFunc {
@@ -130,7 +130,7 @@ public:
 	void printNetwork();
 	//calculate new values of nodes using functions
 	void ForwardPhase(vector<float> x);
-	void BackwardPhase(vector<float> y, float speed);
+	float BackwardPhase(vector<float> y, float speed, float error);
 private:
 	vector<shared_ptr<Layer> > layers;
 };
