@@ -44,59 +44,62 @@ private:
 
 class ErrorFunction {
 public:
-	virtual float funcDerivResult(float current, float expected) = 0;
-	virtual float funcResult(vector<float> current, vector<float> expected) = 0;
+	virtual double funcDerivResult(double current, double expected) = 0;
+	virtual double funcResult(vector<double> current, vector<double> expected) = 0;
 protected:
 };
 
 class CrossEntropy : public ErrorFunction {
 public:
-	float funcDerivResult(float current, float expected);
-	float funcResult(vector<float> current, vector<float> expected);
+	double funcDerivResult(double current, double expected);
+	double funcResult(vector<double> current, vector<double> expected);
 };
 
 class ActivationFunc {
 public:
 	//sum is needed for normalization
-	virtual float funcResult(vector<float> values, int current) = 0;
+	virtual double funcResult(vector<double> values, int current) = 0;
+	virtual double derivResult(double value) {
+		return value;
+	}
 };
 
 
 class SoftMax : public ActivationFunc {
 public:
 	//sum is needed for normalization
-	float funcResult(vector<float> values, int current);
+	double funcResult(vector<double> values, int current);
 };
 
-class Relu : public ActivationFunc {
+class Sigmoida : public ActivationFunc {
 public:
-	Relu();
-	float funcResult(vector<float> values, int current);
+	double funcResult(vector<double> values, int current);
+	double derivResult(double value);
 };
 
 struct Weight {
-	Weight(float _weight) : weight(_weight) {
+	Weight(double _weight) : weight(_weight) {
 
 	}
-	float weight;
+	double weight;
 };
 
 class Neuron {
 public:
 	Neuron(shared_ptr<ActivationFunc> _func);
 	~Neuron();
-	void setValue(float _value);
-	float getValue();
-	float getAdj();
-	void setAdj(float _adjustment);
+	void setValue(double _value);
+	double getValue();
+	double getAdj();
+	void setAdj(double _adjustment);
 	void setFunc(shared_ptr<ActivationFunc> _func);
 	shared_ptr<ActivationFunc> getFunc();
 	//to simplify access
 	vector<pair<shared_ptr<Neuron>, shared_ptr<Weight> > > in;
 	vector<pair<shared_ptr<Neuron>, shared_ptr<Weight> > > out;
 private:
-	float value;
-	float adjustment; // for back propagation
+	double value;
+	double adjustment; // for back propagation
 	shared_ptr<ActivationFunc> func;
 };
 
@@ -106,9 +109,9 @@ public:
 	Layer(layerType _type);
 	//Init nodes
 	void initNeurons(int _nodesCount, shared_ptr<ActivationFunc> _func = nullptr);
-	void setNeuronValues(vector<float> _values);
-	float getBias();
-	void setBias(float _bias);
+	void setNeuronValues(vector<double> _values);
+	double getBias();
+	void setBias(double _bias);
 	void applyFunc();
 	layerType getType();
 	//spread values from this layer to next layers
@@ -119,7 +122,7 @@ public:
 	vector<shared_ptr<Neuron> > nodes;
 
 private:
-	float bias;
+	double bias;
 	layerType type;
 };
 
@@ -129,8 +132,8 @@ public:
 	LayerBinder(vector<shared_ptr<Layer>> _layers);
 	void printNetwork();
 	//calculate new values of nodes using functions
-	void ForwardPhase(vector<float> x);
-	float BackwardPhase(vector<float> y, float speed, float error);
+	void ForwardPhase(vector<double> x);
+	double BackwardPhase(vector<double> y, double speed, double error);
 private:
 	vector<shared_ptr<Layer> > layers;
 };
