@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 
 	shared_ptr<Sigmoida> func_name_1 = make_shared<Sigmoida>();
 	shared_ptr<ActivationFunc> func_name_2 = make_shared<SoftMax>();
-	printf("Hidden layers: %d\n", atoi(argv[1]));
+	printf("Hidden layers: %d,  Accuracy %f\n", atoi(argv[1]), atof(argv[2]));
 	fflush(stdout);
 	input->initNeurons(imageSize);
 	hidden->initNeurons(atoi(argv[1]), func_name_1);
