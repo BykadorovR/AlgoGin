@@ -17,7 +17,7 @@ add_executable(${PROJECT_NAME} ${APP_HEADERS} ${APP_SOURCE})
 
 #paths to library are diferent on win and linux
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Debug)
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
 endif()
