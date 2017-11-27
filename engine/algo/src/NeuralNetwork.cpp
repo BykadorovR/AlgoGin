@@ -217,14 +217,22 @@ void LayerBinder::ForwardPhase(vector<double> x) {
 		printNetwork();
 #endif
 	}
+	answer.clear();
+	//lets fill nodeValue array
+	for (int i = 0; i < layers[layers.size() - 1]->nodes.size(); i++) {
+		answer.push_back(layers[layers.size() - 1]->nodes[i]->getValue());
+	}
+}
+
+vector<double> LayerBinder::getAnswer() {
+	return answer;
 }
 
 double LayerBinder::BackwardPhase(vector<double> y, double speed) {
 	shared_ptr<Layer> lastLayer = layers[layers.size() - 1];
-	vector<double> nodesValue;
 	vector<double> errorFuncDerivative;
+	vector<double> nodesValue;
 	CrossEntropy crossFunction;
-
 	//lets fill nodeValue array
 	for (int i = 0; i < lastLayer->nodes.size(); i++) {
 		nodesValue.push_back(lastLayer->nodes[i]->getValue());

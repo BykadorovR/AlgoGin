@@ -134,6 +134,8 @@ public:
 	//calculate new values of nodes using functions
 	void ForwardPhase(vector<double> x);
 	double BackwardPhase(vector<double> y, double speed);
+	vector<double> getAnswer();
 private:
 	vector<shared_ptr<Layer> > layers;
+	vector<double> answer;
 };

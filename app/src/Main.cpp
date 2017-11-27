@@ -1,52 +1,93 @@
 #include "NeuralNetwork.h"
-//const int nodesCount = 3;
-const double speed = 0.4; // must be in [0,1]
-int main() {
+#include "mnist_reader.h"
+#include <cmath>
+#include <algorithm>
+
+const double speed = 0.1; // must be in [0,1]
+int main(int argc, char* argv[]) {
+	string filenameTrainData = "../mnist/train-images-idx3-ubyte";
+	int imageSize = 28 * 28;
+	//read MNIST iamge into double vector
+	vector<vector<double> > trainData;
+	read_Mnist(filenameTrainData, trainData);
+
+	string filenameTrainLabel = "../mnist/train-labels-idx1-ubyte";
+	//read MNIST label into double vector
+	vector<vector<double> > trainLabel;
+	read_Mnist_Label(filenameTrainLabel, trainLabel);
+
+	string filenameTestData = "../mnist/t10k-images-idx3-ubyte";
+	//read MNIST iamge into double vector
+	vector<vector<double> > testData;
+	read_Mnist(filenameTestData, testData);
+
+	string filenameTestLabel = "../mnist/t10k-labels-idx1-ubyte";
+	//read MNIST label into double vector
+	vector<vector<double> > testLabel;
+	read_Mnist_Label(filenameTestLabel, testLabel);
+
 	shared_ptr<Layer> input = make_shared<Layer>(inputLayer);
 	shared_ptr<Layer> hidden = make_shared<Layer>(hiddenLayer);
 	shared_ptr<Layer> output = make_shared<Layer>(outputLayer);
 
 	shared_ptr<Sigmoida> func_name_1 = make_shared<Sigmoida>();
 	shared_ptr<ActivationFunc> func_name_2 = make_shared<SoftMax>();
-	
-	input->initNeurons(2);
-	hidden->initNeurons(15, func_name_1);
-	output->initNeurons(4, func_name_2);
+	printf("Hidden layers: %d\n", atoi(argv[1]));
+	fflush(stdout);
+	input->initNeurons(imageSize);
+	hidden->initNeurons(atoi(argv[1]), func_name_1);
+	output->initNeurons(10, func_name_2);
 
 	vector<shared_ptr<Layer> > layers = { input, hidden, output };
 	LayerBinder digitalRecognition(layers);
 
-	vector<vector<double> > inputValues;
-	vector<double> v1 = { 5, 1 };
-	vector<double> v2 = { 2, 2 };
-	vector<double> v3 = { 9, 9 };
-	vector<double> v4 = { 2, 12 };
-	inputValues.push_back(v1);
-	inputValues.push_back(v2);
-	inputValues.push_back(v3);
-	inputValues.push_back(v4);
-	vector<vector<double> > outputValues;
-	vector<double> o1 = { 1, 0, 0, 0 };
-	vector<double> o2 = { 0, 1, 0, 0 };
-	vector<double> o3 = { 0, 0, 1, 0 };
-	vector<double> o4 = { 0, 0, 0, 1 };
-	outputValues.push_back(o1);
-	outputValues.push_back(o2);
-	outputValues.push_back(o3);
-	outputValues.push_back(o4);
+	//Teaching stage
 	float generalError = 1;
-	while (generalError > 0.1) {
-		generalError = 0;
-		for (int i = 0; i < inputValues.size(); i++) {
-			digitalRecognition.ForwardPhase(inputValues[i]);
-			generalError += digitalRecognition.BackwardPhase(outputValues[i], speed) / 4;
-		}
+	while (generalError > atof(argv[2])) {
 		printf("Error: %f\n", generalError);
+		fflush(stdout);
+		generalError = 0;
+		for (int i = 0; i < trainData.size(); i++) {
+			digitalRecognition.ForwardPhase(trainData[i]);
+			generalError += digitalRecognition.BackwardPhase(trainLabel[i], speed) / (trainData.size());
+		}
 	}
-		
-	//Create layer and say how many nodes in every layer
-	//default function for all nodes and opportunity to change for 
-	//every node. Call LayerBinder, it init all links between nodes
-	//and after pass X and Y to LayerBinder
+
+	//train results
+	int equalTrain = 0;
+	int notEqualTrain = 0;
+	for (int i = 0; i < trainData.size(); i++) {
+		digitalRecognition.ForwardPhase(trainData[i]);
+		auto answer = digitalRecognition.getAnswer();
+		float result = distance(answer.begin(), max_element(answer.begin(), answer.end()));
+		float resultReal = distance(trainLabel[i].begin(), max_element(trainLabel[i].begin(), trainLabel[i].end()));
+		if (result == resultReal) {
+			equalTrain++;
+		}
+		else {
+			//printf("Predicted index: %f, predicted value %f; Real index: %f\n", result, answer[result], resultReal);
+			notEqualTrain++;
+		}
+	}
+	printf("TRAIN: Number equal: %d, number not equal: %d\n", equalTrain, notEqualTrain);
+	fflush(stdout);
+
+	int equalTest = 0;
+	int notEqualTest = 0;
+	for (int i = 0; i < testData.size(); i++) {
+		digitalRecognition.ForwardPhase(testData[i]);
+		auto answer = digitalRecognition.getAnswer();
+		float result = distance(answer.begin(), max_element(answer.begin(), answer.end()));
+		float resultReal = distance(testLabel[i].begin(), max_element(testLabel[i].begin(), testLabel[i].end()));
+		if (result == resultReal) {
+			equalTest++;
+		}
+		else {
+			//printf("Predicted index: %f, predicted value %f; Real index: %f\n", result, answer[result], resultReal);
+			notEqualTest++;
+		}
+	}
+	printf("TEST: Number equal: %d, number not equal: %d\n", equalTest, notEqualTest);
+	fflush(stdout);
 	return 0;
 }

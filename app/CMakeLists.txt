@@ -1,22 +1,6 @@
 cmake_minimum_required(VERSION 3.7)
 project(engine_app)
 
-#########################################################
-# FIND GLUT
-#########################################################
-find_package(GLUT REQUIRED)
-include_directories(${GLUT_INCLUDE_DIR})
-add_definitions(${GLUT_DEFINITIONS})
-if(NOT GLUT_FOUND)
-    message(ERROR " GLUT not found. Need to specify path to freeglut folder and to dynamic/static libraries!")
-endif(NOT GLUT_FOUND)
-#########################################################
-# FIND GLEW
-#########################################################
-ADD_SUBDIRECTORY ("../dependencies/glew/build/cmake" glew)
-set(GLEW_DIR "../dependencies/glew")
-include_directories(${GLEW_DIR}/include)
-
 #include app source
 FILE(GLOB_RECURSE APP_SOURCE "src/*.c*")
 source_group("App\\src" FILES ${APP_SOURCE})
@@ -29,25 +13,12 @@ source_group("App\\include" FILES ${APP_HEADERS})
 #include algo headers
 include_directories(../engine/algo/include)
 
-#include graphic headers
-include_directories(../engine/graphic/include)
-
-if(NOT CMAKE_VERSION VERSION_LESS 3.1)
-    set(CMAKE_CXX_STANDARD 11)
-else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-endif()
-
 add_executable(${PROJECT_NAME} ${APP_HEADERS} ${APP_SOURCE})
-
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-endif()
 
 #paths to library are diferent on win and linux
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Debug)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
 endif()
-target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY} ${GLUT_LIBRARIES} glew_s)
+target_link_libraries(${PROJECT_NAME} ${ENGINE_LIBRARY})
