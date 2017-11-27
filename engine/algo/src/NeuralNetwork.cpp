@@ -196,22 +196,30 @@ void LayerBinder::printNetwork() {
 
 void LayerBinder::ForwardPhase(vector<double> x) {
 	assert(layers.size() > 0);
+#ifdef DEBUG
 	printf("Start\n");
 	printNetwork();
+#endif
 	layers[0]->setNeuronValues(x);
+#ifdef DEBUG
 	printf("Initial values are applied\n");
 	printNetwork();
+#endif
 	for (size_t i = 1; i < layers.size(); i++) {
 		layers[i]->propagateValuesFrom(layers[i-1]);
+#ifdef DEBUG
 		printf("Values for layer %d were propagated from layer %d\n", i, i-1);
 		printNetwork();
+#endif
 		layers[i]->applyFunc();
+#ifdef DEBUG
 		printf("Activation func was appliad to layer %d\n", i);
 		printNetwork();
+#endif
 	}
 }
 
-double LayerBinder::BackwardPhase(vector<double> y, double speed, double error) {
+double LayerBinder::BackwardPhase(vector<double> y, double speed) {
 	shared_ptr<Layer> lastLayer = layers[layers.size() - 1];
 	vector<double> nodesValue;
 	vector<double> errorFuncDerivative;
@@ -223,9 +231,7 @@ double LayerBinder::BackwardPhase(vector<double> y, double speed, double error) 
 	}
 
 	double result = crossFunction.funcResult(nodesValue, y);
-	if (result > 0 && result < error)
-		return result;
-
+	
 	//iterate through output nodes
 	for (int j = 0; j < lastLayer->nodes.size(); j++) { // j = arg
 		double adjustment = crossFunction.funcDerivResult(lastLayer->nodes[j]->getValue(),y[j]);
@@ -257,6 +263,8 @@ double LayerBinder::BackwardPhase(vector<double> y, double speed, double error) 
 			layers[i]->setBias(layers[i]->getBias() - (speed * layers[i + 1]->nodes[k]->getAdj() * 1));
 		}
 	}
+#ifdef DEBUG
 	printNetwork();
+#endif
 	return result;
 }

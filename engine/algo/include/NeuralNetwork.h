@@ -9,7 +9,7 @@ using std::pair;
 using std::map;
 using std::make_shared;
 
-
+//#define DEBUG
 
 enum layerType {
 	inputLayer,
@@ -133,7 +133,7 @@ public:
 	void printNetwork();
 	//calculate new values of nodes using functions
 	void ForwardPhase(vector<double> x);
-	double BackwardPhase(vector<double> y, double speed, double error);
+	double BackwardPhase(vector<double> y, double speed);
 private:
 	vector<shared_ptr<Layer> > layers;
 };
