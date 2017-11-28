@@ -3,7 +3,6 @@
 #include <cmath>
 #include <algorithm>
 
-const double speed = 0.1; // must be in [0,1]
 int main(int argc, char* argv[]) {
 	string filenameTrainData = "../mnist/train-images-idx3-ubyte";
 	int imageSize = 28 * 28;
@@ -39,13 +38,15 @@ int main(int argc, char* argv[]) {
 	vector<shared_ptr<Layer> > layers = { input, hidden, output };
 	LayerBinder digitalRecognition(layers);
 
+	double speed = atof(argv[4]); // must be in [0,1]
+
 	//Teaching stage
 	int epoch = 0;
 	int epochThreshold = atoi(argv[3]);
 	float generalError = 1;
-	printf("Hidden layers: %d,  Accuracy %f, Epoch threshold\n", atoi(argv[1]), atof(argv[2]), epochThreshold);
+	printf("Hidden layers: %d,  Accuracy %f, Epoch threshold %d, speed %f\n", atoi(argv[1]), atof(argv[2]), epochThreshold, speed);
 	fflush(stdout);
-	while (generalError > atof(argv[2]) || epoch < epochThreshold) {
+	while (generalError > atof(argv[2]) && epoch < epochThreshold) {
 		printf("Error: %f, epoch N %d\n", generalError, epoch);
 		fflush(stdout);
 		generalError = 0;
