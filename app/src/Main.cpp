@@ -28,14 +28,15 @@ int main(int argc, char* argv[]) {
 	shared_ptr<Layer> hidden = make_shared<Layer>(hiddenLayer);
 	shared_ptr<Layer> output = make_shared<Layer>(outputLayer);
 
-	shared_ptr<Sigmoida> func_name_1 = make_shared<Sigmoida>();
-	shared_ptr<ActivationFunc> func_name_2 = make_shared<SoftMax>();
+	shared_ptr<ActivationFunc> expSigm = make_shared<Sigmoida>();
+	shared_ptr<ActivationFunc> softMax = make_shared<SoftMax>();
 	input->initNeurons(imageSize);
-	hidden->initNeurons(atoi(argv[1]), func_name_1);
-	output->initNeurons(10, func_name_2);
+	hidden->initNeurons(atoi(argv[1]), expSigm);
+	output->initNeurons(10, softMax);
 
 	vector<shared_ptr<Layer> > layers = { input, hidden, output };
-	LayerBinder digitalRecognition(layers);
+	shared_ptr<ErrorFunction> crossEntr = make_shared<CrossEntropy>();
+	LayerBinder digitalRecognition(layers, crossEntr);
 
 	double speed = atof(argv[4]); // must be in [0,1]
 
@@ -46,13 +47,13 @@ int main(int argc, char* argv[]) {
 	printf("Hidden neurons: %d,  Accuracy %f, Epoch threshold %d, speed %f\n", atoi(argv[1]), atof(argv[2]), epochThreshold, speed);
 	fflush(stdout);
 	while (generalError > atof(argv[2]) && epoch < epochThreshold) {
-		printf("Error: %f, epoch N %d\n", generalError, epoch);
-		fflush(stdout);
 		generalError = 0;
 		for (int i = 0; i < trainData.size(); i++) {
 			digitalRecognition.ForwardPhase(trainData[i]);
 			generalError += digitalRecognition.BackwardPhase(trainLabel[i], speed) / (trainData.size());
 		}
+		printf("Error: %f, epoch N %d\n", generalError, epoch);
+		fflush(stdout);
 		epoch++;
 	}
 

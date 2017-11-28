@@ -60,13 +60,14 @@ protected:
 		shared_ptr<Layer> hidden = make_shared<Layer>(hiddenLayer);
 		shared_ptr<Layer> output = make_shared<Layer>(outputLayer);
 
-		shared_ptr<Sigmoida> func_name_1 = make_shared<Sigmoida>();
-		shared_ptr<ActivationFunc> func_name_2 = make_shared<SoftMax>();
+		shared_ptr<ActivationFunc> expSigm = make_shared<Sigmoida>();
+		shared_ptr<ActivationFunc> softMax = make_shared<SoftMax>();
 		input->initNeurons(nodesCount);
-		hidden->initNeurons(nodesCount - 1, func_name_1);
-		output->initNeurons(nodesCount, func_name_2);
+		hidden->initNeurons(nodesCount-1, expSigm);
+		output->initNeurons(nodesCount, softMax);
 		vector<shared_ptr<Layer> > layers = { input, hidden, output };
-		digitalRecognition = make_shared<LayerBinder>(layers);
+		shared_ptr<ErrorFunction> crossEntr = make_shared<CrossEntropy>();
+		digitalRecognition = make_shared<LayerBinder>(layers, crossEntr);
 		x = { 1, 2, 3 };
 		y = { 0.1, 0.8, 0.1 };
 	}

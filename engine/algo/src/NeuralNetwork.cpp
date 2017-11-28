@@ -144,8 +144,9 @@ void initWeights(shared_ptr<Layer> _layer1, shared_ptr<Layer> _layer2) {
 	}
 }
 
-LayerBinder::LayerBinder(vector<shared_ptr<Layer> > _layers) {
+LayerBinder::LayerBinder(vector<shared_ptr<Layer> > _layers, shared_ptr<ErrorFunction> _errorFunc) {
 	layers = _layers;
+	errorFunc = _errorFunc;
 	//init to and out neurons for every neuron
 	for (auto layer = _layers.begin() + 1; layer != _layers.end(); ++layer) {
 		initWeights(*(layer -1), *layer);
@@ -182,15 +183,6 @@ void LayerBinder::printNetwork() {
 		printf("\n");
 	}
 
-	//print bias for all layers exclude last
-	for (auto layer = layers.begin(); layer != layers.end(); ++layer) {
-		printf("b %6.3f | ", (*layer)->getBias());
-		if ((*layer)->getType() != outputLayer) {
-			for (int i = 0; i < (*layer)->nodes.size(); i++) {
-				printf("%6.3s ", "-");
-			}
-		}
-	}
 	printf("\n");
 	printf("\n");
 }
@@ -206,7 +198,7 @@ void LayerBinder::ForwardPhase(vector<double> x) {
 	printf("Initial values are applied\n");
 	printNetwork();
 #endif
-	for (size_t i = 1; i < layers.size(); i++) {
+	for (int i = 1; i < layers.size(); i++) {
 		layers[i]->propagateValuesFrom(layers[i-1]);
 #ifdef DEBUG
 		printf("Values for layer %d were propagated from layer %d\n", i, i-1);
@@ -218,62 +210,71 @@ void LayerBinder::ForwardPhase(vector<double> x) {
 		printNetwork();
 #endif
 	}
-	answer.clear();
-	//lets fill nodeValue array
-	for (int i = 0; i < layers[layers.size() - 1]->nodes.size(); i++) {
-		answer.push_back(layers[layers.size() - 1]->nodes[i]->getValue());
-	}
 }
 
 vector<double> LayerBinder::getAnswer() {
+	answer.clear();
+	auto nodes = layers[layers.size() - 1]->nodes;
+	//lets fill nodeValue array
+	for (int i = 0; i < nodes.size(); i++) {
+		answer.push_back(nodes[i]->getValue());
+	}
 	return answer;
 }
 
-double LayerBinder::BackwardPhase(vector<double> y, double speed) {
-	shared_ptr<Layer> lastLayer = layers[layers.size() - 1];
-	vector<double> errorFuncDerivative;
-	vector<double> nodesValue;
-	CrossEntropy crossFunction;
-	//lets fill nodeValue array
-	for (int i = 0; i < lastLayer->nodes.size(); i++) {
-		nodesValue.push_back(lastLayer->nodes[i]->getValue());
-	}
-
-	double result = crossFunction.funcResult(nodesValue, y);
-	
+void LayerBinder::calculateOutputAdjustments(vector<double> y) {
+	auto nodes = layers[layers.size() - 1]->nodes;
 	//iterate through output nodes
-	for (int j = 0; j < lastLayer->nodes.size(); j++) { // j = arg
-		double adjustment = crossFunction.funcDerivResult(lastLayer->nodes[j]->getValue(),y[j]);
-		lastLayer->nodes[j]->setAdj(adjustment);
+	for (int j = 0; j < nodes.size(); j++) { // j = arg
+		double adjustment = errorFunc->funcDerivResult(nodes[j]->getValue(), y[j]);
+		nodes[j]->setAdj(adjustment);
 	}
+}
 
+void LayerBinder::calculateHiddenAdjustments() {
 	//lets calculate error for all hidden layers (not input, not output)
 	for (int i = layers.size() - 2; i > 0; i--) { // i = layer
-		for (int j = 0; j < layers[i]->nodes.size(); j++) { //j = current node in hidden layer
+		auto currentNodes = layers[i]->nodes;
+		for (int j = 0; j < currentNodes.size(); j++) { //j = current node in hidden layer
 			double adjustment = 0;
-			for (int k = 0; k < layers[i]->nodes[j]->out.size(); k++) { // k = all nodes in next layer related to this one
-				//we don't calculate func due to linear dependencies
-				adjustment += layers[i]->nodes[j]->out[k].first->getAdj()*layers[i]->nodes[j]->out[k].second->weight;
+			auto outNodesFromCurrent = currentNodes[j]->out;
+			for (int k = 0; k < outNodesFromCurrent.size(); k++) { // k = all nodes in next layer related to this one
+				adjustment += outNodesFromCurrent[k].first->getAdj() * outNodesFromCurrent[k].second->weight;
 			}
-			layers[i]->nodes[j]->setAdj(adjustment*layers[i]->nodes[j]->getFunc()->derivResult(layers[i]->nodes[j]->getValue()));
+			//add func derivative
+			currentNodes[j]->setAdj(adjustment * currentNodes[j]->getFunc()->derivResult(currentNodes[j]->getValue()));
 		}
 	}
+}
 
+void LayerBinder::fixWeightsAndBiases(double speed) {
 	//fix edges using calculated adjustments and biases!!!
 	for (int i = layers.size() - 2; i >= 0; i--) { // i = layer
-		for (int j = 0; j < layers[i]->nodes.size(); j++) { // j = current node in layer
-			for (int k = 0; k < layers[i]->nodes[j]->out.size(); k++) { // k = node in next layer
-				layers[i]->nodes[j]->out[k].second->weight -= speed * layers[i]->nodes[j]->out[k].first->getAdj()*layers[i]->nodes[j]->getValue();
+		auto currentNodes = layers[i]->nodes;
+		for (int j = 0; j < currentNodes.size(); j++) { // j = current node in layer
+			auto outNodesFromCurrent = currentNodes[j]->out;
+			for (int k = 0; k < outNodesFromCurrent.size(); k++) { // k = node in next layer
+				outNodesFromCurrent[k].second->weight -= speed * outNodesFromCurrent[k].first->getAdj()*currentNodes[j]->getValue();
 			}
 		}
 
+		auto nextLayerNodes = layers[i + 1]->nodes;
 		//bias
-		for (int k = 0; k < layers[i + 1]->nodes.size(); k++) { // k nodes from next layer
-			layers[i]->bias[k] -= (speed * layers[i + 1]->nodes[k]->getAdj() * 1);
+		for (int k = 0; k < nextLayerNodes.size(); k++) { // k nodes from next layer
+			layers[i]->bias[k] -= (speed * nextLayerNodes[k]->getAdj() * 1);
 		}
 	}
+}
+
+double LayerBinder::BackwardPhase(vector<double> y, double speed) {
+	calculateOutputAdjustments(y);
+	calculateHiddenAdjustments();
+	fixWeightsAndBiases(speed);
+
+	
 #ifdef DEBUG
 	printNetwork();
 #endif
-	return result;
+
+	return errorFunc->funcResult(getAnswer(), y);
 }

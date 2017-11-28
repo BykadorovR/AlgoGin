@@ -58,9 +58,7 @@ class ActivationFunc {
 public:
 	//sum is needed for normalization
 	virtual double funcResult(vector<double> values, int current) = 0;
-	virtual double derivResult(double value) {
-		return value;
-	}
+	virtual double derivResult(double value) = 0;
 };
 
 
@@ -68,6 +66,9 @@ class SoftMax : public ActivationFunc {
 public:
 	//sum is needed for normalization
 	double funcResult(vector<double> values, int current);
+	double derivResult(double value) {
+		return -1;
+	}
 };
 
 class Sigmoida : public ActivationFunc {
@@ -127,13 +128,17 @@ private:
 class LayerBinder {
 public:
 	//init binds and weights between layers
-	LayerBinder(vector<shared_ptr<Layer>> _layers);
+	LayerBinder(vector<shared_ptr<Layer>> _layers, shared_ptr<ErrorFunction> _errorFunc);
 	void printNetwork();
 	//calculate new values of nodes using functions
 	void ForwardPhase(vector<double> x);
 	double BackwardPhase(vector<double> y, double speed);
 	vector<double> getAnswer();
 private:
+	void calculateHiddenAdjustments();
+	void calculateOutputAdjustments(vector<double> y);
+	void fixWeightsAndBiases(double speed);
+	shared_ptr<ErrorFunction> errorFunc;
 	vector<shared_ptr<Layer> > layers;
 	vector<double> answer;
 };
