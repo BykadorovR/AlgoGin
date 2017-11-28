@@ -68,7 +68,6 @@ void Neuron::setAdj(double _adjustment) {
 
 Layer::Layer(layerType _type) {
 	type = _type;
-	bias = 0;
 }
 
 //for hidden and output layers
@@ -95,12 +94,12 @@ void Layer::applyFunc() {
 }
 
 void Layer::propagateValuesFrom(shared_ptr<Layer> previousLayer) {
-	for (auto current = nodes.begin(); current != nodes.end(); ++current) {
-		for (auto previous = (*current)->in.begin(); previous != (*current)->in.end(); ++previous) {
+	for (int i = 0; i < nodes.size(); i++) {
+		for (auto previous = nodes[i]->in.begin(); previous != nodes[i]->in.end(); ++previous) {
 			shared_ptr<Neuron> previousNeuron = (*previous).first;
-			(*current)->setValue((*current)->getValue() + previousNeuron->getValue() * (*previous).second->weight);
+			nodes[i]->setValue(nodes[i]->getValue() + previousNeuron->getValue() * (*previous).second->weight);
 		}
-		(*current)->setValue((*current)->getValue() + previousLayer->bias);
+		nodes[i]->setValue(nodes[i]->getValue() + previousLayer->bias[i]);
 	}
 }
 
@@ -121,11 +120,11 @@ Layer::~Layer() {
 	nodes.clear();
 }
 
-double Layer::getBias() {
+vector<double> Layer::getBias() {
 	return bias;
 }
 
-void Layer::setBias(double _bias) {
+void Layer::setBias(vector<double> _bias) {
 	bias = _bias;
 }
 
@@ -140,7 +139,9 @@ void initWeights(shared_ptr<Layer> _layer1, shared_ptr<Layer> _layer2) {
 		}
 	}
 	//bias has to be initialized for all layers instead of output
-	_layer1->setBias(generator.get());
+	for (int i = 0; i < _layer2->nodes.size(); i++) {
+		_layer1->bias.push_back(generator.get());
+	}
 }
 
 LayerBinder::LayerBinder(vector<shared_ptr<Layer> > _layers) {
@@ -262,13 +263,13 @@ double LayerBinder::BackwardPhase(vector<double> y, double speed) {
 	for (int i = layers.size() - 2; i >= 0; i--) { // i = layer
 		for (int j = 0; j < layers[i]->nodes.size(); j++) { // j = current node in layer
 			for (int k = 0; k < layers[i]->nodes[j]->out.size(); k++) { // k = node in next layer
-				layers[i]->nodes[j]->out[k].second->weight += -speed * layers[i]->nodes[j]->out[k].first->getAdj()*layers[i]->nodes[j]->getValue();
+				layers[i]->nodes[j]->out[k].second->weight -= speed * layers[i]->nodes[j]->out[k].first->getAdj()*layers[i]->nodes[j]->getValue();
 			}
 		}
 
 		//bias
-		for (int k = 0; k < layers[i + 1]->nodes.size(); k++) {
-			layers[i]->setBias(layers[i]->getBias() - (speed * layers[i + 1]->nodes[k]->getAdj() * 1));
+		for (int k = 0; k < layers[i + 1]->nodes.size(); k++) { // k nodes from next layer
+			layers[i]->bias[k] -= (speed * layers[i + 1]->nodes[k]->getAdj() * 1);
 		}
 	}
 #ifdef DEBUG

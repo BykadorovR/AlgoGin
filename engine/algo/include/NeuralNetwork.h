@@ -31,9 +31,7 @@ public:
 	}
 
 	T get() {
-		static int num = 0;
-		return static_cast<T>((num++) % 5) / static_cast<T>(100);
-		//return static_cast<T>(rand()) / static_cast<T>(RAND_MAX);
+		return (static_cast<T>(rand()) / (static_cast<T>(RAND_MAX))) / 100;
 	}
 	RandomWeights(RandomWeights const&) = delete;
 	void operator=(RandomWeights const&) = delete;
@@ -110,8 +108,8 @@ public:
 	//Init nodes
 	void initNeurons(int _nodesCount, shared_ptr<ActivationFunc> _func = nullptr);
 	void setNeuronValues(vector<double> _values);
-	double getBias();
-	void setBias(double _bias);
+	vector<double> getBias();
+	void setBias(vector<double> _bias);
 	void applyFunc();
 	layerType getType();
 	//spread values from this layer to next layers
@@ -120,9 +118,8 @@ public:
 	~Layer();
 	//to simplify access
 	vector<shared_ptr<Neuron> > nodes;
-
+	vector<double> bias;
 private:
-	double bias;
 	layerType type;
 };
 
