@@ -11,9 +11,6 @@ source_group("Test\\src" FILES ${TEST_SOURCE})
 #include algo headers
 include_directories(../engine/algo/include)
 
-#include graphic headers
-include_directories(../engine/graphic/include)
-
 if(NOT CMAKE_VERSION VERSION_LESS 3.1)
     set(CMAKE_CXX_STANDARD 11)
 else()
@@ -24,9 +21,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL GNU)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 endif()
 
-#need for mismatch resolving
-STRING(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
-
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
 add_executable(${PROJECT_NAME} ${TEST_SOURCE})
@@ -36,7 +30,7 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 endif()
 #paths to library are diferent on win and linux
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release ../engine/_build/Debug)
+    find_library(ENGINE_LIBRARY engine HINTS ../engine/_build/Release)
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     find_library(ENGINE_LIBRARY engine HINTS ../engine/_build)
 endif()

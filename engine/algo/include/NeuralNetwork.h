@@ -37,6 +37,7 @@ public:
 	void operator=(RandomWeights const&) = delete;
 private:
 	RandomWeights() {
+		srand(11);
 	}
 };
 

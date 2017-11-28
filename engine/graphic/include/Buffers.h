@@ -1,7 +1,0 @@
-class VertexBuffer {
-
-};
-
-class IndexBuffer {
-
-};
