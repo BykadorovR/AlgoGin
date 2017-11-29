@@ -16,5 +16,8 @@ else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 endif()
 
+#need for mismatch resolving
+STRING(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
+
 add_library(${PROJECT_NAME} ${ALGO_SOURCE} ${ALGO_HEADERS})
 target_link_libraries(${PROJECT_NAME})

@@ -3,6 +3,10 @@
 #include <cmath>
 #include <algorithm>
 int main(int argc, char* argv[]) {
+	if (argc < 5) {
+		printf("Please set next parameters:\nCount of neurons in hidden layers (int)\nLearning accuracy (double)\nEpoch count (int)\nLearning rate (double)\nProcessing will end after achievement one of two conditions: Learning accuracy or Epoch count\n");
+		return 0;
+	}
 	string filenameTrainData = "../mnist/train-images-idx3-ubyte";
 	int imageSize = 28 * 28;
 	//read MNIST iamge into double vector
