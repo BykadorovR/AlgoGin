@@ -1,2 +1,2 @@
-[![Build Status](https://travis-ci.org/BykadorovR/UnlimitedEnginePro.svg?branch=master)](https://travis-ci.org/BykadorovR/UnlimitedEnginePro)
-[![Coverage Status](https://coveralls.io/repos/github/BykadorovR/UnlimitedEnginePro/badge.svg?branch=dev)](https://coveralls.io/github/BykadorovR/UnlimitedEnginePro?branch=dev)
+[![Build Status](https://travis-ci.org/BykadorovR/UnlimitedEnginePro.svg?branch=neuron)](https://travis-ci.org/BykadorovR/UnlimitedEnginePro)
+[![Coverage Status](https://coveralls.io/repos/github/BykadorovR/UnlimitedEnginePro/badge.svg?branch=neuron)](https://coveralls.io/github/BykadorovR/UnlimitedEnginePro?branch=neuron)
