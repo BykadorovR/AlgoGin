@@ -13,7 +13,17 @@ source_group("App\\include" FILES ${APP_HEADERS})
 #include algo headers
 include_directories(../engine/algo/include)
 
+if(NOT CMAKE_VERSION VERSION_LESS 3.1)
+    set(CMAKE_CXX_STANDARD 11)
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif()
+
 add_executable(${PROJECT_NAME} ${APP_HEADERS} ${APP_SOURCE})
+
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+endif()
 
 #paths to library are diferent on win and linux
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
