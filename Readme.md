@@ -2,7 +2,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/BykadorovR/AlgoGin/badge.svg?branch=neuron)](https://coveralls.io/github/BykadorovR/AlgoGin?branch=neuron)
 
 ## Как построить и запустить решение:
-<p>
 1) Скачать репозиторий
 2) Создать папку build в репозитории engine и запустить оттуда cmake ..
 3) Открыть сгенерированный .sln файл и собрать проект в Release/Win32 (Windows)
