@@ -1,0 +1,46 @@
+language: cpp
+
+compiler: g++
+
+before_install:
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo apt-get update
+  - mkdir $HOME/usr
+  - export PATH="$HOME/usr/bin:$PATH"
+  - wget --no-check-certificate https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.sh
+  - chmod +x cmake-3.7.2-Linux-x86_64.sh
+  - ./cmake-3.7.2-Linux-x86_64.sh --prefix=$HOME/usr --exclude-subdir --skip-license
+  - pip install --user cpp-coveralls
+
+install:
+  - sudo apt-get install -qq g++-4.8
+  - export CXX="g++-4.8"
+  - sudo apt-get install ggcov
+  - sudo apt-get install freeglut3 freeglut3-dev
+  - sudo apt-get install libxmu-dev libxi-dev
+  - sudo ln -sf /usr/bin/gcov-4.8 /usr/bin/gcov
+  - sudo pip install --upgrade ndg-httpsclient
+
+script:
+  - cd engine
+  - mkdir _build
+  - cd _build
+  - cmake ..
+  - make
+  - cd ../../app
+  - mkdir _build
+  - cd _build
+  - cmake ..
+  - make
+  - cd ../../tests
+  - mkdir _build
+  - cd _build
+  - cmake ..
+  - make
+  - ./engine_tests
+
+after_success:
+  - coveralls --root ../../ --exclude tests/src --exclude app --exclude dependencies -E ".*CMakeFiles.*"
+
+os:
+  - linux
