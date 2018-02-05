@@ -17,6 +17,9 @@ ADD_SUBDIRECTORY ("../dependencies/glew/build/cmake" glew)
 set(GLEW_DIR "../dependencies/glew")
 include_directories(${GLEW_DIR}/include)
 
+#need for mismatch resolving
+STRING(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
+
 #include algo headers
 include_directories(algo/include)
 FILE(GLOB_RECURSE ALGO_HEADERS "algo/*.h*")
