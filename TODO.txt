@@ -1,6 +1,5 @@
 ﻿Algos:
 find solution how throw exception in case of v[index > size] = something
-??
 
 Создать класс Шейдер, в котором будет хранится программа и добавить функцию useShader +
 Добавить поддержку Uniform +
