@@ -16,28 +16,16 @@ install:
   - sudo apt-get install -qq g++-4.8
   - export CXX="g++-4.8"
   - sudo apt-get install ggcov
-  - sudo apt-get install freeglut3 freeglut3-dev
   - sudo apt-get install libxmu-dev libxi-dev
   - sudo ln -sf /usr/bin/gcov-4.8 /usr/bin/gcov
   - sudo pip install --upgrade ndg-httpsclient
 
 script:
-  - cd engine
   - mkdir _build
   - cd _build
   - cmake ..
   - make
-  - cd ../../app
-  - mkdir _build
-  - cd _build
-  - cmake ..
-  - make
-  - cd ../../tests
-  - mkdir _build
-  - cd _build
-  - cmake ..
-  - make
-  - ./engine_tests
+  - ./tests
 
 after_success:
   - coveralls --root ../../ --exclude tests/src --exclude app --exclude dependencies -E ".*CMakeFiles.*"

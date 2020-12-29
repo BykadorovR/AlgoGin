@@ -1,5 +1,1 @@
-engine/_build
-app/_build
-tests/_build
-Win32
-engine.dir
+build
