@@ -1,7 +1,7 @@
 #include "NeuralNetwork.h"
 #include <cassert>
 #include <algorithm>
-
+#include <math.h>
 
 double Sigmoida::funcResult(vector<double> values, int current) {
 	return (1/(1+exp(-2*values[current])));

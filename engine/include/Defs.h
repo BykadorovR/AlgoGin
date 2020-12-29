@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdarg.h>
-
+#include <math.h>
 enum l_sts {
 	SUCCESS,
 	NOT_FOUND,
