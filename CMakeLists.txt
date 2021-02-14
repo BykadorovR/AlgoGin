@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.19)
 
 set (CMAKE_CXX_STANDARD 20)
+if (UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fprofile-arcs -ftest-coverage")
+endif
 #need for mismatch resolving
 string(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
@@ -50,7 +53,6 @@ if (WIN32)
 	target_link_libraries(tests PRIVATE optimized ${CMAKE_CURRENT_BINARY_DIR}/googletest-prefix/src/googletest-build/Release/gtest.lib)
 	target_link_libraries(tests PRIVATE optimized ${CMAKE_CURRENT_BINARY_DIR}/googletest-prefix/src/googletest-build/Release/gtest_main.lib)
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -g -fprofile-arcs -ftest-coverage -fno-inline")
 	target_link_libraries(tests PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/googletest-prefix/src/googletest-build/libgtest.a)
 	target_link_libraries(tests PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/googletest-prefix/src/googletest-build/libgtest_main.a)
 	target_link_libraries(tests PRIVATE pthread)
