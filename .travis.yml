@@ -41,7 +41,9 @@ script:
 
 after_success:
   - ls
-  - lcov --gcov-tool gcov-10 --capture --directory ../ --base-directory ../ --output-file coverage.info
+  - cd ..
+  - ls
+  - lcov --gcov-tool gcov-10 --capture --output-file coverage.info
   - lcov --list coverage.info # debug before upload
   - coveralls-lcov --repo-token=${COVERALLS_TOKEN} coverage.info
 
