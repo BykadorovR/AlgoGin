@@ -23,7 +23,7 @@ install:
   - tar -xf cmake-3.19.1-Linux-x86_64.tar.gz
   - export PATH="${PWD}/cmake-3.19.1-Linux-x86_64/bin:${PATH}"
   - if [ "$CXX" = "g++" ]; then export CXX="g++-9" CC="gcc-9"; fi
-  - sudo gem install coveralls-lcov
+  - pip install --user cpp-coveralls
   - echo ${CC}
   - echo ${CXX}
   - ${CXX} --version
@@ -37,10 +37,6 @@ script:
   - ./tests
 
 after_success:
-  - find . -name \*.gcno -print
-  - find . -name \*.gcda -print
-  - lcov --capture --no-external --directory . --base-directory ${TRAVIS_BUILD_DIR}/engine/include -rc lcov_branch_coverage=1 --output-file coverage.info
-  - lcov --list coverage.info # debug before upload
-  - coveralls-lcov --repo-token=${COVERALLS_TOKEN} coverage.info
+  - coveralls --root ../ --exclude tests/src --exclude app --exclude dependencies -E ".*CMakeFiles.*"
 
 
