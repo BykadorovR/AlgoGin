@@ -1,12 +1,10 @@
 language: cpp
-#dist: bionic
+dist: bionic
 os: linux
 compiler: g++
 
 before_install:
   - pushd ${HOME}
-  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
-  - sudo apt-get update
   - wget https://github.com/Kitware/CMake/releases/download/v3.19.1/cmake-3.19.1-Linux-x86_64.tar.gz
   - popd
 
@@ -14,15 +12,8 @@ install:
   - pushd ${HOME}
   - tar -xf cmake-3.19.1-Linux-x86_64.tar.gz
   - export PATH="${PWD}/cmake-3.19.1-Linux-x86_64/bin:${PATH}"
-  - sudo apt install gcc-10
-  - sudo apt install g++-10
-  - g++ --version
-  #- export CXX="g++-9"
   - sudo apt-get install ggcov
-  #- sudo apt-get install libxmu-dev libxi-dev
-  #- sudo ln -sf /usr/bin/gcov-9 /usr/bin/gcov
   - pip install --user cpp-coveralls
-  #- sudo pip install --upgrade ndg-httpsclient
   - popd
 script:
   - mkdir _build
