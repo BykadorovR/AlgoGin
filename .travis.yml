@@ -38,7 +38,6 @@ script:
   - cmake .. -DCMAKE_CXX_FLAGS="-coverage"
   - make
   - ./tests
-  - gcovr -r . -b
 
 after_success:
   - ls
