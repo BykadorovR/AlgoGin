@@ -25,12 +25,13 @@ install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$CXX" = "clang++" ]; then export CXX="clang++-10" CC="clang-10"; fi;
     fi
-  - sudo apt-get install ggcov
+  #- sudo apt-get install ggcov
   - pip install --user cpp-coveralls
   - echo ${CC}
   - echo ${CXX}
   - ${CXX} --version
   - cmake --version
+  - gcov --version
   - popd
 script:
   - mkdir _build
