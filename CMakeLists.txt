@@ -1,6 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+cmake_minimum_required(VERSION 3.19)
 #need for mismatch resolving
 string(REPLACE "/MDd" "/MTd" CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG})
 string(REPLACE "/MD" "/MT" CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE})
@@ -27,6 +25,8 @@ FILE(GLOB_RECURSE ALGO_SOURCE "engine/src/*.c*")
 source_group("src" FILES ${ALGO_SOURCE})
 
 add_library(engine ${ALGO_SOURCE} ${ALGO_HEADERS})
+set_property(TARGET engine PROPERTY CXX_STANDARD 20)
+set_property(TARGET engine PROPERTY CXX_STANDARD_REQUIRED ON)
 
 ADD_SUBDIRECTORY ("dependencies/googletest" googletest)
 enable_testing()
@@ -43,6 +43,9 @@ add_dependencies(tests googletest)
 target_include_directories(tests PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/googletest/include)
 
 target_link_libraries(tests PRIVATE engine)
+set_property(TARGET tests PROPERTY CXX_STANDARD 20)
+set_property(TARGET tests PROPERTY CXX_STANDARD_REQUIRED ON)
+
 if (WIN32)
 	target_link_libraries(tests PRIVATE debug ${CMAKE_CURRENT_BINARY_DIR}/googletest-prefix/src/googletest-build/Debug/gtestd.lib)
 	target_link_libraries(tests PRIVATE debug ${CMAKE_CURRENT_BINARY_DIR}/googletest-prefix/src/googletest-build/Debug/gtest_maind.lib)
