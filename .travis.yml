@@ -12,6 +12,7 @@ addons:
     packages:
     - gcc-10
     - g++-10
+    - lcov
 
 before_install:
   - pushd ${HOME}
@@ -25,13 +26,11 @@ install:
   - if [ "$TRAVIS_OS_NAME" = "linux" ]; then
       if [ "$CXX" = "clang++" ]; then export CXX="clang++-10" CC="clang-10"; fi;
     fi
-  - sudo apt-get install ggcov-10
-  - pip install --user cpp-coveralls
+  - sudo gem install coveralls-lcov
   - echo ${CC}
   - echo ${CXX}
   - ${CXX} --version
   - cmake --version
-  - ggcov --version
   - popd
 script:
   - mkdir _build
@@ -41,6 +40,7 @@ script:
   - ./tests
 
 after_success:
-  - coveralls --root ../ --exclude tests/src --exclude app --exclude dependencies -E ".*CMakeFiles.*"
+  - lcov --gcov-tool gcov-10 --capture --no-external --directory . --base-directory ../ -rc lcov_branch_coverage=1 --output-file coverage.info
+    coveralls-lcov --repo-token ${COVERALLS_TOKEN} coverage.info
 
 
