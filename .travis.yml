@@ -35,12 +35,13 @@ install:
 script:
   - mkdir _build
   - cd _build
-  - cmake .. -DCMAKE_CXX_FLAGS="-coverage"
+  - cmake ..
   - make
   - ./tests
 
 after_success:
-  - lcov --gcov-tool gcov-10 --capture --directory ../ --output-file coverage.info
+  - ls
+  - lcov --gcov-tool gcov-10 --capture --directory ../ --base-directory ../ --output-file coverage.info
   - lcov --list coverage.info # debug before upload
   - coveralls-lcov --repo-token=${COVERALLS_TOKEN} coverage.info
 
