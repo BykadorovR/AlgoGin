@@ -5,6 +5,8 @@ compiler: g++
 
 before_install:
   - pushd ${HOME}
+  - apt-get update
+  - apt-get install
   - wget https://github.com/Kitware/CMake/releases/download/v3.19.1/cmake-3.19.1-Linux-x86_64.tar.gz
   - popd
 
