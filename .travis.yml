@@ -42,7 +42,7 @@ script:
 after_success:
   - find . -name \*.gcno -print
   - find . -name \*.gcda -print
-  - lcov --gcov-tool gcov-10 --capture --output-file coverage.info
+  - lcov --gcov-tool gcov-10 -d . --capture --output-file coverage.info
   - lcov --list coverage.info # debug before upload
   - coveralls-lcov --repo-token=${COVERALLS_TOKEN} coverage.info
 
