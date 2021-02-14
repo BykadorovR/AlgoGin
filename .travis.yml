@@ -35,7 +35,7 @@ install:
 script:
   - mkdir _build
   - cd _build
-  - cmake ..
+  - cmake .. -DCMAKE_CXX_FLAGS="-coverage"
   - make
   - ./tests
 
