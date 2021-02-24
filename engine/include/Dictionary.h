@@ -23,7 +23,8 @@ namespace algogin {
 		//Auxilary operations
 		virtual ALGOGIN_ERROR load(std::string path) = 0;
 		virtual ALGOGIN_ERROR dump(std::string path) = 0;
-		virtual ALGOGIN_ERROR random(std::optional<int> size) = 0;
+		virtual ALGOGIN_ERROR print(std::string path) noexcept = 0;
+		virtual ALGOGIN_ERROR random(std::optional<int> size) noexcept = 0;
 	};
 
 	//Implementation of dictionary using doubly linked list
