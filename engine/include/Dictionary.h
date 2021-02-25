@@ -16,6 +16,7 @@ namespace algogin {
 		explicit Dictionary(std::shared_ptr<Dictionary> impl) : _impl(impl) {};
 		//Dictionary operations
 		virtual T get(K key) noexcept = 0;
+		template <class... Args>
 		virtual ALGOGIN_ERROR insert(std::pair<K, T> element) noexcept = 0;
 		virtual ALGOGIN_ERROR remove(K value) noexcept = 0;
 		virtual ALGOGIN_ERROR successor(T value) noexcept = 0;
@@ -23,7 +24,7 @@ namespace algogin {
 		//Auxilary operations
 		virtual ALGOGIN_ERROR load(std::string path) = 0;
 		virtual ALGOGIN_ERROR dump(std::string path) = 0;
-		virtual ALGOGIN_ERROR print(std::string path) noexcept = 0;
+		virtual ALGOGIN_ERROR print() noexcept = 0;
 		virtual ALGOGIN_ERROR random(std::optional<int> size) noexcept = 0;
 	};
 
