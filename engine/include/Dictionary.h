@@ -7,16 +7,11 @@
 #include <Common.h>
 
 namespace algogin {
-	//Strategy class
 	template <class K = std::string, class T = int>
 	class Dictionary {
-	private:
-		std::shared_ptr<Dictionary> _impl;
-	public:
-		explicit Dictionary(std::shared_ptr<Dictionary> impl) : _impl(impl) {};
+	protected:
 		//Dictionary operations
 		virtual T get(K key) noexcept = 0;
-		template <class... Args>
 		virtual ALGOGIN_ERROR insert(std::pair<K, T> element) noexcept = 0;
 		virtual ALGOGIN_ERROR remove(K value) noexcept = 0;
 		virtual ALGOGIN_ERROR successor(T value) noexcept = 0;
@@ -34,13 +29,11 @@ namespace algogin {
 	private:
 		struct Node {
 			std::pair<K, T> value;
-			std::unique_ptr<Node> next;
-			std::unique_ptr<Node> previous;
+			std::shared_ptr<Node> next;
 		};
 
-		std::unique_ptr<Node> _head = nullptr;
-		std::unique_ptr<Node> _last = nullptr;
-		std::unique_ptr<Node> _current = nullptr;
+		std::shared_ptr<Node> _head = nullptr;
+		std::shared_ptr<Node> _last = nullptr;
 		int _size = 0;
 	public:
 		List() = default;
@@ -53,5 +46,23 @@ namespace algogin {
 		void operator=(const List&& rhs) {
 
 		}
+		T get(K key) noexcept = 0;
+		virtual ALGOGIN_ERROR insert(std::pair<K, T> element) noexcept override {
+			_last = { element, _last, nullptr };
+			if (_head == nullptr) {
+				_head = _current;
+			}
+			if (_last == nullptr) {
+				_last = _current;
+			}
+		}
+		virtual ALGOGIN_ERROR remove(K value) noexcept = 0;
+		virtual ALGOGIN_ERROR successor(T value) noexcept = 0;
+		virtual ALGOGIN_ERROR predecessor(T value) noexcept = 0;
+		//Auxilary operations
+		virtual ALGOGIN_ERROR load(std::string path) = 0;
+		virtual ALGOGIN_ERROR dump(std::string path) = 0;
+		virtual ALGOGIN_ERROR print() noexcept = 0;
+		virtual ALGOGIN_ERROR random(std::optional<int> size) noexcept = 0;
 	};
 }
