@@ -1,1 +1,2 @@
 ﻿* Add type traits for dictionary class
+* Add const to whether it needed
