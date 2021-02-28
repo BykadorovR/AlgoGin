@@ -22,7 +22,7 @@ namespace algogin {
 		List() = default;
 		~List() = default;
 
-		List(const List& list) {
+		List(const List& list) noexcept {
 			_size = list._size;
 
 			std::shared_ptr first = std::make_shared<Node>();
@@ -37,7 +37,7 @@ namespace algogin {
 			}
 		}
 		
-		void operator=(const List& rhs) {
+		List& operator=(const List& rhs) noexcept {
 			_size = rhs._size;
 
 			std::shared_ptr currentNode = _head;
@@ -55,18 +55,26 @@ namespace algogin {
 			//break the list if size of current list is bigger than target list
 			//all shared_ptrs in tail should be deallocated
 			previousNode->_next = nullptr;
+
+			return *this;
 		}
 
-		List(const List&& list) noexcept {
-
+		List(List&& list) noexcept {
+			//define move constructor via move assignment operator
+			*this = std::move(list);
 		}
-		void operator=(const List&& rhs) {
 
+		List& operator=(List&& rhs) noexcept {
+			if (this != &rhs) {
+				_size = std::exchange(rhs._size, 0);
+				_head = std::exchange(rhs._head, nullptr);
+			}
+			return *this;
 		}
 
 		T operator[](int index) const {
 			std::shared_ptr<Node> currentNode = _head;
-			for (int currentIndex = 0; currentIndex < index; currentIndex++) {
+			for (int i = 0; i < index; i++) {
 				currentNode = currentNode->_next;
 			}
 
@@ -77,6 +85,7 @@ namespace algogin {
 		}
 
 		ALGOGIN_ERROR insert(T element, int index) noexcept {
+			//in insert index should be either in range 0-size inclusive
 			if (index > _size || index < 0)
 				return ALGOGIN_ERROR::OUT_OF_BOUNDS;
 
@@ -84,7 +93,7 @@ namespace algogin {
 			newNode->_value = element;
 
 			std::shared_ptr<Node> currentNode = _head;
-			for (int currentIndex = 0; currentIndex < index - 1; currentIndex++) {
+			for (int i = 0; i < index - 1; i++) {
 				currentNode = currentNode->_next;
 			}
 
@@ -102,9 +111,31 @@ namespace algogin {
 		}
 
 		ALGOGIN_ERROR remove(int index) noexcept {
+			if (index >= _size || index < 0)
+				return ALGOGIN_ERROR::OUT_OF_BOUNDS;
+
+			_size -= 1;
+
+			if (index == 0) {
+				_head = _head->_next;
+				return ALGOGIN_ERROR::OK;
+			}
+
+			std::shared_ptr previousNode = _head;
+			for (int i = 0; i < index - 1; i++) {
+				previousNode = previousNode->_next;
+			}
+
+			std::shared_ptr currentNode = previousNode->_next;
+			previousNode->_next = currentNode->_next;
+
 			return ALGOGIN_ERROR::OK;
 		}
 		
+		int getSize() const noexcept {
+			return _size;
+		}
+
 		//Auxilary operations
 		ALGOGIN_ERROR load(std::string path) {
 			return ALGOGIN_ERROR::OK;
