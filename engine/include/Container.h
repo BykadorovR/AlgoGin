@@ -1,12 +1,15 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <optional>
 #include <Common.h>
+#include <filesystem>
+#include <concepts>
 
 namespace algogin {
-	//Implementation of signle value container with access by index
+	//Implementation of single value container with access by index
 	//analog of std::vector
 	template <class T>
 	class List {
@@ -137,22 +140,45 @@ namespace algogin {
 		}
 
 		//Auxilary operations
-		ALGOGIN_ERROR load(std::string path) {
+		ALGOGIN_ERROR load(const std::filesystem::path& path) {
+			if (std::filesystem::exists(path) == false) {
+				return ALGOGIN_ERROR::NOT_FOUND;
+			}
+			std::ifstream file{path};
+			file >> _size;
+			std::shared_ptr<Node> previousNode = nullptr;
+			for (int i = 0; i < _size; i++) {
+				std::shared_ptr currentNode = std::make_shared<Node>();
+				if (previousNode)
+					previousNode->_next = currentNode;
+				if (_head == nullptr)
+					_head = currentNode;
+
+				file >> currentNode->_value;
+				previousNode = currentNode;
+			}
+
 			return ALGOGIN_ERROR::OK;
 		}
-		ALGOGIN_ERROR dump(std::string path) {
+
+		ALGOGIN_ERROR dump(const std::filesystem::path& path) {
+			std::ofstream file{path};
+			file << _size << std::endl;
+			std::shared_ptr current = _head;
+			for (int i = 0; i < _size; i++) {
+				file << current->_value << " ";
+				current = current->_next;
+			}
 			return ALGOGIN_ERROR::OK;
 		}
+
 		ALGOGIN_ERROR print() noexcept {
-			std::shared_ptr<Node> currentNode = _head;
+			std::shared_ptr currentNode = _head;
 			for (int i = 0; i < _size; i++) {
 				std::cout << currentNode->_value << " ";
 				currentNode = currentNode->_next;
 			}
 			std::cout << std::endl;
-			return ALGOGIN_ERROR::OK;
-		}
-		ALGOGIN_ERROR random(std::optional<int> size) noexcept {
 			return ALGOGIN_ERROR::OK;
 		}
 	};

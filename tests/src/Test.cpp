@@ -131,3 +131,31 @@ TEST(List, Move_assignment_operator) {
 	ASSERT_EQ(l2[2], 12);
 	ASSERT_EQ(l2[3], 11);
 }
+
+TEST(List, Dump_list) {
+	algogin::List<int> l;
+	l.insert(10, 0);
+	l.insert(11, 1);
+	l.insert(12, 2);
+	auto tmp = std::filesystem::current_path() / "temp";
+	std::filesystem::create_directory(tmp);
+	ASSERT_EQ(l.dump(tmp / "dump.txt"), algogin::ALGOGIN_ERROR::OK);
+	ASSERT_EQ(std::filesystem::exists(tmp / "dump.txt"), true);
+	ASSERT_EQ(std::filesystem::file_size(tmp / "dump.txt"), 12);
+}
+
+TEST(List, Load_list_wrong) {
+	algogin::List<int> l;
+	auto tmp = std::filesystem::current_path() / "temp";
+	ASSERT_EQ(l.load(tmp / "dump_wrong.txt"), algogin::ALGOGIN_ERROR::NOT_FOUND);
+}
+
+TEST(List, Load_list) {
+	algogin::List<int> l;
+	auto tmp = std::filesystem::current_path() / "temp";
+	ASSERT_EQ(l.load(tmp / "dump.txt"), algogin::ALGOGIN_ERROR::OK);
+	ASSERT_EQ(l.getSize(), 3);
+	ASSERT_EQ(l[0], 10);
+	ASSERT_EQ(l[1], 11);
+	ASSERT_EQ(l[2], 12);
+}
