@@ -161,7 +161,7 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
-		ALGOGIN_ERROR dump(const std::filesystem::path& path) {
+		ALGOGIN_ERROR dump(const std::filesystem::path& path) const {
 			std::ofstream file{path};
 			file << _size << std::endl;
 			std::shared_ptr current = _head;
@@ -172,7 +172,7 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
-		ALGOGIN_ERROR print() noexcept {
+		ALGOGIN_ERROR print() const noexcept {
 			std::shared_ptr currentNode = _head;
 			for (int i = 0; i < _size; i++) {
 				std::cout << currentNode->_value << " ";
