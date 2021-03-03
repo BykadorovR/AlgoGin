@@ -158,4 +158,5 @@ TEST(List, Load_list) {
 	ASSERT_EQ(l[0], 10);
 	ASSERT_EQ(l[1], 11);
 	ASSERT_EQ(l[2], 12);
+	std::filesystem::remove(tmp / "dump.txt");
 }
