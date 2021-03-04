@@ -6,6 +6,7 @@ namespace algogin {
 		OK,
 		OUT_OF_BOUNDS,
 		NOT_FOUND,
+		WRONG_KEY,
 		UNKNOWN_ERROR
 	};
 }
