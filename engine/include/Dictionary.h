@@ -76,10 +76,12 @@ namespace algogin {
 			if (uncle)
 				uncle->color = COLOR::BLACK;
 
-			auto grandParent = father->parent;
-			if (grandParent)
-				grandParent->color = COLOR::RED;
-
+			std::shared_ptr<Tree> grandParent = nullptr;
+			if (father) {
+				grandParent = father->parent;
+				if (grandParent)
+					grandParent->color = COLOR::RED;
+			}
 			return _recolor(grandParent);
 		}
 
@@ -115,6 +117,9 @@ namespace algogin {
 			auto grandFather = father->parent;
 			if (grandFather == nullptr)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+
+			if (_head == grandFather)
+				_head = father;
 
 			father->parent = grandFather->parent;
 			grandFather->right = father->left;
@@ -157,6 +162,9 @@ namespace algogin {
 			if (grandFather == nullptr)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
 
+			if (_head == grandFather)
+				_head = father;
+
 			current->parent = grandFather;
 			father->parent = current;
 			father->left = current->right;
@@ -190,10 +198,13 @@ namespace algogin {
 			if (parent == nullptr)
 				return ALGOGIN_ERROR::WRONG_KEY;
 			
+			current->parent = parent;
 			//insert to specific place in tree
 			if (value < parent->value) {
 				parent->left = current;
-				current->parent = parent;
+			}
+			else {
+				parent->right = current;
 			}
 			
 			//check if parent's node color is black then no problem
@@ -201,13 +212,12 @@ namespace algogin {
 				return ALGOGIN_ERROR::OK;
 
 			//if father's color is red when we have to recolor or rebalance tree depending on uncle's color
-			std::shared_ptr<Tree> uncle;
 			auto uncle = _findUncle(current);
 			//if uncle color is red, when need to recolor nodes
-			if (uncle->color == COLOR::RED) {
+			if (uncle && uncle->color == COLOR::RED) {
 				_recolor(current);
 			}
-			else if (uncle->color == COLOR::BLACK) {
+			else if (uncle == nullptr || uncle->color == COLOR::BLACK) {
 				//if parent left sub-tree and current left sub-tree
 				if (parent->parent->left == parent && parent->left == current) {
 					_leftLeftRotation(current);
