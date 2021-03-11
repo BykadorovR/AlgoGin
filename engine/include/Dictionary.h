@@ -79,7 +79,10 @@ namespace algogin {
 			std::shared_ptr<Tree> grandParent = nullptr;
 			if (father) {
 				grandParent = father->parent;
-				if (grandParent)
+				//head can be black even if it should be red
+				if (grandParent == _head)
+					grandParent->color = COLOR::BLACK;
+				else if (grandParent)
 					grandParent->color = COLOR::RED;
 			}
 			return _recolor(grandParent);
@@ -98,7 +101,16 @@ namespace algogin {
 			if (grandFather == nullptr)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
 
+			if (_head == grandFather)
+				_head = father;
+
 			father->parent = grandFather->parent;
+			if (grandFather->parent) {
+				if (grandFather->parent->left == grandFather)
+					grandFather->parent->left = father;
+				else
+					grandFather->parent->right = father;
+			}
 			grandFather->left = father->right;
 			father->right = grandFather;
 			grandFather->parent = father;
@@ -122,6 +134,12 @@ namespace algogin {
 				_head = father;
 
 			father->parent = grandFather->parent;
+			if (grandFather->parent) {
+				if (grandFather->parent->left == grandFather)
+					grandFather->parent->left = father;
+				else
+					grandFather->parent->right = father;
+			}
 			grandFather->right = father->left;
 			father->left = grandFather;
 			grandFather->parent = father;
@@ -149,7 +167,7 @@ namespace algogin {
 			father->left = current->left;
 			current->left = father;
 
-			_leftLeftRotation(father);
+			_leftLeftRotation(current);
 		}
 
 		ALGOGIN_ERROR _rightLeftRotation(std::shared_ptr<Tree> current) {
@@ -165,6 +183,7 @@ namespace algogin {
 			if (_head == grandFather)
 				_head = father;
 
+			grandFather->right = current;
 			current->parent = grandFather;
 			father->parent = current;
 			father->left = current->right;
@@ -200,7 +219,7 @@ namespace algogin {
 			
 			current->parent = parent;
 			//insert to specific place in tree
-			if (value < parent->value) {
+			if (key < parent->key) {
 				parent->left = current;
 			}
 			else {
