@@ -160,14 +160,16 @@ namespace algogin {
 			if (grandFather == nullptr)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
 
+			if (_head == grandFather)
+				_head = father;
+
+			grandFather->left = current;
 			current->parent = grandFather;
 			father->parent = current;
-			father->right = current->right;
-			current->right = father->left;
-			father->left = current->left;
+			father->right = current->left;
 			current->left = father;
 
-			_leftLeftRotation(current);
+			_leftLeftRotation(father);
 		}
 
 		ALGOGIN_ERROR _rightLeftRotation(std::shared_ptr<Tree> current) {
