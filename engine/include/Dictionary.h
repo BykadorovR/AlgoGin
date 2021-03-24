@@ -27,7 +27,21 @@ namespace algogin {
 		std::shared_ptr<Tree> _head = nullptr;
 		int _size = 0;
 
-		std::shared_ptr<Tree> _findUncle(std::shared_ptr<Tree> currentNode) {
+		std::shared_ptr<Tree> _find(Comparable key) const noexcept {
+			std::shared_ptr<Tree> currentNode = _head;
+			while (key != currentNode->key) {
+				if (key < currentNode->key) {
+					currentNode = currentNode->left;
+				}
+				else if (key > currentNode->key) {
+					currentNode = currentNode->right;
+				}
+			}
+
+			return currentNode;
+		}
+
+		std::shared_ptr<Tree> _findUncle(std::shared_ptr<Tree> currentNode) const noexcept {
 			std::shared_ptr<Tree> parent, grandParent;
 			if (currentNode)
 				parent = currentNode->parent;
@@ -47,7 +61,7 @@ namespace algogin {
 			return uncle;
 		}
 
-		std::shared_ptr<Tree> _findParent(Comparable key) {
+		std::shared_ptr<Tree> _findParent(Comparable key) const noexcept {
 			std::shared_ptr<Tree> currentNode = _head;
 			std::shared_ptr<Tree> parent = nullptr;
 			while (currentNode) {
@@ -218,7 +232,7 @@ namespace algogin {
 			auto parent = _findParent(key);
 			if (parent == nullptr)
 				return ALGOGIN_ERROR::WRONG_KEY;
-			
+
 			current->parent = parent;
 			//insert to specific place in tree
 			if (key < parent->key) {
@@ -227,7 +241,7 @@ namespace algogin {
 			else {
 				parent->right = current;
 			}
-			
+
 			//check if parent's node color is black then no problem
 			if (current->parent->color == COLOR::BLACK)
 				return ALGOGIN_ERROR::OK;
@@ -253,11 +267,52 @@ namespace algogin {
 					_rightLeftRotation(current);
 				}
 			}
-
 		}
 
-		ALGOGIN_ERROR find(Comparable key) const noexcept;
-		
+		ALGOGIN_ERROR remove(Comparable key) noexcept {
+			auto target = _find(key);
+			if (target == nullptr)
+				return ALGOGIN_ERROR::NOT_FOUND;
 
+			//handle simple case when target has no childs
+			if (target->left == nullptr && target->right == nullptr) {
+				//update parent
+				auto parent = target->parent;
+				//check parent != null in case we want to delete root node
+				if (parent == nullptr)
+					_head = nullptr;
+
+				if (parent && parent->left == target)
+					parent->left = nullptr;
+				else if (parent && parent->right == target)
+					parent->right = nullptr;
+
+				return ALGOGIN_ERROR::OK;
+			}
+
+			//handle case when target has only one child
+			if (target->left && target->right == nullptr || target->right && target->left == nullptr) {
+				std::shared_ptr<Tree> child = nullptr;
+				if (target->left)
+					child = target->left;
+				else if (target->right)
+					child = target->right;
+
+				auto parent = target->parent;
+				if (parent == nullptr) {
+					_head = child;
+				}
+
+				if (parent && parent->left == target) {
+					parent->left = child;
+				}
+				else if (parent && parent->right == target) {
+					parent->right = child;
+				}
+			}
+
+
+			return ALGOGIN_ERROR::OK;
+		}
 	};
 }
