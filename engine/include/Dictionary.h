@@ -29,7 +29,7 @@ namespace algogin {
 
 		std::shared_ptr<Tree> _find(Comparable key) const noexcept {
 			std::shared_ptr<Tree> currentNode = _head;
-			while (key != currentNode->key) {
+			while (currentNode && key != currentNode->key) {
 				if (key < currentNode->key) {
 					currentNode = currentNode->left;
 				}
@@ -53,11 +53,12 @@ namespace algogin {
 				return nullptr;
 
 			std::shared_ptr<Tree> uncle = nullptr;
-			if (grandParent->left == parent)
-				uncle = grandParent->right;
-			else
-				uncle = grandParent->left;
-
+			if (grandParent) {
+				if (grandParent->left == parent)
+					uncle = grandParent->right;
+				else
+					uncle = grandParent->left;
+			}
 			return uncle;
 		}
 
@@ -208,6 +209,69 @@ namespace algogin {
 			_rightRightRotation(father);
 		}
 
+		//the node in the right subtree that has the minimum value
+		std::shared_ptr<Tree> _successor(std::shared_ptr<Tree> current) {
+			if (current == nullptr || (current && current->right == nullptr))
+				return nullptr;
+
+			auto leftSubtree = current->right;
+			while (leftSubtree->left != nullptr) {
+				leftSubtree = leftSubtree->left;
+			}
+
+			return leftSubtree;
+		}
+
+		ALGOGIN_ERROR _remove(std::shared_ptr<Tree> target) {
+			//handle simple case when target has no childs
+			if (target->left == nullptr && target->right == nullptr) {
+				//update parent
+				auto parent = target->parent;
+				//check parent != null in case we want to delete root node
+				if (parent == nullptr)
+					_head = nullptr;
+
+				if (parent && parent->left == target)
+					parent->left = nullptr;
+				else if (parent && parent->right == target)
+					parent->right = nullptr;
+
+			}
+			//handle case when target has only one child
+			else if (target->left && target->right == nullptr || target->right && target->left == nullptr) {
+				std::shared_ptr<Tree> child = nullptr;
+				if (target->left)
+					child = target->left;
+				else if (target->right)
+					child = target->right;
+
+				auto parent = target->parent;
+				if (parent == nullptr) {
+					_head = child;
+				}
+
+				if (parent && parent->left == target) {
+					parent->left = child;
+				}
+				else if (parent && parent->right == target) {
+					parent->right = child;
+				}
+			} 
+			//handle case when target has two childs
+			else if (target->left && target->right) {
+				//first find successor
+				auto successor = _successor(target);
+				if (successor) {
+					target->value = successor->value;
+					target->key = successor->key;
+					_remove(successor);
+				}
+
+			}
+
+			return ALGOGIN_ERROR::OK;
+		}
+
 	public:
 		Dictionary() = default;
 		~Dictionary() = default;
@@ -274,45 +338,15 @@ namespace algogin {
 			if (target == nullptr)
 				return ALGOGIN_ERROR::NOT_FOUND;
 
-			//handle simple case when target has no childs
-			if (target->left == nullptr && target->right == nullptr) {
-				//update parent
-				auto parent = target->parent;
-				//check parent != null in case we want to delete root node
-				if (parent == nullptr)
-					_head = nullptr;
+			return _remove(target);
+		}
 
-				if (parent && parent->left == target)
-					parent->left = nullptr;
-				else if (parent && parent->right == target)
-					parent->right = nullptr;
+		bool exist(Comparable key) noexcept {
+			auto target = _find(key);
+			if (target == nullptr)
+				return false;
 
-				return ALGOGIN_ERROR::OK;
-			}
-
-			//handle case when target has only one child
-			if (target->left && target->right == nullptr || target->right && target->left == nullptr) {
-				std::shared_ptr<Tree> child = nullptr;
-				if (target->left)
-					child = target->left;
-				else if (target->right)
-					child = target->right;
-
-				auto parent = target->parent;
-				if (parent == nullptr) {
-					_head = child;
-				}
-
-				if (parent && parent->left == target) {
-					parent->left = child;
-				}
-				else if (parent && parent->right == target) {
-					parent->right = child;
-				}
-			}
-
-
-			return ALGOGIN_ERROR::OK;
+			return true;
 		}
 	};
 }
