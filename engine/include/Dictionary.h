@@ -338,7 +338,9 @@ namespace algogin {
 			if (target == nullptr)
 				return ALGOGIN_ERROR::NOT_FOUND;
 
-			return _remove(target);
+			//Standard binary search tree remove algorithm
+			ALGOGIN_ERROR err = _remove(target);
+
 		}
 
 		bool exist(Comparable key) noexcept {
