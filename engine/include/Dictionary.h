@@ -3,12 +3,17 @@
 #include "Common.h"
 #include <concepts>
 #include <optional>
+#include <list>
 
 namespace algogin {
+
+	enum class TraversalMode {
+		LEVEL_ORDER
+	};
+
 	//Dictionary implementation based on red-black tree
 	template <class Comparable, class V>
-	class Dictionary
-	{
+	class Dictionary {
 	private:
 		enum class COLOR {
 			RED,
@@ -103,110 +108,77 @@ namespace algogin {
 			return _recolor(grandParent);
 		}
 
-		//small rotation (left sub-tree for parent and left sub-tree for current node)
-		ALGOGIN_ERROR _leftLeftRotation(std::shared_ptr<Tree> current) {
-			//parent of currentNode parent - p, grand-parent - g
-			//p takes g parent, g becomes p right child + g parent = p
-			//swap p and g colors
-			auto father = current->parent;
-			if (father == nullptr)
+		ALGOGIN_ERROR _leftRotation(std::shared_ptr<Tree> current) {
+			auto parent = current->parent;
+			auto rightChild = current->right;
+			if (rightChild == nullptr)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
 
-			auto grandFather = father->parent;
-			if (grandFather == nullptr)
-				return ALGOGIN_ERROR::UNKNOWN_ERROR;
-
-			if (_head == grandFather)
-				_head = father;
-
-			father->parent = grandFather->parent;
-			if (grandFather->parent) {
-				if (grandFather->parent->left == grandFather)
-					grandFather->parent->left = father;
-				else
-					grandFather->parent->right = father;
+			if (current == _head) {
+				_head = rightChild;
 			}
-			grandFather->left = father->right;
-			father->right = grandFather;
-			grandFather->parent = father;
 
-			std::swap(grandFather->color, father->color);
+			if (parent)
+				parent->left = rightChild;
 
-			return ALGOGIN_ERROR::OK;
+			rightChild->parent = parent;
+			current->parent = rightChild;
+			current->right = rightChild->left;
+			rightChild->left = current;
 		}
 
-		//small rotation (mirror of left-left one - right sub-tree for parent and right sub-tree for current node)
-		ALGOGIN_ERROR _rightRightRotation(std::shared_ptr<Tree> current) {
-			auto father = current->parent;
-			if (father == nullptr)
+		ALGOGIN_ERROR _rightRotation(std::shared_ptr<Tree> current) {
+			auto parent = current->parent;
+			auto leftChild = current->left;
+			if (leftChild == nullptr)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
 
-			auto grandFather = father->parent;
-			if (grandFather == nullptr)
-				return ALGOGIN_ERROR::UNKNOWN_ERROR;
-
-			if (_head == grandFather)
-				_head = father;
-
-			father->parent = grandFather->parent;
-			if (grandFather->parent) {
-				if (grandFather->parent->left == grandFather)
-					grandFather->parent->left = father;
-				else
-					grandFather->parent->right = father;
+			if (current == _head) {
+				_head = leftChild;
 			}
-			grandFather->right = father->left;
-			father->left = grandFather;
-			grandFather->parent = father;
 
-			std::swap(grandFather->color, father->color);
+			if (parent)
+				parent->right = leftChild;
 
-			return ALGOGIN_ERROR::OK;
+			leftChild->parent = parent;
+			current->parent = leftChild;
+			current->left = leftChild->right;
+			leftChild->right = current;
+		}
+
+		ALGOGIN_ERROR _leftLeftRotation(std::shared_ptr<Tree> current) {
+			auto err = _rightRotation(current);
+			std::swap(current->color, current->parent->color);
+			return err;
+		}
+
+		ALGOGIN_ERROR _rightRightRotation(std::shared_ptr<Tree> current) {
+			auto err = _leftRotation(current);
+
+			std::swap(current->color, current->parent->color);
+
+			return err;
 		}
 
 
 		ALGOGIN_ERROR _leftRightRotation(std::shared_ptr<Tree> current) {
-			//rotate parent to left
-			auto father = current->parent;
-			if (father == nullptr)
-				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+			auto err = _leftRotation(current);
+			if (err != ALGOGIN_ERROR::OK)
+				return err;
 
-			auto grandFather = father->parent;
-			if (grandFather == nullptr)
-				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+			err = _leftLeftRotation(current->parent);
 
-			if (_head == grandFather)
-				_head = father;
-
-			grandFather->left = current;
-			current->parent = grandFather;
-			father->parent = current;
-			father->right = current->left;
-			current->left = father;
-
-			_leftLeftRotation(father);
+			return err;
 		}
 
 		ALGOGIN_ERROR _rightLeftRotation(std::shared_ptr<Tree> current) {
-			//rotate parent to right
-			auto father = current->parent;
-			if (father == nullptr)
-				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+			auto err = _rightRotation(current);
+			if (err != ALGOGIN_ERROR::OK)
+				return err;
 
-			auto grandFather = father->parent;
-			if (grandFather == nullptr)
-				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+			err = _rightRightRotation(current->parent);
 
-			if (_head == grandFather)
-				_head = father;
-
-			grandFather->right = current;
-			current->parent = grandFather;
-			father->parent = current;
-			father->left = current->right;
-			current->right = father;
-
-			_rightRightRotation(father);
+			return err;
 		}
 
 		//the node in the right subtree that has the minimum value
@@ -244,21 +216,21 @@ namespace algogin {
 					if (sibling->left && sibling->left->color == COLOR::RED) {
 						//perform left left rotation
 						if (parent->left == sibling) {
-							_leftLeftRotation(target);
+							_leftLeftRotation(parent->parent);
 						}
 						//perform right left rotation
 						else if (parent->right == sibling) {
-							_rightLeftRotation(target);
+							_rightLeftRotation(parent);
 						}
 					}
 					else if (sibling->right && sibling->right->color == COLOR::RED) {
 						//perform left right rotation
 						if (parent->left == sibling) {
-							_leftRightRotation(target);
+							_leftRightRotation(parent);
 						}
 						//perform right right rotation
 						else if (parent->right == sibling) {
-							_rightRightRotation(target);
+							_rightRightRotation(parent->parent);
 						}
 					}
 				}
@@ -272,7 +244,17 @@ namespace algogin {
 					else
 						parent->color = COLOR::RED;
 				}
+				else if (sibling && sibling->color == COLOR::RED) {
+					if (parent->left == sibling) {
+						_rightRightRotation(parent);
+					}
+					else if (parent->right == sibling) {
+						_leftLeftRotation(parent);
+					}
+				}
 			}
+
+			return ALGOGIN_ERROR::OK;
 		}
 
 		ALGOGIN_ERROR _remove(std::shared_ptr<Tree> target) {
@@ -379,16 +361,16 @@ namespace algogin {
 			else if (uncle == nullptr || uncle->color == COLOR::BLACK) {
 				//if parent left sub-tree and current left sub-tree
 				if (parent->parent->left == parent && parent->left == current) {
-					_leftLeftRotation(current);
+					_leftLeftRotation(parent->parent);
 				}
 				else if (parent->parent->right == parent && parent->right == current) {
-					_rightRightRotation(current);
+					_rightRightRotation(parent->parent);
 				}
 				else if (parent->parent->left == parent && parent->right == current) {
-					_leftRightRotation(current);
+					_leftRightRotation(parent);
 				}
 				else if (parent->parent->right == parent && parent->left == current) {
-					_rightLeftRotation(current);
+					_rightLeftRotation(parent);
 				}
 			}
 		}
@@ -401,6 +383,42 @@ namespace algogin {
 			//Standard binary search tree remove algorithm
 			ALGOGIN_ERROR err = _remove(target);
 
+			return err;
+		}
+
+		ALGOGIN_ERROR _traversal() {
+
+		}
+
+		std::vector<std::tuple<Comparable, V>> traversal(TraversalMode mode) {
+			std::vector<std::tuple<Comparable, V>> nodes;
+			std::list<std::shared_ptr<Tree>> openNodes;
+
+			auto currentNode = _head;
+			nodes.push_back({ _head->key, _head->value });
+			openNodes.push_back(currentNode);
+
+			while (openNodes.size() > 0) {
+				currentNode = openNodes.front();
+
+				auto leftChild = currentNode->left;
+				auto rightChild = currentNode->right;
+				
+				if (leftChild &&
+					std::find(openNodes.begin(), openNodes.end(), leftChild) == openNodes.end()) {
+					nodes.push_back({ leftChild->key, leftChild->value });
+					openNodes.push_back(leftChild);
+				}
+				if (rightChild &&
+					std::find(openNodes.begin(), openNodes.end(), rightChild) == openNodes.end()) {
+					nodes.push_back({ rightChild->key, rightChild->value });
+					openNodes.push_back(rightChild);
+				}
+
+				openNodes.remove(currentNode);
+			}
+
+			return nodes;
 		}
 
 		bool exist(Comparable key) noexcept {

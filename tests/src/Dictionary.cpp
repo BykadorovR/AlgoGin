@@ -114,3 +114,15 @@ TEST(Dictionary, Remove_TwoChildNotHead) {
 
 	ASSERT_FALSE(dictionary.exist(9));
 }
+
+TEST(Dictionary, Traversal) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(32, 10);
+	dictionary.insert(21, 11);
+	dictionary.insert(17, 12);
+	dictionary.insert(42, 13);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	std::cout << "here";
+}
