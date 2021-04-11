@@ -118,13 +118,19 @@ namespace algogin {
 				_head = rightChild;
 			}
 
-			if (parent)
-				parent->left = rightChild;
+			if (parent) {
+				if (parent->left == current)
+					parent->left = rightChild;
+				else if (parent->right == current)
+					parent->right = rightChild;
+			}
 
 			rightChild->parent = parent;
 			current->parent = rightChild;
 			current->right = rightChild->left;
 			rightChild->left = current;
+
+			return ALGOGIN_ERROR::OK;
 		}
 
 		ALGOGIN_ERROR _rightRotation(std::shared_ptr<Tree> current) {
@@ -137,26 +143,32 @@ namespace algogin {
 				_head = leftChild;
 			}
 
-			if (parent)
-				parent->right = leftChild;
+			if (parent) {
+				if (parent->left == current)
+					parent->left = leftChild;
+				else if (parent->right == current)
+					parent->right = leftChild;
+			}
 
 			leftChild->parent = parent;
 			current->parent = leftChild;
 			current->left = leftChild->right;
 			leftChild->right = current;
+
+			return ALGOGIN_ERROR::OK;
 		}
 
 		ALGOGIN_ERROR _leftLeftRotation(std::shared_ptr<Tree> current) {
 			auto err = _rightRotation(current);
 			std::swap(current->color, current->parent->color);
+
 			return err;
 		}
 
 		ALGOGIN_ERROR _rightRightRotation(std::shared_ptr<Tree> current) {
 			auto err = _leftRotation(current);
-
 			std::swap(current->color, current->parent->color);
-
+			
 			return err;
 		}
 
@@ -166,7 +178,7 @@ namespace algogin {
 			if (err != ALGOGIN_ERROR::OK)
 				return err;
 
-			err = _leftLeftRotation(current->parent);
+			err = _leftLeftRotation(current->parent->parent);
 
 			return err;
 		}
@@ -176,7 +188,7 @@ namespace algogin {
 			if (err != ALGOGIN_ERROR::OK)
 				return err;
 
-			err = _rightRightRotation(current->parent);
+			err = _rightRightRotation(current->parent->parent);
 
 			return err;
 		}
@@ -386,38 +398,36 @@ namespace algogin {
 			return err;
 		}
 
-		ALGOGIN_ERROR _traversal() {
-
-		}
-
 		std::vector<std::tuple<Comparable, V>> traversal(TraversalMode mode) {
 			std::vector<std::tuple<Comparable, V>> nodes;
-			std::list<std::shared_ptr<Tree>> openNodes;
 
-			auto currentNode = _head;
-			nodes.push_back({ _head->key, _head->value });
-			openNodes.push_back(currentNode);
+			if (mode == TraversalMode::LEVEL_ORDER) {
+				std::list<std::shared_ptr<Tree>> openNodes;
 
-			while (openNodes.size() > 0) {
-				currentNode = openNodes.front();
+				auto currentNode = _head;
+				nodes.push_back({ _head->key, _head->value });
+				openNodes.push_back(currentNode);
 
-				auto leftChild = currentNode->left;
-				auto rightChild = currentNode->right;
-				
-				if (leftChild &&
-					std::find(openNodes.begin(), openNodes.end(), leftChild) == openNodes.end()) {
-					nodes.push_back({ leftChild->key, leftChild->value });
-					openNodes.push_back(leftChild);
+				while (openNodes.size() > 0) {
+					currentNode = openNodes.front();
+
+					auto leftChild = currentNode->left;
+					auto rightChild = currentNode->right;
+
+					if (leftChild &&
+						std::find(openNodes.begin(), openNodes.end(), leftChild) == openNodes.end()) {
+						nodes.push_back({ leftChild->key, leftChild->value });
+						openNodes.push_back(leftChild);
+					}
+					if (rightChild &&
+						std::find(openNodes.begin(), openNodes.end(), rightChild) == openNodes.end()) {
+						nodes.push_back({ rightChild->key, rightChild->value });
+						openNodes.push_back(rightChild);
+					}
+
+					openNodes.remove(currentNode);
 				}
-				if (rightChild &&
-					std::find(openNodes.begin(), openNodes.end(), rightChild) == openNodes.end()) {
-					nodes.push_back({ rightChild->key, rightChild->value });
-					openNodes.push_back(rightChild);
-				}
-
-				openNodes.remove(currentNode);
 			}
-
 			return nodes;
 		}
 
