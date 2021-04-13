@@ -115,6 +115,12 @@ TEST(Dictionary, Remove_LeafNotHead) {
 	dictionary.remove(10);
 
 	ASSERT_FALSE(dictionary.exist(10));
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 7);
+	ASSERT_EQ(std::get<1>(tree[0]), 10);
+	ASSERT_EQ(std::get<0>(tree[1]), 5);
+	ASSERT_EQ(std::get<1>(tree[1]), 11);
 }
 
 TEST(Dictionary, Remove_HeadLeaf) {
