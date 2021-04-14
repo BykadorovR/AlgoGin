@@ -272,6 +272,9 @@ namespace algogin {
 		ALGOGIN_ERROR _remove(std::shared_ptr<Tree> target) {
 			//handle simple case when target has no childs
 			if (target->left == nullptr && target->right == nullptr) {
+				if (target->color == COLOR::BLACK)
+					_removeDoubleBlack(target);
+
 				//update parent
 				auto parent = target->parent;
 				//check parent != null in case we want to delete root node
@@ -287,8 +290,6 @@ namespace algogin {
 					sibling = parent->left;
 					parent->right = nullptr;
 				}
-
-				_removeDoubleBlack(target);
 			}
 			//handle case when target has only one child
 			else if (target->left && target->right == nullptr || target->right && target->left == nullptr) {
@@ -297,6 +298,12 @@ namespace algogin {
 					child = target->left;
 				else if (target->right)
 					child = target->right;
+
+				if (target->color == COLOR::BLACK && child->color == COLOR::BLACK) {
+					_removeDoubleBlack(child);
+				}
+				else if (target->color == COLOR::BLACK && child->color == COLOR::RED)
+					child->color = COLOR::BLACK;
 
 				auto parent = target->parent;
 				if (parent == nullptr) {
@@ -385,6 +392,8 @@ namespace algogin {
 					_rightLeftRotation(parent);
 				}
 			}
+
+			return ALGOGIN_ERROR::OK;
 		}
 
 		ALGOGIN_ERROR remove(Comparable key) noexcept {
