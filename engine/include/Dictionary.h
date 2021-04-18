@@ -299,12 +299,6 @@ namespace algogin {
 				else if (target->right)
 					child = target->right;
 
-				if (target->color == COLOR::BLACK && child->color == COLOR::BLACK) {
-					_removeDoubleBlack(child);
-				}
-				else if (target->color == COLOR::BLACK && child->color == COLOR::RED)
-					child->color = COLOR::BLACK;
-
 				auto parent = target->parent;
 				if (parent == nullptr) {
 					_head = child;
@@ -316,6 +310,11 @@ namespace algogin {
 				else if (parent && parent->right == target) {
 					parent->right = child;
 				}
+
+				if (target->color == COLOR::BLACK && child->color == COLOR::BLACK)
+					_removeDoubleBlack(child);
+				else if (target->color == COLOR::BLACK && child->color == COLOR::RED)
+					child->color = COLOR::BLACK;
 			} 
 
 			//handle case when target has two childs
