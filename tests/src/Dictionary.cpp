@@ -295,6 +295,42 @@ TEST(Dictionary, Remove_LeafDoubleBlackLeftRight) {
 	ASSERT_EQ(std::get<1>(tree[2]), 13);
 }
 
+TEST(Dictionary, Remove_AllBlackRecolor) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(30, 13);
+	dictionary.insert(20, 12);
+	dictionary.insert(40, 14);
+	dictionary.insert(25, 125);
+
+	dictionary.remove(25);
+
+	dictionary.remove(20);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 30);
+	ASSERT_EQ(std::get<1>(tree[0]), 13);
+	ASSERT_EQ(std::get<0>(tree[1]), 40);
+	ASSERT_EQ(std::get<1>(tree[1]), 14);
+}
+
+TEST(Dictionary, Remove_ParentRed) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(7, 17);
+	dictionary.insert(3, 13);
+	dictionary.insert(18, 118);
+	dictionary.insert(10, 110);
+	dictionary.insert(22, 122);
+	dictionary.insert(8, 18);
+	dictionary.insert(11, 111);
+	dictionary.insert(26, 126);
+	dictionary.insert(2, 12);
+	dictionary.insert(6, 16);
+	dictionary.insert(13, 113);
+
+	dictionary.remove(26);
+	dictionary.remove(22);
+}
+
 TEST(Dictionary, Traversal) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(32, 10);

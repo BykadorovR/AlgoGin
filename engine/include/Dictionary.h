@@ -209,27 +209,32 @@ namespace algogin {
 		ALGOGIN_ERROR _removeDoubleBlack(std::shared_ptr<Tree> target) {
 			auto parent = target->parent;
 
-			std::shared_ptr<Tree> sibling;
-			if (parent && parent->left == target) {
-				sibling = parent->right;
-				parent->left = nullptr;
-			}
-			else if (parent && parent->right == target) {
-				sibling = parent->left;
-				parent->right = nullptr;
-			} 
-
 			//2 case
+			//if head is double black just make it black and return
 			if (target == _head)
-				_head = nullptr;
+				return ALGOGIN_ERROR::OK;
 
 			//if RED we can just remove node, if BLACK:
 			if (target->color == COLOR::BLACK) {
+				std::shared_ptr<Tree> sibling;
+				if (parent && parent->left == target) {
+					sibling = parent->right;
+				}
+				else if (parent && parent->right == target) {
+					sibling = parent->left;
+				}
+
 				//After target delete it's child (null) will be double black
 				//if sibling is black and at least 1 child of sibling is red
 				//case 5 (right left/left right) and 6 (right right/left left)
 				if (sibling && sibling->color == COLOR::BLACK &&
 					((sibling->left && sibling->left->color == COLOR::RED) || (sibling->right && sibling->right->color == COLOR::RED))) {
+					if (parent && parent->left == target) {
+						parent->left = nullptr;
+					}
+					else if (parent && parent->right == target) {
+						parent->right = nullptr;
+					}
 					if (sibling->right && sibling->right->color == COLOR::RED) {
 						//perform left right rotation
 						if (parent->left == sibling) {
@@ -273,6 +278,13 @@ namespace algogin {
 				else if (sibling && sibling->color == COLOR::BLACK &&
 					(sibling->left == nullptr || (sibling->left && sibling->left->color == COLOR::BLACK)) &&
 					(sibling->right == nullptr || (sibling->left && sibling->left->color == COLOR::BLACK))) {
+					if (parent && parent->left == target) {
+						parent->left = nullptr;
+					}
+					else if (parent && parent->right == target) {
+						parent->right = nullptr;
+					}
+
 					sibling->color = COLOR::RED;
 					if (parent->color == COLOR::BLACK)
 						//1 case
@@ -282,13 +294,18 @@ namespace algogin {
 						parent->color = COLOR::RED;
 				}
 				//3 case
+				//do rotate + recolor and transform tree to above case
 				else if (sibling && sibling->color == COLOR::RED) {
 					if (parent->left == sibling) {
-						_rightRightRotation(parent);
+						_rightRotation(parent);
 					}
 					else if (parent->right == sibling) {
-						_leftLeftRotation(parent);
+						_leftRotation(parent);
 					}
+
+					std::swap(parent->color, sibling->color);
+
+					_removeDoubleBlack(target);
 				}
 			}
 
@@ -299,7 +316,10 @@ namespace algogin {
 			//handle simple case when target has no childs
 			if (target->left == nullptr && target->right == nullptr) {
 				if (target->color == COLOR::BLACK) {
-					_removeDoubleBlack(target);
+					if (target == _head)
+						_head = nullptr;
+					else
+						_removeDoubleBlack(target);
 				} else {
 					//update parent
 					auto parent = target->parent;

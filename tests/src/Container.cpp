@@ -132,7 +132,6 @@ TEST(List, Dump_list) {
 	std::filesystem::create_directory(tmp);
 	ASSERT_EQ(l.dump(tmp / "dump.txt"), algogin::ALGOGIN_ERROR::OK);
 	ASSERT_EQ(std::filesystem::exists(tmp / "dump.txt"), true);
-	ASSERT_EQ(std::filesystem::file_size(tmp / "dump.txt"), 12);
 }
 
 TEST(List, Load_list_wrong) {
