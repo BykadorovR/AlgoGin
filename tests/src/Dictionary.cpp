@@ -1,6 +1,45 @@
 #include <gtest/gtest.h>
 #include "Dictionary.h"
 
+TEST(Dictionary, Insert_GeneralTest) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(7, 17);
+	dictionary.insert(3, 13);
+	dictionary.insert(18, 118);
+	dictionary.insert(10, 110);
+	dictionary.insert(22, 122);
+	dictionary.insert(8, 18);
+	dictionary.insert(11, 111);
+	dictionary.insert(26, 126);
+	dictionary.insert(2, 12);
+	dictionary.insert(6, 16);
+	dictionary.insert(13, 113);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 10);
+	ASSERT_EQ(std::get<1>(tree[0]), 110);
+	ASSERT_EQ(std::get<0>(tree[1]), 7);
+	ASSERT_EQ(std::get<1>(tree[1]), 17);
+	ASSERT_EQ(std::get<0>(tree[2]), 18);
+	ASSERT_EQ(std::get<1>(tree[2]), 118);
+	ASSERT_EQ(std::get<0>(tree[3]), 3);
+	ASSERT_EQ(std::get<1>(tree[3]), 13);
+	ASSERT_EQ(std::get<0>(tree[4]), 8);
+	ASSERT_EQ(std::get<1>(tree[4]), 18);
+	ASSERT_EQ(std::get<0>(tree[5]), 11);
+	ASSERT_EQ(std::get<1>(tree[5]), 111);
+	ASSERT_EQ(std::get<0>(tree[6]), 22);
+	ASSERT_EQ(std::get<1>(tree[6]), 122);
+	ASSERT_EQ(std::get<0>(tree[7]), 2);
+	ASSERT_EQ(std::get<1>(tree[7]), 12);
+	ASSERT_EQ(std::get<0>(tree[8]), 6);
+	ASSERT_EQ(std::get<1>(tree[8]), 16);
+	ASSERT_EQ(std::get<0>(tree[9]), 13);
+	ASSERT_EQ(std::get<1>(tree[9]), 113);
+	ASSERT_EQ(std::get<0>(tree[10]), 26);
+	ASSERT_EQ(std::get<1>(tree[10]), 126);
+}
+
 TEST(Dictionary, Insert_RightRight) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(3, 10);
@@ -327,8 +366,12 @@ TEST(Dictionary, Remove_ParentRed) {
 	dictionary.insert(6, 16);
 	dictionary.insert(13, 113);
 
-	dictionary.remove(26);
+	dictionary.remove(18);
+	dictionary.remove(11);
+	dictionary.remove(3);
+	dictionary.remove(10);
 	dictionary.remove(22);
+
 }
 
 TEST(Dictionary, Traversal) {

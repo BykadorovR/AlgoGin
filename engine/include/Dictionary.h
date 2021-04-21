@@ -83,31 +83,6 @@ namespace algogin {
 			return parent;
 		}
 
-		ALGOGIN_ERROR _recolor(std::shared_ptr<Tree> current) {
-			//recolor father and uncle to black and grandfather to red
-			if (current == nullptr)
-				return ALGOGIN_ERROR::OK;
-
-			auto father = current->parent;
-			if (father)
-				father->color = COLOR::BLACK;
-
-			auto uncle = _findUncle(current);
-			if (uncle)
-				uncle->color = COLOR::BLACK;
-
-			std::shared_ptr<Tree> grandParent = nullptr;
-			if (father) {
-				grandParent = father->parent;
-				//head can be black even if it should be red
-				if (grandParent == _head)
-					grandParent->color = COLOR::BLACK;
-				else if (grandParent)
-					grandParent->color = COLOR::RED;
-			}
-			return _recolor(grandParent);
-		}
-
 		ALGOGIN_ERROR _leftRotation(std::shared_ptr<Tree> current) {
 			auto parent = current->parent;
 			auto rightChild = current->right;
@@ -380,6 +355,66 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
+		ALGOGIN_ERROR _insert(std::shared_ptr<Tree> current) noexcept {
+			//tree is empty, so set node to head
+			if (_head == current) {
+				current->color = COLOR::BLACK;
+				return ALGOGIN_ERROR::OK;
+			}
+
+			auto parent = current->parent;
+
+			//check if parent's node color is black then no problem
+			if (current->parent->color == COLOR::BLACK)
+				return ALGOGIN_ERROR::OK;
+
+			//if father's color is red when we have to recolor or rebalance tree depending on uncle's color
+			auto uncle = _findUncle(current);
+			//if uncle color is red, when need to recolor nodes
+			if (uncle && uncle->color == COLOR::RED) {
+				//recolor father and uncle to black and grandfather to red
+				if (current == nullptr)
+					return ALGOGIN_ERROR::OK;
+
+				auto father = current->parent;
+				if (father)
+					father->color = COLOR::BLACK;
+
+				auto uncle = _findUncle(current);
+				if (uncle)
+					uncle->color = COLOR::BLACK;
+
+				std::shared_ptr<Tree> grandParent = nullptr;
+				if (father) {
+					grandParent = father->parent;
+					//head can be black even if it should be red
+					if (grandParent == _head)
+						grandParent->color = COLOR::BLACK;
+					else if (grandParent)
+						grandParent->color = COLOR::RED;
+				}
+
+				_insert(grandParent);
+			}
+			else if (uncle == nullptr || uncle->color == COLOR::BLACK) {
+				//if parent left sub-tree and current left sub-tree
+				if (parent->parent->left == parent && parent->left == current) {
+					_leftLeftRotation(parent->parent);
+				}
+				else if (parent->parent->right == parent && parent->right == current) {
+					_rightRightRotation(parent->parent);
+				}
+				else if (parent->parent->left == parent && parent->right == current) {
+					_leftRightRotation(parent);
+				}
+				else if (parent->parent->right == parent && parent->left == current) {
+					_rightLeftRotation(parent);
+				}
+			}
+
+			return ALGOGIN_ERROR::OK;
+		}
+
 	public:
 		Dictionary() = default;
 		~Dictionary() = default;
@@ -414,33 +449,7 @@ namespace algogin {
 				parent->right = current;
 			}
 
-			//check if parent's node color is black then no problem
-			if (current->parent->color == COLOR::BLACK)
-				return ALGOGIN_ERROR::OK;
-
-			//if father's color is red when we have to recolor or rebalance tree depending on uncle's color
-			auto uncle = _findUncle(current);
-			//if uncle color is red, when need to recolor nodes
-			if (uncle && uncle->color == COLOR::RED) {
-				_recolor(current);
-			}
-			else if (uncle == nullptr || uncle->color == COLOR::BLACK) {
-				//if parent left sub-tree and current left sub-tree
-				if (parent->parent->left == parent && parent->left == current) {
-					_leftLeftRotation(parent->parent);
-				}
-				else if (parent->parent->right == parent && parent->right == current) {
-					_rightRightRotation(parent->parent);
-				}
-				else if (parent->parent->left == parent && parent->right == current) {
-					_leftRightRotation(parent);
-				}
-				else if (parent->parent->right == parent && parent->left == current) {
-					_rightLeftRotation(parent);
-				}
-			}
-
-			return ALGOGIN_ERROR::OK;
+			return _insert(current);
 		}
 
 		ALGOGIN_ERROR remove(Comparable key) noexcept {
