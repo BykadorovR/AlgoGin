@@ -103,6 +103,8 @@ namespace algogin {
 			rightChild->parent = parent;
 			current->parent = rightChild;
 			current->right = rightChild->left;
+			if (rightChild->left)
+				rightChild->left->parent = current;
 			rightChild->left = current;
 
 			return ALGOGIN_ERROR::OK;
@@ -128,6 +130,8 @@ namespace algogin {
 			leftChild->parent = parent;
 			current->parent = leftChild;
 			current->left = leftChild->right;
+			if (leftChild->right)
+				leftChild->right->parent = current;
 			leftChild->right = current;
 
 			return ALGOGIN_ERROR::OK;
@@ -266,7 +270,7 @@ namespace algogin {
 						_removeDoubleBlack(parent);
 					else
 						//4 case
-						parent->color = COLOR::RED;
+						parent->color = COLOR::BLACK;
 				}
 				//3 case
 				//do rotate + recolor and transform tree to above case
@@ -334,9 +338,11 @@ namespace algogin {
 
 					if (parent && parent->left == target) {
 						parent->left = child;
+						child->parent = parent;
 					}
 					else if (parent && parent->right == target) {
 						parent->right = child;
+						child->parent = parent;
 					}
 				}
 			}

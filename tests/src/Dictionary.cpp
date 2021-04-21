@@ -352,7 +352,7 @@ TEST(Dictionary, Remove_AllBlackRecolor) {
 	ASSERT_EQ(std::get<1>(tree[1]), 14);
 }
 
-TEST(Dictionary, Remove_ParentRed) {
+TEST(Dictionary, Remove_General) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(7, 17);
 	dictionary.insert(3, 13);
@@ -372,14 +372,17 @@ TEST(Dictionary, Remove_ParentRed) {
 	dictionary.remove(10);
 	dictionary.remove(22);
 
-}
-
-TEST(Dictionary, Traversal) {
-	algogin::Dictionary<int, int> dictionary;
-	dictionary.insert(32, 10);
-	dictionary.insert(21, 11);
-	dictionary.insert(17, 12);
-	dictionary.insert(42, 13);
-
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 13);
+	ASSERT_EQ(std::get<1>(tree[0]), 113);
+	ASSERT_EQ(std::get<0>(tree[1]), 7);
+	ASSERT_EQ(std::get<1>(tree[1]), 17);
+	ASSERT_EQ(std::get<0>(tree[2]), 26);
+	ASSERT_EQ(std::get<1>(tree[2]), 126);
+	ASSERT_EQ(std::get<0>(tree[3]), 6);
+	ASSERT_EQ(std::get<1>(tree[3]), 16);
+	ASSERT_EQ(std::get<0>(tree[4]), 8);
+	ASSERT_EQ(std::get<1>(tree[4]), 18);
+	ASSERT_EQ(std::get<0>(tree[5]), 2);
+	ASSERT_EQ(std::get<1>(tree[5]), 12);
 }
