@@ -215,7 +215,7 @@ namespace algogin {
 						parent->right = nullptr;
 					}
 					if (sibling->right && sibling->right->color == COLOR::RED) {
-						//perform left right rotation
+						//left right case
 						if (parent->left == sibling) {
 							auto err = _leftRotation(sibling);
 							if (err != ALGOGIN_ERROR::OK)
@@ -227,20 +227,20 @@ namespace algogin {
 							std::swap(current->color, current->parent->color);
 							sibling->color = COLOR::BLACK;
 						}
-						//perform right right rotation
+						//right right case
 						else if (parent->right == sibling) {
 							auto err = _leftRotation(parent);
 							std::swap(parent->color, sibling->color);
 							sibling->right->color = COLOR::BLACK;
 						}
 					} else if (sibling->left && sibling->left->color == COLOR::RED) {
-						//perform left left rotation
+						// left left case
 						if (parent->left == sibling) {
 							auto err = _rightRotation(parent);
 							std::swap(parent->color, sibling->color);
-							sibling->color = COLOR::BLACK;
+							sibling->left->color = COLOR::BLACK;
 						}
-						//perform right left rotation
+						//right left case
 						else if (parent->right == sibling) {
 							auto err = _rightRotation(sibling);
 							if (err != ALGOGIN_ERROR::OK)
@@ -249,7 +249,7 @@ namespace algogin {
 
 							auto current = sibling->parent->parent;
 							err = _leftRotation(current);
-							std::swap(current->color, current->parent->color);
+							std::swap(current->color, current->parent->color); //after rotate current parent = sibling
 							sibling->color = COLOR::BLACK;
 						}
 					}
