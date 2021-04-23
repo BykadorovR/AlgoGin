@@ -424,7 +424,10 @@ namespace algogin {
 	public:
 		Dictionary() = default;
 		~Dictionary() = default;
-		Dictionary(const Dictionary& dict) noexcept;
+		//deep copy of dict
+		Dictionary(const Dictionary& dict) noexcept {
+
+		};
 		Dictionary& operator=(const Dictionary& rhs) noexcept;
 		Dictionary(Dictionary&& dict) noexcept;
 		Dictionary& operator=(Dictionary&& rhs) noexcept;
@@ -435,6 +438,8 @@ namespace algogin {
 			current->key = key;
 			current->value = value;
 			current->color = COLOR::RED;
+
+			_size++;
 			//tree is empty, so set node to head
 			if (_head == nullptr) {
 				current->color = COLOR::BLACK;
@@ -466,6 +471,7 @@ namespace algogin {
 			//Standard binary search tree remove algorithm
 			ALGOGIN_ERROR err = _remove(target);
 
+			_size--;
 			return err;
 		}
 
@@ -508,6 +514,10 @@ namespace algogin {
 				return false;
 
 			return true;
+		}
+
+		int getSize() noexcept {
+			return _size;
 		}
 	};
 }

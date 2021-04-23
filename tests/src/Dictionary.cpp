@@ -15,6 +15,8 @@ TEST(Dictionary, Insert_GeneralTest) {
 	dictionary.insert(6, 16);
 	dictionary.insert(13, 113);
 
+	ASSERT_EQ(dictionary.getSize(), 11);
+
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 10);
 	ASSERT_EQ(std::get<1>(tree[0]), 110);
@@ -46,7 +48,7 @@ TEST(Dictionary, Insert_RightRight) {
 	dictionary.insert(21, 11);
 	dictionary.insert(32, 12);
 	dictionary.insert(17, 13);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 21);
 	ASSERT_EQ(std::get<1>(tree[0]), 11);
@@ -64,7 +66,7 @@ TEST(Dictionary, Insert_LeftLeft) {
 	dictionary.insert(21, 11);
 	dictionary.insert(17, 12);
 	dictionary.insert(42, 13);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 21);
 	ASSERT_EQ(std::get<1>(tree[0]), 11);
@@ -83,7 +85,7 @@ TEST(Dictionary, Insert_RightLeft) {
 	dictionary.insert(8, 12);
 	dictionary.insert(10, 13);
 	dictionary.insert(9, 14);
-
+	ASSERT_EQ(dictionary.getSize(), 5);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 5);
 	ASSERT_EQ(std::get<1>(tree[0]), 10);
@@ -104,7 +106,7 @@ TEST(Dictionary, Insert_LeftRight) {
 	dictionary.insert(10, 12);
 	dictionary.insert(1, 13);
 	dictionary.insert(3, 14);
-
+	ASSERT_EQ(dictionary.getSize(), 5);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 7);
 	ASSERT_EQ(std::get<1>(tree[0]), 10);
@@ -127,7 +129,7 @@ TEST(Dictionary, Insert_Recolor_Twice) {
 	dictionary.insert(8, 14);
 	dictionary.insert(15, 15);
 	dictionary.insert(13, 16);
-
+	ASSERT_EQ(dictionary.getSize(), 7);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 6);
 	ASSERT_EQ(std::get<1>(tree[0]), 10);
@@ -150,9 +152,9 @@ TEST(Dictionary, Remove_LeafNotHead) {
 	dictionary.insert(7, 10);
 	dictionary.insert(5, 11);
 	dictionary.insert(10, 12);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	dictionary.remove(10);
-
+	ASSERT_EQ(dictionary.getSize(), 2);
 	ASSERT_FALSE(dictionary.exist(10));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -165,9 +167,9 @@ TEST(Dictionary, Remove_LeafNotHead) {
 TEST(Dictionary, Remove_HeadLeaf) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(7, 10);
-
+	ASSERT_EQ(dictionary.getSize(), 1);
 	ASSERT_EQ(dictionary.remove(7), algogin::ALGOGIN_ERROR::OK);
-
+	ASSERT_EQ(dictionary.getSize(), 0);
 	ASSERT_FALSE(dictionary.exist(7));
 }
 
@@ -177,9 +179,9 @@ TEST(Dictionary, Remove_OneChildNotHead) {
 	dictionary.insert(5, 11);
 	dictionary.insert(10, 12);
 	dictionary.insert(12, 13);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	dictionary.remove(10);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	ASSERT_FALSE(dictionary.exist(10));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -195,9 +197,9 @@ TEST(Dictionary, Remove_OneChildHead) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(7, 10);
 	dictionary.insert(10, 11);
-
+	ASSERT_EQ(dictionary.getSize(), 2);
 	dictionary.remove(7);
-
+	ASSERT_EQ(dictionary.getSize(), 1);
 	ASSERT_FALSE(dictionary.exist(7));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -210,9 +212,9 @@ TEST(Dictionary, Remove_TwoChildHead) {
 	dictionary.insert(7, 10);
 	dictionary.insert(5, 11);
 	dictionary.insert(10, 12);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	dictionary.remove(7);
-
+	ASSERT_EQ(dictionary.getSize(), 2);
 	ASSERT_FALSE(dictionary.exist(7));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -231,9 +233,9 @@ TEST(Dictionary, Remove_TwoChildNotHead) {
 	dictionary.insert(8, 14);
 	dictionary.insert(15, 15);
 	dictionary.insert(13, 16);
-
+	ASSERT_EQ(dictionary.getSize(), 7);
 	dictionary.remove(9);
-
+	ASSERT_EQ(dictionary.getSize(), 6);
 	ASSERT_FALSE(dictionary.exist(9));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -258,9 +260,9 @@ TEST(Dictionary, Remove_LeafDoubleBlackRightRight) {
 	dictionary.insert(40, 14);
 	dictionary.insert(50, 15);
 	dictionary.insert(35, 135);
-
+	ASSERT_EQ(dictionary.getSize(), 5);
 	dictionary.remove(20);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	ASSERT_FALSE(dictionary.exist(20));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -280,9 +282,9 @@ TEST(Dictionary, Remove_LeafDoubleBlackLeftLeft) {
 	dictionary.insert(20, 12);
 	dictionary.insert(40, 14);
 	dictionary.insert(15, 115);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	dictionary.remove(40);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	ASSERT_FALSE(dictionary.exist(40));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -300,9 +302,9 @@ TEST(Dictionary, Remove_LeafDoubleBlackRightLeft) {
 	dictionary.insert(20, 12);
 	dictionary.insert(40, 14);
 	dictionary.insert(35, 135);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	dictionary.remove(20);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	ASSERT_FALSE(dictionary.exist(20));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -320,9 +322,9 @@ TEST(Dictionary, Remove_LeafDoubleBlackLeftRight) {
 	dictionary.insert(20, 12);
 	dictionary.insert(40, 14);
 	dictionary.insert(25, 125);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	dictionary.remove(40);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	ASSERT_FALSE(dictionary.exist(40));
 
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
@@ -340,11 +342,11 @@ TEST(Dictionary, Remove_AllBlackRecolor) {
 	dictionary.insert(20, 12);
 	dictionary.insert(40, 14);
 	dictionary.insert(25, 125);
-
+	ASSERT_EQ(dictionary.getSize(), 4);
 	dictionary.remove(25);
-
+	ASSERT_EQ(dictionary.getSize(), 3);
 	dictionary.remove(20);
-
+	ASSERT_EQ(dictionary.getSize(), 2);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 30);
 	ASSERT_EQ(std::get<1>(tree[0]), 13);
@@ -365,13 +367,13 @@ TEST(Dictionary, Remove_General) {
 	dictionary.insert(2, 12);
 	dictionary.insert(6, 16);
 	dictionary.insert(13, 113);
-
+	ASSERT_EQ(dictionary.getSize(), 11);
 	dictionary.remove(18);
 	dictionary.remove(11);
 	dictionary.remove(3);
 	dictionary.remove(10);
 	dictionary.remove(22);
-
+	ASSERT_EQ(dictionary.getSize(), 6);
 	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
 	ASSERT_EQ(std::get<0>(tree[0]), 13);
 	ASSERT_EQ(std::get<1>(tree[0]), 113);
