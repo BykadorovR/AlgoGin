@@ -421,12 +421,47 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
+		ALGOGIN_ERROR _deepCopy(std::shared_ptr<Tree> src, std::shared_ptr<Tree> dst) {
+			if (src) {
+				//left sub-tree
+				auto leftNode = src->left;
+				if (leftNode) {
+					auto newLeftNode = std::make_shared<Tree>();
+					newLeftNode->key = leftNode->key;
+					newLeftNode->value = leftNode->value;
+					newLeftNode->color = leftNode->color;
+					dst->left = newLeftNode;
+					newLeftNode->parent = dst;
+					_deepCopy(src->left, dst->left);
+				}
+				//right sub-tree
+				auto rightNode = src->right;
+				if (rightNode) {
+					auto newRightNode = std::make_shared<Tree>();
+					newRightNode->key = rightNode->key;
+					newRightNode->value = rightNode->value;
+					newRightNode->color = rightNode->color;
+					dst->right = newRightNode;
+					newRightNode->parent = dst;
+					_deepCopy(src->right, dst->right);
+				}
+			}
+
+			return ALGOGIN_ERROR::OK;
+		}
+
 	public:
 		Dictionary() = default;
 		~Dictionary() = default;
 		//deep copy of dict
 		Dictionary(const Dictionary& dict) noexcept {
-
+			std::shared_ptr<Tree> newHead = std::make_shared<Tree>();
+			newHead->key = dict._head->key;
+			newHead->value = dict._head->value;
+			newHead->color = dict._head->color;
+			_head = newHead;
+			_size = dict._size;
+			_deepCopy(dict._head, newHead);
 		};
 		Dictionary& operator=(const Dictionary& rhs) noexcept;
 		Dictionary(Dictionary&& dict) noexcept;

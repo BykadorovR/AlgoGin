@@ -1,6 +1,29 @@
 #include <gtest/gtest.h>
 #include "Dictionary.h"
 
+TEST(Dictionary, Copy_Constructor) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(7, 17);
+	dictionary.insert(3, 13);
+	dictionary.insert(18, 118);
+	dictionary.insert(10, 110);
+	dictionary.insert(22, 122);
+	dictionary.insert(8, 18);
+	dictionary.insert(11, 111);
+	dictionary.insert(26, 126);
+	dictionary.insert(2, 12);
+	dictionary.insert(6, 16);
+	dictionary.insert(13, 113);
+
+	algogin::Dictionary<int, int> dictionaryNew(dictionary);
+	ASSERT_EQ(dictionary.getSize(), dictionaryNew.getSize());
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}
+
 TEST(Dictionary, Insert_GeneralTest) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(7, 17);
