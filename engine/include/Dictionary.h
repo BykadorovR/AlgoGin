@@ -426,23 +426,25 @@ namespace algogin {
 				//left sub-tree
 				auto leftNode = src->left;
 				if (leftNode) {
-					auto newLeftNode = std::make_shared<Tree>();
-					newLeftNode->key = leftNode->key;
-					newLeftNode->value = leftNode->value;
-					newLeftNode->color = leftNode->color;
-					dst->left = newLeftNode;
-					newLeftNode->parent = dst;
+					if (dst->left == nullptr)
+						dst->left = std::make_shared<Tree>();
+
+					dst->left->key = leftNode->key;
+					dst->left->value = leftNode->value;
+					dst->left->color = leftNode->color;
+					dst->left->parent = dst;
 					_deepCopy(src->left, dst->left);
 				}
 				//right sub-tree
 				auto rightNode = src->right;
 				if (rightNode) {
-					auto newRightNode = std::make_shared<Tree>();
-					newRightNode->key = rightNode->key;
-					newRightNode->value = rightNode->value;
-					newRightNode->color = rightNode->color;
-					dst->right = newRightNode;
-					newRightNode->parent = dst;
+					if (dst->right == nullptr)
+						dst->right = std::make_shared<Tree>();
+					
+					dst->right->key = rightNode->key;
+					dst->right->value = rightNode->value;
+					dst->right->color = rightNode->color;
+					dst->right->parent = dst;
 					_deepCopy(src->right, dst->right);
 				}
 			}
@@ -463,9 +465,32 @@ namespace algogin {
 			_size = dict._size;
 			_deepCopy(dict._head, newHead);
 		};
-		Dictionary& operator=(const Dictionary& rhs) noexcept;
-		Dictionary(Dictionary&& dict) noexcept;
-		Dictionary& operator=(Dictionary&& rhs) noexcept;
+		Dictionary& operator=(const Dictionary& rhs) noexcept {
+			if (_head == nullptr)
+				_head = std::make_shared<Tree>();
+
+			_head->key = rhs._head->key;
+			_head->value = rhs._head->value;
+			_head->color = rhs._head->color;
+			
+			_size = rhs._size;
+			_deepCopy(rhs._head, _head);
+
+			return *this;
+		}
+
+		Dictionary(Dictionary&& dict) noexcept {
+			//define move constructor via move assignment operator
+			*this = std::move(dict);
+		}
+
+		Dictionary& operator=(Dictionary&& rhs) noexcept {
+			if (this != &rhs) {
+				_size = std::exchange(rhs._size, 0);
+				_head = std::exchange(rhs._head, nullptr);
+			}
+			return *this;
+		}
 
 
 		ALGOGIN_ERROR insert(Comparable key, V value) noexcept {

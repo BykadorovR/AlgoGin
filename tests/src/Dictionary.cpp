@@ -1,5 +1,100 @@
 #include <gtest/gtest.h>
 #include "Dictionary.h"
+#include <any>
+
+TEST(Dictionary, Move_constructor) {
+	algogin::Dictionary<int, int> d1;
+	d1.insert(10, 110);
+	d1.insert(11, 111);
+	d1.insert(12, 112);
+	d1.insert(13, 113);
+	algogin::Dictionary<int, int> d2 = std::move(d1);
+	ASSERT_EQ(d2.getSize(), 4);
+	ASSERT_EQ(d1.getSize(), 0);
+	d1.insert(15, 115);
+	ASSERT_EQ(d2.exist(15), false);
+	ASSERT_EQ(d1.exist(15), true);
+	ASSERT_EQ(d2.exist(10), true);
+	ASSERT_EQ(d2.exist(11), true);
+	ASSERT_EQ(d2.exist(12), true);
+	ASSERT_EQ(d2.exist(13), true);
+}
+
+TEST(Dictionary, MoveAssignmentOperator) {
+	algogin::Dictionary<int, int> d1;
+	d1.insert(10, 110);
+	d1.insert(11, 111);
+	d1.insert(12, 112);
+	d1.insert(13, 113);
+	algogin::Dictionary<int, int> d2;
+	d2.insert(14, 114);
+	d2.insert(15, 115);
+	d2 = std::move(d1);
+
+	ASSERT_EQ(d2.getSize(), 4);
+	ASSERT_EQ(d1.getSize(), 0);
+	d1.insert(15, 115);
+	ASSERT_EQ(d2.exist(15), false);
+	ASSERT_EQ(d1.exist(15), true);
+	ASSERT_EQ(d2.exist(10), true);
+	ASSERT_EQ(d2.exist(11), true);
+	ASSERT_EQ(d2.exist(12), true);
+	ASSERT_EQ(d2.exist(13), true);
+}
+
+TEST(Dictionary, AssignOperator_NotEmpty) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(7, 17);
+	dictionary.insert(3, 13);
+	dictionary.insert(18, 118);
+	dictionary.insert(10, 110);
+	dictionary.insert(22, 122);
+	dictionary.insert(8, 18);
+	dictionary.insert(11, 111);
+	dictionary.insert(26, 126);
+	dictionary.insert(2, 12);
+	dictionary.insert(6, 16);
+	dictionary.insert(13, 113);
+
+	algogin::Dictionary<int, int> dictionaryNew;
+	dictionaryNew.insert(4, 14);
+	dictionaryNew.insert(5, 15);
+	
+	dictionaryNew = dictionary;
+	ASSERT_EQ(dictionary.getSize(), dictionaryNew.getSize());
+	ASSERT_EQ(dictionaryNew.exist(4), false);
+	ASSERT_EQ(dictionaryNew.exist(5), false);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}
+
+TEST(Dictionary, AssignOperator_Empty) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(7, 17);
+	dictionary.insert(3, 13);
+	dictionary.insert(18, 118);
+	dictionary.insert(10, 110);
+	dictionary.insert(22, 122);
+	dictionary.insert(8, 18);
+	dictionary.insert(11, 111);
+	dictionary.insert(26, 126);
+	dictionary.insert(2, 12);
+	dictionary.insert(6, 16);
+	dictionary.insert(13, 113);
+
+	algogin::Dictionary<int, int> dictionaryNew;
+	dictionaryNew = dictionary;
+	ASSERT_EQ(dictionary.getSize(), dictionaryNew.getSize());
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}
 
 TEST(Dictionary, Copy_Constructor) {
 	algogin::Dictionary<int, int> dictionary;
