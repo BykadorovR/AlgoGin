@@ -580,4 +580,11 @@ namespace algogin {
 			return _size;
 		}
 	};
+
+	template <class Comparable, class V>
+	class DictionaryDisk {
+	private:
+	public:
+
+	};
 }
