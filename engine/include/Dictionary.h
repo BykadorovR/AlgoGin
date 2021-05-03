@@ -584,7 +584,57 @@ namespace algogin {
 	template <class Comparable, class V>
 	class DictionaryDisk {
 	private:
+		struct Tree {
+			std::vector<std::tuple<Comparable, V>> elems;
+			std::vector<std::shared_ptr<Tree>> childs;
+		};
+		//special parameter of B-tree
+		int _t;
+		std::shared_ptr<Tree> _head;
 	public:
+		DictionaryDisk(int t) {
+			_t = t;
+		}
+
+		//IMPORTANT: A new key is always inserted to the leaf node
+		ALGOGIN_ERROR insert(Comparable key, V value) {
+			if (_head == nullptr) {
+				_head = std::make_shared<Tree>();
+				_head->elems.push_back({ key, value });
+				return ALGOGIN_ERROR::OK;
+			}
+
+			auto currentNode = _head;
+			int leaf = false;
+			while (leaf == false) {
+				//check if there is place in head
+				if (currentNode->elems.size() < 2 * _t - 1) {
+					//head is the only node, so it's leaf, insert to head
+					if (currentNode->childs.size() == 0) {
+						for (int i = 0; i < currentNode->elems.size(); i++) {
+							if (key > std::get<0>(currentNode->elems[i]) && (i + 1) >= currentNode->elems.size()) {
+								currentNode->elems.push_back({ key, value });
+								break;
+							} else if (key > std::get<0>(currentNode->elems[i]) && (i + 1) < currentNode->elems.size() && key < std::get<0>(currentNode->elems[i + 1])) {
+								currentNode->elems.push_back({ key, value });
+								break;
+							}
+						}
+						currentNode->elems.insert(currentNode->elems.begin(), { key, value });
+						leaf = true;
+					}
+					//treat child as current node
+					else {
+
+					}
+				}
+				//split
+				else {
+
+				}
+			}
+
+		}
 
 	};
 }
