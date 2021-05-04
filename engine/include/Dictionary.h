@@ -591,6 +591,27 @@ namespace algogin {
 		//special parameter of B-tree
 		int _t;
 		std::shared_ptr<Tree> _head;
+
+		int _findPlace(std::shared_ptr<Tree> currentNode, Comparable key) {
+			int index = currentNode->elems.size() - 1;
+			//head is the only node, so it's leaf, insert to head
+			if (currentNode->childs.size() == 0) {
+				if ((currentNode->elems.size() > 0 && key < std::get<0>(currentNode->elems[0])) ||
+					currentNode->elems.size() == 0) {
+					index = 0;
+				}
+				else {
+					for (int i = 1; i < currentNode->elems.size(); i++) {
+						if (key > std::get<0>(currentNode->elems[i]) && (i + 1) < currentNode->elems.size() && key < std::get<0>(currentNode->elems[i + 1])) {
+							index = i;
+							break;
+						}
+					}
+				}
+			}
+
+
+		}
 	public:
 		DictionaryDisk(int t) {
 			_t = t;
@@ -609,23 +630,35 @@ namespace algogin {
 			while (leaf == false) {
 				//check if there is place in head
 				if (currentNode->elems.size() < 2 * _t - 1) {
+					int index = currentNode->elems.size() - 1;
 					//head is the only node, so it's leaf, insert to head
 					if (currentNode->childs.size() == 0) {
-						for (int i = 0; i < currentNode->elems.size(); i++) {
-							if (key > std::get<0>(currentNode->elems[i]) && (i + 1) >= currentNode->elems.size()) {
-								currentNode->elems.push_back({ key, value });
-								break;
-							} else if (key > std::get<0>(currentNode->elems[i]) && (i + 1) < currentNode->elems.size() && key < std::get<0>(currentNode->elems[i + 1])) {
-								currentNode->elems.push_back({ key, value });
-								break;
+						if ((currentNode->elems.size() > 0 && key < std::get<0>(currentNode->elems[0])) ||
+							currentNode->elems.size() == 0) {
+							index = 0;
+						}
+						else {
+							for (int i = 1; i < currentNode->elems.size(); i++) {
+								if (key > std::get<0>(currentNode->elems[i]) && (i + 1) < currentNode->elems.size() && key < std::get<0>(currentNode->elems[i + 1])) {
+									index = i;
+									break;
+								}
 							}
 						}
-						currentNode->elems.insert(currentNode->elems.begin(), { key, value });
+						//insert with shift to left?
+						currentNode->elems.insert(currentNode->elems.begin() + index, { key, value });
 						leaf = true;
 					}
 					//treat child as current node
 					else {
+						int index = 0;
+						//because number childs = CURRENT keys in node + 1 we can find interval where key should be placed as in simple insertion
+						for (int i = 0; i < currentNode->elems.size(); i++) {
+							if (key > std::get<0>(currentNode->elems[i]) && (i + 1) >= currentNode->elems.size()) {
+								
+							}
 
+						}
 					}
 				}
 				//split
