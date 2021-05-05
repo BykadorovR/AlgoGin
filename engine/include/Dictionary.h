@@ -596,21 +596,18 @@ namespace algogin {
 			int index = currentNode->elems.size() - 1;
 			//head is the only node, so it's leaf, insert to head
 			if (currentNode->childs.size() == 0) {
-				if ((currentNode->elems.size() > 0 && key < std::get<0>(currentNode->elems[0])) ||
-					currentNode->elems.size() == 0) {
-					index = 0;
-				}
-				else {
-					for (int i = 1; i < currentNode->elems.size(); i++) {
-						if (key > std::get<0>(currentNode->elems[i]) && (i + 1) < currentNode->elems.size() && key < std::get<0>(currentNode->elems[i + 1])) {
-							index = i;
-							break;
-						}
+				index = 0;
+				for (int i = 1; i < currentNode->elems.size(); i++) {
+					if (key > std::get<0>(currentNode->elems[i - 1]) && key < std::get<0>(currentNode->elems[i])) {
+						index = i;
+						break;
 					}
 				}
+				if (index == 0 && key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
+					index = currentNode->elems.size() - 1;
+				}
 			}
-
-
+			return index;
 		}
 	public:
 		DictionaryDisk(int t) {
