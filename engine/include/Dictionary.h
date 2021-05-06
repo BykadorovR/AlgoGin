@@ -587,6 +587,7 @@ namespace algogin {
 		struct Tree {
 			std::vector<std::tuple<Comparable, V>> elems;
 			std::vector<std::shared_ptr<Tree>> childs;
+			std::shared_ptr<Tree> parent;
 		};
 		//special parameter of B-tree
 		int _t;
@@ -609,6 +610,27 @@ namespace algogin {
 			}
 			return index;
 		}
+
+		ALGOGIN_ERROR _split(std::shared_ptr<Tree> currentNode) {
+			//find mid element
+			int midIndex = _t - 1;
+			auto parent = currentNode->parent;
+			//move mid element to appropriate place in parent
+			auto parentIndex = _findPlace(parent, std::get<0>(currentNode->elems[midIndex]));
+			parent->elems.insert(parent->elems.begin() + parentIndex, currentNode->elems[midIndex]);
+			//create another node and place all keys greater than mid one there
+			auto rightNode = std::make_shared<Tree>();
+			rightNode->parent = parent;
+			parent->childs.insert(parent->childs.begin() + parentIndex, rightNode);
+			for (int i = midIndex + 1; i < currentNode->elems.size(); i++) {
+				//elements are sorted so may just push back
+				rightNode->elems.push_back(currentNode->elems[i]);
+			}
+			currentNode->elems.erase(currentNode->elems.begin() + midIndex, currentNode->elems.end());
+
+			return ALGOGIN_ERROR::OK;
+		}
+
 	public:
 		DictionaryDisk(int t) {
 			_t = t;
@@ -625,37 +647,19 @@ namespace algogin {
 			auto currentNode = _head;
 			int leaf = false;
 			while (leaf == false) {
-				//check if there is place in head
+				//check if there is place in current node
 				if (currentNode->elems.size() < 2 * _t - 1) {
-					int index = currentNode->elems.size() - 1;
 					//head is the only node, so it's leaf, insert to head
 					if (currentNode->childs.size() == 0) {
-						if ((currentNode->elems.size() > 0 && key < std::get<0>(currentNode->elems[0])) ||
-							currentNode->elems.size() == 0) {
-							index = 0;
-						}
-						else {
-							for (int i = 1; i < currentNode->elems.size(); i++) {
-								if (key > std::get<0>(currentNode->elems[i]) && (i + 1) < currentNode->elems.size() && key < std::get<0>(currentNode->elems[i + 1])) {
-									index = i;
-									break;
-								}
-							}
-						}
+						auto index = _findPlace(currentNode, key);
 						//insert with shift to left?
 						currentNode->elems.insert(currentNode->elems.begin() + index, { key, value });
 						leaf = true;
 					}
 					//treat child as current node
 					else {
-						int index = 0;
-						//because number childs = CURRENT keys in node + 1 we can find interval where key should be placed as in simple insertion
-						for (int i = 0; i < currentNode->elems.size(); i++) {
-							if (key > std::get<0>(currentNode->elems[i]) && (i + 1) >= currentNode->elems.size()) {
-								
-							}
-
-						}
+						auto index = _findPlace(currentNode, key);
+						currentNode = currentNode->childs[index];
 					}
 				}
 				//split
