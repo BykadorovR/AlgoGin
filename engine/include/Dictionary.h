@@ -611,7 +611,7 @@ namespace algogin {
 			return index;
 		}
 
-		ALGOGIN_ERROR _split(std::shared_ptr<Tree> currentNode) {
+		std::shared_ptr<Tree> _split(std::shared_ptr<Tree> currentNode) {
 			//find mid element
 			int midIndex = _t - 1;
 			auto parent = currentNode->parent;
@@ -625,10 +625,12 @@ namespace algogin {
 			for (int i = midIndex + 1; i < currentNode->elems.size(); i++) {
 				//elements are sorted so may just push back
 				rightNode->elems.push_back(currentNode->elems[i]);
+				rightNode->childs.push_back(currentNode->childs[i]);
 			}
 			currentNode->elems.erase(currentNode->elems.begin() + midIndex, currentNode->elems.end());
+			currentNode->childs.erase(currentNode->childs.begin() + midIndex, currentNode->childs.end());
 
-			return ALGOGIN_ERROR::OK;
+			return rightNode;
 		}
 
 	public:
@@ -664,6 +666,30 @@ namespace algogin {
 				}
 				//split
 				else {
+					auto rightNode = _split(currentNode);
+					//find appropriate place to insert key
+					if (key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
+						if (rightNode->childs.size() == 0) {
+							auto index = _findPlace(rightNode, key);
+							rightNode->elems.insert(rightNode->elems.begin() + index, { key, value });
+							leaf = true;
+						}
+						else {
+							auto index = _findPlace(rightNode, key);
+							currentNode = rightNode->childs[index];
+						}
+					}
+					else {
+						if (currentNode->childs.size() == 0) {
+							auto index = _findPlace(currentNode, key);
+							currentNode->elems.insert(currentNode->elems.begin() + index, { key, value });
+							leaf = true;
+						}
+						else {
+							auto index = _findPlace(currentNode, key);
+							currentNode = currentNode->childs[index];
+						}
+					}
 
 				}
 			}
