@@ -506,3 +506,16 @@ TEST(Dictionary, Remove_General) {
 	ASSERT_EQ(std::get<0>(tree[5]), 2);
 	ASSERT_EQ(std::get<1>(tree[5]), 12);
 }
+
+TEST(DictionaryDisk, Insert_General) {
+	algogin::DictionaryDisk<int, int> dictionary(3);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+}

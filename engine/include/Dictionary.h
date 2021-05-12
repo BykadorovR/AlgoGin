@@ -595,7 +595,6 @@ namespace algogin {
 
 		int _findPlace(std::shared_ptr<Tree> currentNode, Comparable key) {
 			int index = currentNode->elems.size() - 1;
-			//head is the only node, so it's leaf, insert to head
 			if (currentNode->childs.size() == 0) {
 				index = 0;
 				for (int i = 1; i < currentNode->elems.size(); i++) {
@@ -604,8 +603,8 @@ namespace algogin {
 						break;
 					}
 				}
-				if (index == 0 && key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
-					index = currentNode->elems.size() - 1;
+				if (index == 0 && currentNode->elems.size() > 0 && key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
+					index = currentNode->elems.size();
 				}
 			}
 			return index;
@@ -614,21 +613,32 @@ namespace algogin {
 		std::shared_ptr<Tree> _split(std::shared_ptr<Tree> currentNode) {
 			//find mid element
 			int midIndex = _t - 1;
-			auto parent = currentNode->parent;
+			auto& parent = currentNode->parent;
+			if (parent == nullptr) {
+				parent = std::make_shared<Tree>();
+				if (currentNode == _head)
+					_head = parent;
+			}
+
 			//move mid element to appropriate place in parent
 			auto parentIndex = _findPlace(parent, std::get<0>(currentNode->elems[midIndex]));
 			parent->elems.insert(parent->elems.begin() + parentIndex, currentNode->elems[midIndex]);
 			//create another node and place all keys greater than mid one there
 			auto rightNode = std::make_shared<Tree>();
 			rightNode->parent = parent;
-			parent->childs.insert(parent->childs.begin() + parentIndex, rightNode);
+			parent->childs.push_back(currentNode);
+			parent->childs.push_back(rightNode);
 			for (int i = midIndex + 1; i < currentNode->elems.size(); i++) {
 				//elements are sorted so may just push back
 				rightNode->elems.push_back(currentNode->elems[i]);
+			}
+
+			for (int i = midIndex + 1; i < currentNode->childs.size(); i++) {
 				rightNode->childs.push_back(currentNode->childs[i]);
 			}
 			currentNode->elems.erase(currentNode->elems.begin() + midIndex, currentNode->elems.end());
-			currentNode->childs.erase(currentNode->childs.begin() + midIndex, currentNode->childs.end());
+			if (currentNode->childs.size() > midIndex)
+				currentNode->childs.erase(currentNode->childs.begin() + midIndex, currentNode->childs.end());
 
 			return rightNode;
 		}
@@ -642,8 +652,6 @@ namespace algogin {
 		ALGOGIN_ERROR insert(Comparable key, V value) {
 			if (_head == nullptr) {
 				_head = std::make_shared<Tree>();
-				_head->elems.push_back({ key, value });
-				return ALGOGIN_ERROR::OK;
 			}
 
 			auto currentNode = _head;
@@ -666,34 +674,37 @@ namespace algogin {
 				}
 				//split
 				else {
-					auto rightNode = _split(currentNode);
+					auto rightChild = _split(currentNode);
+					auto leftChild = currentNode;
+					auto parent = currentNode->parent;
 					//find appropriate place to insert key
-					if (key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
-						if (rightNode->childs.size() == 0) {
-							auto index = _findPlace(rightNode, key);
-							rightNode->elems.insert(rightNode->elems.begin() + index, { key, value });
+					if (key > std::get<0>(parent->elems[parent->elems.size() - 1])) {
+						if (rightChild->childs.size() == 0) {
+							auto index = _findPlace(rightChild, key);
+							rightChild->elems.insert(rightChild->elems.begin() + index, { key, value });
 							leaf = true;
 						}
+						//recursively call insert for child
 						else {
-							auto index = _findPlace(rightNode, key);
-							currentNode = rightNode->childs[index];
+							auto index = _findPlace(rightChild, key);
+							currentNode = rightChild->childs[index];
 						}
 					}
 					else {
-						if (currentNode->childs.size() == 0) {
-							auto index = _findPlace(currentNode, key);
-							currentNode->elems.insert(currentNode->elems.begin() + index, { key, value });
+						if (leftChild->childs.size() == 0) {
+							auto index = _findPlace(leftChild, key);
+							leftChild->elems.insert(leftChild->elems.begin() + index, { key, value });
 							leaf = true;
 						}
 						else {
-							auto index = _findPlace(currentNode, key);
-							currentNode = currentNode->childs[index];
+							auto index = _findPlace(leftChild, key);
+							currentNode = leftChild->childs[index];
 						}
 					}
 
 				}
 			}
-
+			return ALGOGIN_ERROR::OK;
 		}
 
 	};
