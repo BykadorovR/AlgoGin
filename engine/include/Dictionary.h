@@ -594,19 +594,17 @@ namespace algogin {
 		std::shared_ptr<Tree> _head;
 
 		int _findPlace(std::shared_ptr<Tree> currentNode, Comparable key) {
-			int index = currentNode->elems.size() - 1;
-			if (currentNode->childs.size() == 0) {
-				index = 0;
-				for (int i = 1; i < currentNode->elems.size(); i++) {
-					if (key > std::get<0>(currentNode->elems[i - 1]) && key < std::get<0>(currentNode->elems[i])) {
-						index = i;
-						break;
-					}
-				}
-				if (index == 0 && currentNode->elems.size() > 0 && key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
-					index = currentNode->elems.size();
+			int index = 0;
+			for (int i = 1; i < currentNode->elems.size(); i++) {
+				if (key > std::get<0>(currentNode->elems[i - 1]) && key < std::get<0>(currentNode->elems[i])) {
+					index = i;
+					break;
 				}
 			}
+			if (index == 0 && currentNode->elems.size() > 0 && key > std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
+				index = currentNode->elems.size();
+			}
+			
 			return index;
 		}
 
@@ -626,7 +624,9 @@ namespace algogin {
 			//create another node and place all keys greater than mid one there
 			auto rightNode = std::make_shared<Tree>();
 			rightNode->parent = parent;
-			parent->childs.push_back(currentNode);
+			//if parent node just created need to add both childs, otherwise only one
+			if (parent->childs.size() == 0)
+				parent->childs.push_back(currentNode);
 			parent->childs.push_back(rightNode);
 			for (int i = midIndex + 1; i < currentNode->elems.size(); i++) {
 				//elements are sorted so may just push back
@@ -677,7 +677,7 @@ namespace algogin {
 					auto rightChild = _split(currentNode);
 					auto leftChild = currentNode;
 					auto parent = currentNode->parent;
-					//find appropriate place to insert key
+					//find appropriate place to insert key (right or left child)
 					if (key > std::get<0>(parent->elems[parent->elems.size() - 1])) {
 						if (rightChild->childs.size() == 0) {
 							auto index = _findPlace(rightChild, key);

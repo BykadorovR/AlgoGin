@@ -519,3 +519,15 @@ TEST(DictionaryDisk, Insert_General) {
 	dictionary.insert(80, 180);
 	dictionary.insert(90, 190);
 }
+
+TEST(DictionaryDisk, Insert_GeneralTest) {
+	algogin::DictionaryDisk<int, int> dictionary(3);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(5, 15);
+	dictionary.insert(6, 16);
+	dictionary.insert(12, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(7, 17);
+	dictionary.insert(17, 170);
+}
