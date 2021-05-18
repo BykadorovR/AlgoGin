@@ -654,6 +654,7 @@ namespace algogin {
 
 		//IMPORTANT: A new key is always inserted to the leaf node
 		ALGOGIN_ERROR insert(Comparable key, V value) {
+			//2
 			if (_head == nullptr) {
 				_head = std::make_shared<Tree>();
 			}
@@ -661,9 +662,11 @@ namespace algogin {
 			auto currentNode = _head;
 			int leaf = false;
 			while (leaf == false) {
+				//3
 				//check if there is place in current node
 				if (currentNode->elems.size() < 2 * _t - 1) {
 					//head is the only node, so it's leaf, insert to head
+					//3.i
 					if (currentNode->childs.size() == 0) {
 						auto index = _findPlace(currentNode, key);
 						//insert with shift to left?
@@ -671,6 +674,7 @@ namespace algogin {
 						leaf = true;
 					}
 					//treat child as current node
+					//3.ii
 					else {
 						auto index = _findPlace(currentNode, key);
 						currentNode = currentNode->childs[index];
@@ -678,32 +682,17 @@ namespace algogin {
 				}
 				//split
 				else {
+					//4.i
 					auto rightChild = _split(currentNode);
 					auto leftChild = currentNode;
 					auto parent = currentNode->parent;
+					//4.ii
 					//find appropriate place to insert key (right or left child)
 					if (key > std::get<0>(parent->elems[parent->elems.size() - 1])) {
-						if (rightChild->childs.size() == 0) {
-							auto index = _findPlace(rightChild, key);
-							rightChild->elems.insert(rightChild->elems.begin() + index, { key, value });
-							leaf = true;
-						}
-						//recursively call insert for child
-						else {
-							auto index = _findPlace(rightChild, key);
-							currentNode = rightChild->childs[index];
-						}
+						currentNode = rightChild;
 					}
 					else {
-						if (leftChild->childs.size() == 0) {
-							auto index = _findPlace(leftChild, key);
-							leftChild->elems.insert(leftChild->elems.begin() + index, { key, value });
-							leaf = true;
-						}
-						else {
-							auto index = _findPlace(leftChild, key);
-							currentNode = leftChild->childs[index];
-						}
+						currentNode = leftChild;
 					}
 
 				}
