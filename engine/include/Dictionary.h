@@ -627,7 +627,8 @@ namespace algogin {
 			//if parent node just created need to add both childs, otherwise only one
 			if (parent->childs.size() == 0)
 				parent->childs.push_back(currentNode);
-			parent->childs.push_back(rightNode);
+			//+1 because it's right child, left child +0
+			parent->childs.insert(parent->childs.begin() + parentIndex + 1, rightNode);
 			for (int i = midIndex + 1; i < currentNode->elems.size(); i++) {
 				//elements are sorted so may just push back
 				rightNode->elems.push_back(currentNode->elems[i]);
@@ -705,6 +706,35 @@ namespace algogin {
 				}
 			}
 			return ALGOGIN_ERROR::OK;
+		}
+
+		std::vector<std::tuple<Comparable, V>> traversal(TraversalMode mode) {
+			std::vector<std::tuple<Comparable, V>> nodes;
+
+			if (mode == TraversalMode::LEVEL_ORDER) {
+				std::list<std::shared_ptr<Tree>> openNodes;
+
+				auto currentNode = _head;
+				for (int i = 0; i < _head->elems.size(); i++)
+					nodes.push_back({ std::get<0>(_head->elems[i]), std::get<1>(_head->elems[i]) });
+
+				openNodes.push_back(currentNode);
+
+				while (openNodes.size() > 0) {
+					currentNode = openNodes.front();
+
+					for (auto child : currentNode->childs) {
+						if (child && std::find(openNodes.begin(), openNodes.end(), child) == openNodes.end()) {
+							for (int i = 0; i < child->elems.size(); i++)
+								nodes.push_back({ std::get<0>(child->elems[i]), std::get<1>(child->elems[i]) });
+							openNodes.push_back(child);
+						}
+					}
+
+					openNodes.remove(currentNode);
+				}
+			}
+			return nodes;
 		}
 
 	};
