@@ -602,3 +602,42 @@ TEST(DictionaryDisk, Insert_SmallT) {
 	ASSERT_EQ(std::get<0>(tree[8]), 30);
 	ASSERT_EQ(std::get<1>(tree[8]), 130);
 }
+
+TEST(DictionaryDisk, Insert_SmallT_SplitHead) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(5, 15);
+	dictionary.insert(6, 16);
+	dictionary.insert(12, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(7, 17);
+	dictionary.insert(17, 170);
+	dictionary.insert(4, 14);
+	dictionary.insert(3, 13);
+	dictionary.insert(2, 12);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 10);
+	ASSERT_EQ(std::get<1>(tree[0]), 110);
+	ASSERT_EQ(std::get<0>(tree[1]), 4);
+	ASSERT_EQ(std::get<1>(tree[1]), 14);
+	ASSERT_EQ(std::get<0>(tree[2]), 6);
+	ASSERT_EQ(std::get<1>(tree[2]), 16);
+	ASSERT_EQ(std::get<0>(tree[3]), 20);
+	ASSERT_EQ(std::get<1>(tree[3]), 120);
+	ASSERT_EQ(std::get<0>(tree[4]), 2);
+	ASSERT_EQ(std::get<1>(tree[4]), 12);
+	ASSERT_EQ(std::get<0>(tree[5]), 3);
+	ASSERT_EQ(std::get<1>(tree[5]), 13);
+	ASSERT_EQ(std::get<0>(tree[6]), 5);
+	ASSERT_EQ(std::get<1>(tree[6]), 15);
+	ASSERT_EQ(std::get<0>(tree[7]), 7);
+	ASSERT_EQ(std::get<1>(tree[7]), 17);
+	ASSERT_EQ(std::get<0>(tree[8]), 12);
+	ASSERT_EQ(std::get<1>(tree[8]), 120);
+	ASSERT_EQ(std::get<0>(tree[9]), 17);
+	ASSERT_EQ(std::get<1>(tree[9]), 170);
+	ASSERT_EQ(std::get<0>(tree[10]), 30);
+	ASSERT_EQ(std::get<1>(tree[10]), 130);
+}

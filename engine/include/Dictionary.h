@@ -637,9 +637,12 @@ namespace algogin {
 			for (int i = midIndex + 1; i < currentNode->childs.size(); i++) {
 				rightNode->childs.push_back(currentNode->childs[i]);
 			}
+
+			//midIndex without +1 because we move mid element
 			currentNode->elems.erase(currentNode->elems.begin() + midIndex, currentNode->elems.end());
-			if (currentNode->childs.size() > midIndex)
-				currentNode->childs.erase(currentNode->childs.begin() + midIndex, currentNode->childs.end());
+			//midIndex + 1 because we have to keep all childs
+			if (currentNode->childs.size() > midIndex + 1)
+				currentNode->childs.erase(currentNode->childs.begin() + midIndex + 1, currentNode->childs.end());
 
 			return rightNode;
 		}
