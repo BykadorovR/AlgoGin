@@ -119,6 +119,27 @@ TEST(Dictionary, Copy_Constructor) {
 	}
 }
 
+TEST(Dictionary, Find_GeneralTest) {
+	algogin::Dictionary<int, int> dictionary;
+	dictionary.insert(7, 17);
+	dictionary.insert(3, 13);
+	dictionary.insert(18, 118);
+	dictionary.insert(10, 110);
+	dictionary.insert(22, 122);
+	dictionary.insert(8, 18);
+	dictionary.insert(11, 111);
+	dictionary.insert(26, 126);
+	dictionary.insert(2, 12);
+	dictionary.insert(6, 16);
+	dictionary.insert(13, 113);
+
+	ASSERT_EQ(dictionary.find(8), 18);
+	ASSERT_EQ(dictionary.find(7), 17);
+	ASSERT_EQ(dictionary.find(26), 126);
+	dictionary.remove(26);
+	ASSERT_THROW(dictionary.find(26), std::range_error);
+}
+
 TEST(Dictionary, Insert_GeneralTest) {
 	algogin::Dictionary<int, int> dictionary;
 	dictionary.insert(7, 17);
@@ -640,4 +661,35 @@ TEST(DictionaryDisk, Insert_SmallT_SplitHead) {
 	ASSERT_EQ(std::get<1>(tree[9]), 170);
 	ASSERT_EQ(std::get<0>(tree[10]), 30);
 	ASSERT_EQ(std::get<1>(tree[10]), 130);
+}
+
+TEST(DictionaryDisk, Find_GeneralTest) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(5, 15);
+	dictionary.insert(6, 16);
+	dictionary.insert(12, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(7, 17);
+	dictionary.insert(17, 170);
+	dictionary.insert(4, 14);
+	dictionary.insert(3, 13);
+	dictionary.insert(2, 12);
+
+	ASSERT_EQ(dictionary.find(10), 110);
+	ASSERT_EQ(dictionary.find(4), 14);
+	ASSERT_EQ(dictionary.find(6), 16);
+	ASSERT_EQ(dictionary.find(20), 120);
+	ASSERT_EQ(dictionary.find(2), 12);
+	ASSERT_EQ(dictionary.find(3), 13);
+	ASSERT_EQ(dictionary.find(5), 15);
+	ASSERT_EQ(dictionary.find(7), 17);
+	ASSERT_EQ(dictionary.find(12), 120);
+	ASSERT_EQ(dictionary.find(17), 170);
+	ASSERT_EQ(dictionary.find(30), 130);
+
+	ASSERT_THROW(dictionary.find(1), std::runtime_error);
+	ASSERT_THROW(dictionary.find(11), std::runtime_error);
+	ASSERT_THROW(dictionary.find(50), std::runtime_error);
 }

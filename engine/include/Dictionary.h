@@ -576,6 +576,14 @@ namespace algogin {
 			return true;
 		}
 
+		V find(Comparable key) {
+			auto target = _find(key);
+			if (target == nullptr)
+				throw std::range_error("Element with index " + std::to_string(key) + " doesn't exist");
+
+			return target->value;
+		}
+
 		int getSize() noexcept {
 			return _size;
 		}
@@ -596,7 +604,7 @@ namespace algogin {
 		int _findPlace(std::shared_ptr<Tree> currentNode, Comparable key) {
 			int index = 0;
 			for (int i = 1; i < currentNode->elems.size(); i++) {
-				if (key > std::get<0>(currentNode->elems[i - 1]) && key < std::get<0>(currentNode->elems[i])) {
+				if (key >= std::get<0>(currentNode->elems[i - 1]) && key < std::get<0>(currentNode->elems[i])) {
 					index = i;
 					break;
 				}
@@ -694,7 +702,6 @@ namespace algogin {
 					else {
 						currentNode = leftChild;
 					}
-
 				}
 			}
 			return ALGOGIN_ERROR::OK;
@@ -729,5 +736,37 @@ namespace algogin {
 			return nodes;
 		}
 
+		V find(Comparable key) {
+			auto currentNode = _head;
+			while (currentNode) {
+				int index = _findPlace(currentNode, key);
+				//handle corner cases
+				if (index == 0) {
+					//element either 0 or last
+					if (key == std::get<0>(currentNode->elems[0])) {
+						return std::get<1>(currentNode->elems[0]);
+					}
+					else if (key == std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
+						return std::get<1>(currentNode->elems[currentNode->elems.size() - 1]);
+					}
+					else {
+						if (currentNode->childs.size() > 0)
+							currentNode = currentNode->childs[0];
+						else
+							throw std::range_error("Can't find element with index " + std::to_string(key));
+					}
+				} else if (index > 0) {
+					if (key == std::get<0>(currentNode->elems[index - 1])) {
+						return std::get<1>(currentNode->elems[index - 1]);
+					}
+					else {
+						if (index < currentNode->childs.size())
+							currentNode = currentNode->childs[index];
+						else
+							throw std::range_error("Can't find element with index " + std::to_string(key));
+					}
+				}
+			}
+		}
 	};
 }
