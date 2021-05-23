@@ -4,6 +4,7 @@
 #include <concepts>
 #include <optional>
 #include <list>
+#include <functional>
 
 namespace algogin {
 
@@ -616,6 +617,45 @@ namespace algogin {
 			return index;
 		}
 
+		std::tuple<std::shared_ptr<Tree>, int> _find(Comparable key) {
+			auto currentNode = _head;
+			int index = -1;
+			while (currentNode) {
+				index = _findPlace(currentNode, key);
+				//handle corner cases
+				if (index == 0) {
+					//element either 0 or last
+					if (key == std::get<0>(currentNode->elems[0])) {
+						return { currentNode, 0 };
+					}
+					else if (key == std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
+						return { currentNode, currentNode->elems.size() - 1 };
+					}
+					else {
+						if (currentNode->childs.size() > 0) {
+							currentNode = currentNode->childs[0];
+						}
+						else
+							currentNode = nullptr;
+					}
+				}
+				else if (index > 0) {
+					if (key == std::get<0>(currentNode->elems[index - 1])) {
+						return { currentNode, index - 1 };
+					}
+					else {
+						if (index < currentNode->childs.size()) {
+							currentNode = currentNode->childs[index];
+						}
+						else
+							currentNode = nullptr;
+					}
+				}
+			}
+
+			return { currentNode, index };
+		}
+
 		std::shared_ptr<Tree> _split(std::shared_ptr<Tree> currentNode) {
 			//find mid element
 			int midIndex = _t - 1;
@@ -707,6 +747,68 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
+		ALGOGIN_ERROR remove(Comparable key) {
+			//first find key and do 3. - prepare tree for remove (so keep at least t keys in the path to key)
+			auto current = _head;
+			bool deleted = false;
+			while (deleted == false) {
+				//first of all try to find key in current node
+				auto keyIterator = std::find_if(current->elems.begin(), current->elems.end(), 
+					[key](std::tuple<int, int> item) { return std::get<0>(item) == key; }
+				);
+
+				int index = 0;
+				if (keyIterator != std::end(current->elems))
+					index = std::distance(current->elems.begin(), keyIterator);
+				else {
+					//3. if key isn't found in node we need to check childs sizes and recursively go down
+				}
+
+				//1. If the key k is in node x and x is a leaf, delete the key k from x
+				if (current->childs.size() == 0) {
+					//node is leaf
+					current->elems.erase(current->elems.begin() + index);
+					deleted = true;
+				}
+				//2. If the key k is in node x and x is an internal node
+				else {
+					if (current->childs[index] && current->childs[index]->elems.size() >= _t) {
+						//2.a take left child of key, if it contains at least t keys, then swap rightmost element in child with key and recursively delete new rightmost element
+						auto leftChild = current->childs[index];
+						std::swap(current->elems[index], leftChild->elems[leftChild->elems.size() - 1]);
+						current = leftChild;
+						index = leftChild->elems.size() - 1;
+					}
+					else if (current->childs[index + 1] && current->childs[index + 1]->elems.size() >= _t) {
+						//2.b take left child of key, if it contains at least t keys, then swap rightmost element in child with key and recursively delete new rightmost element
+						auto rightChild = current->childs[index + 1];
+						std::swap(current->elems[index + 1], rightChild->elems[rightChild->elems.size() - 1]);
+						current = rightChild;
+						index = rightChild->elems.size() - 1;
+					}
+					else if (current->childs[index] && current->childs[index + 1]) {
+						//2.c both children have only t-1 keys, merge key and keys from right child to left child, remove right child (as key from node), so new child will be left child of key's right element in node
+						//recursively delete key from child
+						auto leftChild = current->childs[index];
+						auto rightChild = current->childs[index + 1];
+						//insert key to left child
+						int newKeyIndex = leftChild->elems.size();
+						leftChild->elems.push_back(current->elems[index]);
+						//remove key
+						current->elems.erase(current->elems.begin() + index);
+						//move all items from right child to left child
+						leftChild->elems.insert(rightChild->elems.begin(), rightChild->elems.begin(), rightChild->elems.end());
+						//remove right child from tree
+						current->childs.erase(current->childs.begin(), current->childs.begin() + index + 1);
+						//recursively call delete from left child
+						current = leftChild;
+						index = newKeyIndex;
+					}
+				}
+			}
+			return ALGOGIN_ERROR::OK;
+		}
+
 		std::vector<std::tuple<Comparable, V>> traversal(TraversalMode mode) {
 			std::vector<std::tuple<Comparable, V>> nodes;
 
@@ -736,37 +838,12 @@ namespace algogin {
 			return nodes;
 		}
 
-		V find(Comparable key) {
-			auto currentNode = _head;
-			while (currentNode) {
-				int index = _findPlace(currentNode, key);
-				//handle corner cases
-				if (index == 0) {
-					//element either 0 or last
-					if (key == std::get<0>(currentNode->elems[0])) {
-						return std::get<1>(currentNode->elems[0]);
-					}
-					else if (key == std::get<0>(currentNode->elems[currentNode->elems.size() - 1])) {
-						return std::get<1>(currentNode->elems[currentNode->elems.size() - 1]);
-					}
-					else {
-						if (currentNode->childs.size() > 0)
-							currentNode = currentNode->childs[0];
-						else
-							throw std::range_error("Can't find element with index " + std::to_string(key));
-					}
-				} else if (index > 0) {
-					if (key == std::get<0>(currentNode->elems[index - 1])) {
-						return std::get<1>(currentNode->elems[index - 1]);
-					}
-					else {
-						if (index < currentNode->childs.size())
-							currentNode = currentNode->childs[index];
-						else
-							throw std::range_error("Can't find element with index " + std::to_string(key));
-					}
-				}
-			}
+		std::optional<V> find(Comparable key) {
+			auto [node, index] = _find(key);
+			if (node)
+				return std::get<1>(node->elems[index]);
+
+			return std::nullopt;
 		}
 	};
 }

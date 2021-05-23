@@ -689,7 +689,7 @@ TEST(DictionaryDisk, Find_GeneralTest) {
 	ASSERT_EQ(dictionary.find(17), 170);
 	ASSERT_EQ(dictionary.find(30), 130);
 
-	ASSERT_THROW(dictionary.find(1), std::runtime_error);
-	ASSERT_THROW(dictionary.find(11), std::runtime_error);
-	ASSERT_THROW(dictionary.find(50), std::runtime_error);
+	ASSERT_EQ(dictionary.find(1), std::nullopt);
+	ASSERT_EQ(dictionary.find(11), std::nullopt);
+	ASSERT_EQ(dictionary.find(50), std::nullopt);
 }
