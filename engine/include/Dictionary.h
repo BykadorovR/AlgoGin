@@ -684,6 +684,7 @@ namespace algogin {
 
 			for (int i = midIndex + 1; i < currentNode->childs.size(); i++) {
 				rightNode->childs.push_back(currentNode->childs[i]);
+				currentNode->childs[i]->parent = rightNode;
 			}
 
 			//midIndex without +1 because we move mid element
@@ -785,8 +786,6 @@ namespace algogin {
 								//         current
 								//        /       \
 								//child x.         x. sibling
-								siblingNode = currentNode->childs[index + 1];
-
 								childNode->elems.push_back(currentNode->elems[index]);
 								currentNode->elems[index] = siblingNode->elems[0];
 								siblingNode->elems.erase(siblingNode->elems.begin());
@@ -796,12 +795,12 @@ namespace algogin {
 							    //           current
 							    //          /       \
 							    //sibling x.         x. child
-								if (siblingNode->elems.size() >= _t) {
-									childNode->elems.insert(childNode->elems.begin(), currentNode->elems[index]);
-									currentNode->elems[index] = siblingNode->elems[siblingNode->elems.size() - 1];
-									siblingNode->elems.erase(siblingNode->elems.end());
-								}
+								childNode->elems.insert(childNode->elems.begin(), currentNode->elems[index]);
+								currentNode->elems[index] = siblingNode->elems[siblingNode->elems.size() - 1];
+								siblingNode->elems.erase(siblingNode->elems.end());
 							}
+
+							currentNode = childNode;
 						}
 						//3.b both children contain t - 1 elements, so merge them into left child and make index as mid element
 						else {

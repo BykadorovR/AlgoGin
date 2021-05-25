@@ -693,3 +693,138 @@ TEST(DictionaryDisk, Find_GeneralTest) {
 	ASSERT_EQ(dictionary.find(11), std::nullopt);
 	ASSERT_EQ(dictionary.find(50), std::nullopt);
 }
+
+TEST(DictionaryDisk, Remove_Leaf_Case1) {
+	algogin::DictionaryDisk<int, int> dictionary(3);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+
+	dictionary.remove(90);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 30);
+	ASSERT_EQ(std::get<1>(tree[0]), 130);
+	ASSERT_EQ(std::get<0>(tree[1]), 60);
+	ASSERT_EQ(std::get<1>(tree[1]), 160);
+	ASSERT_EQ(std::get<0>(tree[2]), 10);
+	ASSERT_EQ(std::get<1>(tree[2]), 110);
+	ASSERT_EQ(std::get<0>(tree[3]), 20);
+	ASSERT_EQ(std::get<1>(tree[3]), 120);
+	ASSERT_EQ(std::get<0>(tree[4]), 40);
+	ASSERT_EQ(std::get<1>(tree[4]), 140);
+	ASSERT_EQ(std::get<0>(tree[5]), 50);
+	ASSERT_EQ(std::get<1>(tree[5]), 150);
+	ASSERT_EQ(std::get<0>(tree[6]), 70);
+	ASSERT_EQ(std::get<1>(tree[6]), 170);
+	ASSERT_EQ(std::get<0>(tree[7]), 80);
+	ASSERT_EQ(std::get<1>(tree[7]), 180);
+}
+
+TEST(DictionaryDisk, Remove_Leaf_Case3a) {
+	algogin::DictionaryDisk<int, int> dictionary(3);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+
+	dictionary.remove(50);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 30);
+	ASSERT_EQ(std::get<1>(tree[0]), 130);
+	ASSERT_EQ(std::get<0>(tree[1]), 70);
+	ASSERT_EQ(std::get<1>(tree[1]), 170);
+	ASSERT_EQ(std::get<0>(tree[2]), 10);
+	ASSERT_EQ(std::get<1>(tree[2]), 110);
+	ASSERT_EQ(std::get<0>(tree[3]), 20);
+	ASSERT_EQ(std::get<1>(tree[3]), 120);
+	ASSERT_EQ(std::get<0>(tree[4]), 40);
+	ASSERT_EQ(std::get<1>(tree[4]), 140);
+	ASSERT_EQ(std::get<0>(tree[5]), 60);
+	ASSERT_EQ(std::get<1>(tree[5]), 160);
+	ASSERT_EQ(std::get<0>(tree[6]), 80);
+	ASSERT_EQ(std::get<1>(tree[6]), 180);
+	ASSERT_EQ(std::get<0>(tree[7]), 90);
+	ASSERT_EQ(std::get<1>(tree[7]), 190);
+}
+
+TEST(DictionaryDisk, Remove_Leaf_Case3b) {
+	algogin::DictionaryDisk<int, int> dictionary(3);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+
+	dictionary.remove(20);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 60);
+	ASSERT_EQ(std::get<1>(tree[0]), 160);
+	ASSERT_EQ(std::get<0>(tree[1]), 10);
+	ASSERT_EQ(std::get<1>(tree[1]), 110);
+	ASSERT_EQ(std::get<0>(tree[2]), 30);
+	ASSERT_EQ(std::get<1>(tree[2]), 130);
+	ASSERT_EQ(std::get<0>(tree[3]), 40);
+	ASSERT_EQ(std::get<1>(tree[3]), 140);
+	ASSERT_EQ(std::get<0>(tree[4]), 50);
+	ASSERT_EQ(std::get<1>(tree[4]), 150);
+	ASSERT_EQ(std::get<0>(tree[5]), 70);
+	ASSERT_EQ(std::get<1>(tree[5]), 170);
+	ASSERT_EQ(std::get<0>(tree[6]), 80);
+	ASSERT_EQ(std::get<1>(tree[6]), 180);
+	ASSERT_EQ(std::get<0>(tree[7]), 90);
+	ASSERT_EQ(std::get<1>(tree[7]), 190);
+}
+
+TEST(DictionaryDisk, Remove_Leaf_Case2a) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+	dictionary.insert(100, 1000);
+
+	dictionary.remove(20);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(std::get<0>(tree[0]), 40);
+	ASSERT_EQ(std::get<1>(tree[0]), 140);
+	ASSERT_EQ(std::get<0>(tree[1]), 20);
+	ASSERT_EQ(std::get<1>(tree[1]), 120);
+	ASSERT_EQ(std::get<0>(tree[2]), 60);
+	ASSERT_EQ(std::get<1>(tree[2]), 160);
+	ASSERT_EQ(std::get<0>(tree[3]), 80);
+	ASSERT_EQ(std::get<1>(tree[3]), 180);
+	ASSERT_EQ(std::get<0>(tree[4]), 10);
+	ASSERT_EQ(std::get<1>(tree[4]), 110);
+	ASSERT_EQ(std::get<0>(tree[5]), 30);
+	ASSERT_EQ(std::get<1>(tree[5]), 130);
+	ASSERT_EQ(std::get<0>(tree[6]), 50);
+	ASSERT_EQ(std::get<1>(tree[6]), 150);
+	ASSERT_EQ(std::get<0>(tree[7]), 70);
+	ASSERT_EQ(std::get<1>(tree[7]), 170);
+	ASSERT_EQ(std::get<0>(tree[8]), 90);
+	ASSERT_EQ(std::get<1>(tree[8]), 190);
+}
