@@ -813,9 +813,9 @@ namespace algogin {
 
 							currentNode = childNode;
 						}
-						//3.b both children contain t - 1 elements, so merge them into left child and make index as mid element
+						//3.b both siblings contain t - 1 elements, so merge child and sibling into left node (either child or sibling whatever is left) and make element from currentNode as mid element
 						else {
-							//take any child
+							//take any sibling
 							std::shared_ptr<Tree> siblingNode;
 							if (siblingNodeRight) {
 								siblingNode = siblingNodeRight;
