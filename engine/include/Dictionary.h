@@ -760,43 +760,54 @@ namespace algogin {
 
 				if (keyIterator == std::end(currentNode->elems)) {
 					//3. if key isn't found in node we need to check childs sizes and recursively go down
-					int index = _findPlace(currentNode, key);
+					int indexChild = _findPlace(currentNode, key);
 
-					auto childNode = currentNode->childs[index];
+					auto childNode = currentNode->childs[indexChild];
 
 					if (childNode->elems.size() >= _t) {
 						currentNode = childNode;
 					}
 					else {
-						std::shared_ptr<Tree> siblingNode;
-						std::string childSide = "left";
-						if (index + 1 < currentNode->childs.size()) {
-							siblingNode = currentNode->childs[index + 1];
-							childSide = "left";
+						std::shared_ptr<Tree> siblingNodeLeft = nullptr;
+						std::shared_ptr<Tree> siblingNodeRight = nullptr;
+						std::string childSide = "";
+						//try to find sibling with at least t keys
+
+						if (indexChild - 1 >= 0 && currentNode->childs.size() > 0) {
+							siblingNodeLeft = currentNode->childs[indexChild - 1];
+							if (siblingNodeLeft->elems.size() >= _t) {
+								childSide = "right";
+							}
 						}
-						else {
-							siblingNode = currentNode->childs[index - 1];
-							childSide = "right";
+
+						if (indexChild + 1 < currentNode->childs.size()) {
+							siblingNodeRight = currentNode->childs[indexChild + 1];
+							if (siblingNodeRight->elems.size() >= _t) {
+								childSide = "left";
+							}
 						}
 
 						//3.a child node has t-1 elems and sibling has >= t
-						if (siblingNode->elems.size() >= _t) {
+						if (childSide != "") {
+							std::shared_ptr<Tree> siblingNode;
 							if (childSide == "left") {
+								siblingNode = siblingNodeRight;
 								//take right sibling
 								//         current
 								//        /       \
 								//child x.         x. sibling
-								childNode->elems.push_back(currentNode->elems[index]);
-								currentNode->elems[index] = siblingNode->elems[0];
+								childNode->elems.push_back(currentNode->elems[indexChild]);
+								currentNode->elems[indexChild] = siblingNode->elems[0];
 								siblingNode->elems.erase(siblingNode->elems.begin());
 							}
 							else if (childSide == "right") {
+								siblingNode = siblingNodeLeft;
 								//take left sibling
 							    //           current
 							    //          /       \
 							    //sibling x.         x. child
-								childNode->elems.insert(childNode->elems.begin(), currentNode->elems[index]);
-								currentNode->elems[index] = siblingNode->elems[siblingNode->elems.size() - 1];
+								childNode->elems.insert(childNode->elems.begin(), currentNode->elems[indexChild]);
+								currentNode->elems[indexChild] = siblingNode->elems[siblingNode->elems.size() - 1];
 								siblingNode->elems.erase(siblingNode->elems.end());
 							}
 
@@ -804,68 +815,102 @@ namespace algogin {
 						}
 						//3.b both children contain t - 1 elements, so merge them into left child and make index as mid element
 						else {
+							//take any child
+							std::shared_ptr<Tree> siblingNode;
+							if (siblingNodeRight) {
+								siblingNode = siblingNodeRight;
+								childSide = "left";
+							}
+							else if (siblingNodeLeft) {
+								siblingNode = siblingNodeLeft;
+								childSide = "right";
+							}
+
 							std::shared_ptr<Tree> leftChild, rightChild;
 							if (childSide == "left") {
 								leftChild = childNode;
 								rightChild = siblingNode;
+
+								leftChild->elems.push_back(currentNode->elems[indexChild]);
+								currentNode->elems.erase(currentNode->elems.begin() + indexChild);
+								currentNode->childs.erase(currentNode->childs.begin() + indexChild + 1);
 							}
 							else {
 								rightChild = childNode;
 								leftChild = siblingNode;
+
+								//index is related to childs but we want element from current node to become mid key for current node childs
+								leftChild->elems.push_back(currentNode->elems[indexChild - 1]);
+								currentNode->elems.erase(currentNode->elems.begin() + indexChild - 1);
+								currentNode->childs.erase(currentNode->childs.begin() + indexChild);
 							}
 
-							leftChild->elems.push_back(currentNode->elems[index]);
 							for (auto elem : rightChild->elems)
 								leftChild->elems.push_back(elem);
 
-							currentNode->elems.erase(currentNode->elems.begin() + index);
-							currentNode->childs.erase(currentNode->childs.begin() + index + 1);
+							for (auto child : rightChild->childs)
+								leftChild->childs.push_back(child);
+
+							if (currentNode == _head && currentNode->elems.size() == 0)
+								_head = leftChild;
 
 							currentNode = leftChild;
 						}
 					}
 				}
 				else {
-					int index = std::distance(currentNode->elems.begin(), keyIterator);
+					int indexKey = std::distance(currentNode->elems.begin(), keyIterator);
 					//1. If the key k is in node x and x is a leaf, delete the key k from x
 					if (currentNode->childs.size() == 0) {
 						//node is leaf
-						currentNode->elems.erase(currentNode->elems.begin() + index);
+						currentNode->elems.erase(currentNode->elems.begin() + indexKey);
 						deleted = true;
 					}
 					//2. If the key k is in node x and x is an internal node
 					else {
-						if (currentNode->childs[index] && currentNode->childs[index]->elems.size() >= _t) {
-							//2.a take left child of key, if it contains at least t keys, then swap rightmost element in child with key and recursively delete new rightmost element
-							auto leftChild = currentNode->childs[index];
-							std::swap(currentNode->elems[index], leftChild->elems[leftChild->elems.size() - 1]);
+						if (currentNode->childs[indexKey] && currentNode->childs[indexKey]->elems.size() >= _t) {
+							//2.a take left child of key, if it contains at least t keys, then find predeccessor in child subtree and swap with key and recursively delete key
+							auto leftChild = currentNode->childs[indexKey];
+							//find predecessor of key in sub-tree of left child (it's right-most node in left child)
+							auto findNode = leftChild;
+							while (findNode->childs.size() > 0) {
+								findNode = findNode->childs[findNode->childs.size() - 1];
+							}
+
+							currentNode->elems[indexKey] = findNode->elems[findNode->elems.size() - 1];
 							currentNode = leftChild;
-							index = leftChild->elems.size() - 1;
+							//now we need to delete successor node, we can't swap because it can break tree somehow, so just do more robust approach
+							key = std::get<0>(findNode->elems[findNode->elems.size() - 1]);
 						}
-						else if (currentNode->childs[index + 1] && currentNode->childs[index + 1]->elems.size() >= _t) {
-							//2.b take right child of key, if it contains at least t keys, then swap leftmost element in child with key and recursively delete new leftmost element
-							auto rightChild = currentNode->childs[index + 1];
-							std::swap(currentNode->elems[index + 1], rightChild->elems[0]);
+						else if (currentNode->childs[indexKey + 1] && currentNode->childs[indexKey + 1]->elems.size() >= _t) {
+							//2.b take right child of key, if it contains at least t keys, then find successor in child subtree and swap with key and recursively delete key
+							auto rightChild = currentNode->childs[indexKey + 1];
+							//find successor of key in sub-tree of right child (it's left-most node in right child)
+							auto findNode = rightChild;
+							while (findNode->childs.size() > 0) {
+								findNode = findNode->childs[0];
+							}
+
+							currentNode->elems[indexKey] = findNode->elems[0];
 							currentNode = rightChild;
-							index = 0;
+							//now we need to delete successor node, we can't swap because it can break tree somehow, so just do more robust approach
+							key = std::get<0>(findNode->elems[0]);
 						}
-						else if (currentNode->childs[index] && currentNode->childs[index + 1]) {
+						else if (currentNode->childs[indexKey] && currentNode->childs[indexKey + 1]) {
 							//2.c both children have only t-1 keys, merge key and keys from right child to left child, remove right child (as key from node), so new child will be left child of key's right element in node
 							//recursively delete key from child
-							auto leftChild = currentNode->childs[index];
-							auto rightChild = currentNode->childs[index + 1];
+							auto leftChild = currentNode->childs[indexKey];
+							auto rightChild = currentNode->childs[indexKey + 1];
 							//insert key to left child
-							int newKeyIndex = leftChild->elems.size();
-							leftChild->elems.push_back(currentNode->elems[index]);
+							leftChild->elems.push_back(currentNode->elems[indexKey]);
 							//remove key
-							currentNode->elems.erase(currentNode->elems.begin() + index);
+							currentNode->elems.erase(currentNode->elems.begin() + indexKey);
 							//move all items from right child to left child
-							leftChild->elems.insert(rightChild->elems.begin(), rightChild->elems.begin(), rightChild->elems.end());
+							leftChild->elems.insert(leftChild->elems.end(), rightChild->elems.begin(), rightChild->elems.end());
 							//remove right child from tree
-							currentNode->childs.erase(currentNode->childs.begin(), currentNode->childs.begin() + index + 1);
+							currentNode->childs.erase(currentNode->childs.begin() + indexKey + 1);
 							//recursively call delete from left child
 							currentNode = leftChild;
-							index = newKeyIndex;
 						}
 					}
 				}
