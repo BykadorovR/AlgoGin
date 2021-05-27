@@ -799,6 +799,11 @@ namespace algogin {
 								childNode->elems.push_back(currentNode->elems[indexChild]);
 								currentNode->elems[indexChild] = siblingNode->elems[0];
 								siblingNode->elems.erase(siblingNode->elems.begin());
+								//move child from sibling to child
+								if (siblingNode->childs.size() > 0) {
+									childNode->childs.push_back(siblingNode->childs[0]);
+									siblingNode->childs.erase(siblingNode->childs.begin());
+								}
 							}
 							else if (childSide == "right") {
 								siblingNode = siblingNodeLeft;
@@ -809,6 +814,11 @@ namespace algogin {
 								childNode->elems.insert(childNode->elems.begin(), currentNode->elems[indexChild]);
 								currentNode->elems[indexChild] = siblingNode->elems[siblingNode->elems.size() - 1];
 								siblingNode->elems.erase(siblingNode->elems.end());
+								//move child from sibling to child
+								if (siblingNode->childs.size() > 0) {
+									childNode->childs.insert(childNode->childs.begin(), siblingNode->childs[siblingNode->childs.size() - 1]);
+									siblingNode->childs.erase(siblingNode->childs.end());
+								}
 							}
 
 							currentNode = childNode;
