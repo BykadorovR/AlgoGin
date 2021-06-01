@@ -898,3 +898,127 @@ TEST(DictionaryDisk, Remove_Leaf_Case2c) {
 	ASSERT_EQ(std::get<0>(tree[8]), 100);
 	ASSERT_EQ(std::get<1>(tree[8]), 1000);
 }
+
+TEST(DictionaryDisk, CopyConstructor) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+	dictionary.insert(100, 1000);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	
+	algogin::DictionaryDisk<int, int> dictionaryNew(dictionary);
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}
+
+TEST(DictionaryDisk, CopyAssignment) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+	dictionary.insert(100, 1000);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	algogin::DictionaryDisk<int, int> dictionaryNew(2);
+	dictionaryNew.insert(110, 210);
+	dictionaryNew.insert(120, 220);
+	dictionaryNew.insert(130, 230);
+	dictionaryNew.insert(140, 240);
+	dictionaryNew.insert(150, 250);
+	dictionaryNew.insert(160, 260);
+	dictionaryNew.insert(170, 270);
+	dictionaryNew.insert(180, 280);
+	dictionaryNew.insert(190, 290);
+	dictionaryNew.insert(1100, 2000);
+
+	dictionaryNew = dictionary;
+
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}
+
+TEST(DictionaryDisk, MoveConstructor) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+	dictionary.insert(100, 1000);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	algogin::DictionaryDisk<int, int> dictionaryNew(std::move(dictionary));
+
+	auto treeEmpty = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(treeEmpty.size(), 0);
+
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}
+
+TEST(DictionaryDisk, MoveAssignment) {
+	algogin::DictionaryDisk<int, int> dictionary(2);
+	dictionary.insert(10, 110);
+	dictionary.insert(20, 120);
+	dictionary.insert(30, 130);
+	dictionary.insert(40, 140);
+	dictionary.insert(50, 150);
+	dictionary.insert(60, 160);
+	dictionary.insert(70, 170);
+	dictionary.insert(80, 180);
+	dictionary.insert(90, 190);
+	dictionary.insert(100, 1000);
+
+	auto tree = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	algogin::DictionaryDisk<int, int> dictionaryNew(2);
+	dictionaryNew.insert(110, 210);
+	dictionaryNew.insert(120, 220);
+	dictionaryNew.insert(130, 230);
+	dictionaryNew.insert(140, 240);
+	dictionaryNew.insert(150, 250);
+	dictionaryNew.insert(160, 260);
+	dictionaryNew.insert(170, 270);
+	dictionaryNew.insert(180, 280);
+	dictionaryNew.insert(190, 290);
+	dictionaryNew.insert(1100, 2000);
+
+	dictionaryNew = std::move(dictionary);
+	auto treeEmpty = dictionary.traversal(algogin::TraversalMode::LEVEL_ORDER);
+	ASSERT_EQ(treeEmpty.size(), 0);
+
+	auto treeNew = dictionaryNew.traversal(algogin::TraversalMode::LEVEL_ORDER);
+
+	for (int i = 0; i < tree.size(); i++) {
+		ASSERT_EQ(tree[i], treeNew[i]);
+	}
+}

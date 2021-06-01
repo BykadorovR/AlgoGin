@@ -696,13 +696,70 @@ namespace algogin {
 			return rightNode;
 		}
 
+		ALGOGIN_ERROR _deepCopy(std::shared_ptr<Tree> src, std::shared_ptr<Tree> dst) {
+			for (int i = 0; i < src->elems.size(); i++) {
+				if (i < dst->elems.size())
+					dst->elems[i] = src->elems[i];
+				else
+					dst->elems.push_back(src->elems[i]);
+			}
+
+			for (int i = 0; i < src->childs.size(); i++) {
+				std::shared_ptr<Tree> node;
+				if (i < dst->childs.size())
+					node = dst->childs[i];
+				else
+					node = std::make_shared<Tree>();
+
+				node->parent = dst;
+				dst->childs.push_back(node);
+
+				_deepCopy(src->childs[i], node);
+			}
+
+			return ALGOGIN_ERROR::OK;
+		}
+
 	public:
 		DictionaryDisk(int t) {
 			_t = t;
 		}
 
+		~DictionaryDisk() = default;
+
+		DictionaryDisk(const DictionaryDisk& disk)  noexcept {
+			_t = disk._t;
+			_head = std::make_shared<Tree>();
+			_deepCopy(disk._head, _head);
+		}
+
+		DictionaryDisk& operator=(const DictionaryDisk& disk) noexcept {
+			_t = disk._t;
+			if (_head == nullptr)
+				_head = std::make_shared<Tree>();
+
+			_deepCopy(disk._head, _head);
+
+			return *this;
+		}
+
+		DictionaryDisk(DictionaryDisk&& disk) noexcept {
+			*this = std::move(disk);
+		}
+
+
+		DictionaryDisk& operator=(DictionaryDisk&& disk) noexcept {
+			_t = disk._t;
+			_head = std::move(disk._head);
+
+			disk._t = 0;
+			disk._head = nullptr;
+
+			return *this;
+		}
+
 		//IMPORTANT: A new key is always inserted to the leaf node
-		ALGOGIN_ERROR insert(Comparable key, V value) {
+		ALGOGIN_ERROR insert(Comparable key, V value) noexcept {
 			//2
 			if (_head == nullptr) {
 				_head = std::make_shared<Tree>();
@@ -748,7 +805,7 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
-		ALGOGIN_ERROR remove(Comparable key) {
+		ALGOGIN_ERROR remove(Comparable key) noexcept {
 			//first find key and do 3. - prepare tree for remove (so keep at least t keys in the path to key)
 			auto currentNode = _head;
 			bool deleted = false;
@@ -928,36 +985,37 @@ namespace algogin {
 			return ALGOGIN_ERROR::OK;
 		}
 
-		std::vector<std::tuple<Comparable, V>> traversal(TraversalMode mode) {
+		std::vector<std::tuple<Comparable, V>> traversal(TraversalMode mode) noexcept {
 			std::vector<std::tuple<Comparable, V>> nodes;
-
+			
 			if (mode == TraversalMode::LEVEL_ORDER) {
 				std::list<std::shared_ptr<Tree>> openNodes;
+				if (_head) {
+					auto currentNode = _head;
+					for (int i = 0; i < _head->elems.size(); i++)
+						nodes.push_back({ std::get<0>(_head->elems[i]), std::get<1>(_head->elems[i]) });
 
-				auto currentNode = _head;
-				for (int i = 0; i < _head->elems.size(); i++)
-					nodes.push_back({ std::get<0>(_head->elems[i]), std::get<1>(_head->elems[i]) });
+					openNodes.push_back(currentNode);
 
-				openNodes.push_back(currentNode);
+					while (openNodes.size() > 0) {
+						currentNode = openNodes.front();
 
-				while (openNodes.size() > 0) {
-					currentNode = openNodes.front();
-
-					for (auto child : currentNode->childs) {
-						if (child && std::find(openNodes.begin(), openNodes.end(), child) == openNodes.end()) {
-							for (int i = 0; i < child->elems.size(); i++)
-								nodes.push_back({ std::get<0>(child->elems[i]), std::get<1>(child->elems[i]) });
-							openNodes.push_back(child);
+						for (auto child : currentNode->childs) {
+							if (child && std::find(openNodes.begin(), openNodes.end(), child) == openNodes.end()) {
+								for (int i = 0; i < child->elems.size(); i++)
+									nodes.push_back({ std::get<0>(child->elems[i]), std::get<1>(child->elems[i]) });
+								openNodes.push_back(child);
+							}
 						}
-					}
 
-					openNodes.remove(currentNode);
+						openNodes.remove(currentNode);
+					}
 				}
 			}
 			return nodes;
 		}
 
-		std::optional<V> find(Comparable key) {
+		std::optional<V> find(Comparable key) noexcept {
 			auto [node, index] = _find(key);
 			if (node)
 				return std::get<1>(node->elems[index]);
