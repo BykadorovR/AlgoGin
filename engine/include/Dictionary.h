@@ -8,10 +8,6 @@
 
 namespace algogin {
 
-	enum class TraversalMode {
-		LEVEL_ORDER
-	};
-
 	//Dictionary implementation based on red-black tree
 	template <class Comparable, class V>
 	class Dictionary {

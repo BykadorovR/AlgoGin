@@ -9,4 +9,8 @@ namespace algogin {
 		WRONG_KEY,
 		UNKNOWN_ERROR
 	};
+
+	enum class TraversalMode {
+		LEVEL_ORDER
+	};
 }
