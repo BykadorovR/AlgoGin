@@ -20,19 +20,30 @@ namespace algogin {
 		~PriorityQueue() = default;
 
 		PriorityQueue(const PriorityQueue& queue) noexcept {
-
+			for (int i = 0; i < queue._heap.size(); i++) {
+				_heap.push_back({ .priority = queue._heap[i].priority, .value = queue._heap[i].value });
+			}
 		}
 
 		PriorityQueue(PriorityQueue&& queue) noexcept {
-
+			*this = std::move(queue);
 		}
 
 		PriorityQueue& operator=(const PriorityQueue& queue) noexcept {
+			_heap.clear();
 
+			for (int i = 0; i < queue._heap.size(); i++) {
+				_heap.push_back({ .priority = queue._heap[i].priority, .value = queue._heap[i].value });
+			}
+
+			return *this;
 		}
 
 		PriorityQueue& operator=(PriorityQueue&& queue) noexcept {
+			_heap = std::move(queue._heap);
+			queue._heap.clear();
 
+			return *this;
 		}
 
 		ALGOGIN_ERROR insert(Comparable priority, V value) {
