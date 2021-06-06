@@ -63,7 +63,7 @@ namespace algogin {
 			return result;
 		}
 
-		std::optional<std::tuple<Comparable, V>> getMinimum(Comparable priority) {
+		std::optional<std::tuple<Comparable, V>> getMinimum() {
 			if (_heap.size() == 0)
 				return std::nullopt;
 
@@ -75,14 +75,14 @@ namespace algogin {
 			_heap.pop_back();
 			//heapify (if parent bigger than child then need to swap with the smallest child)
 			int index = 0;
-			std::function findMinimumChild = [_heap](int index) -> int {
+			std::function findMinimumChild = [&heap = _heap](int index) -> int {
 				int leftChild = index * 2 + 1;
 				int rightChild = index * 2 + 2;
 				int childMinimum = -1;
-				if (leftChild < _heap.size()) {
+				if (leftChild < heap.size()) {
 					childMinimum = leftChild;
 				}
-				if (rightChild < _heap.size() && _heap[rightChild] < _heap[leftChild]) {
+				if (rightChild < heap.size() && heap[rightChild].priority < heap[leftChild].priority) {
 					childMinimum = rightChild;
 				}
 
@@ -90,7 +90,7 @@ namespace algogin {
 			};
 
 			int childMinimum = findMinimumChild(index);
-			while (childMinimum > 0 && _heap[index] > _heap[childMinimum]) {
+			while (childMinimum > 0 && _heap[index].priority > _heap[childMinimum].priority) {
 				std::swap(_heap[index], _heap[childMinimum]);
 
 				index = childMinimum;

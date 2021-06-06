@@ -32,3 +32,26 @@ TEST(PrioriryQueue, Insert_Simple) {
 	ASSERT_EQ(std::get<1>(traversal[7]), 150);
 }
 
+TEST(PrioriryQueue, Remove_Simple) {
+	algogin::PriorityQueue<int, int> queue;
+	queue.insert(30, 130);
+	queue.insert(50, 150);
+	queue.insert(20, 120);
+	queue.insert(35, 135);
+	queue.insert(40, 140);
+	queue.insert(70, 170);
+	queue.insert(80, 180);
+	queue.insert(10, 110);
+
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 110);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 120);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 130);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 135);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 140);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 150);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 170);
+	ASSERT_EQ(std::get<1>(queue.getMinimum().value()), 180);
+	ASSERT_EQ(queue.getMinimum(), std::nullopt);
+
+}
+
