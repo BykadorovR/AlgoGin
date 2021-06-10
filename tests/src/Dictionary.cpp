@@ -1022,3 +1022,10 @@ TEST(DictionaryDisk, MoveAssignment) {
 		ASSERT_EQ(tree[i], treeNew[i]);
 	}
 }
+
+TEST(HashTable, Insert_Simple_Int) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+}

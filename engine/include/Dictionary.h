@@ -5,6 +5,7 @@
 #include <optional>
 #include <list>
 #include <functional>
+#include <type_traits>
 
 namespace algogin {
 
@@ -1019,4 +1020,41 @@ namespace algogin {
 			return std::nullopt;
 		}
 	};
+
+	template <class Comparable, class V>
+	class HashTable {
+	private:
+		std::vector<std::list<std::tuple<Comparable, V>>> _hashTable;
+	public:
+		HashTable(int size) {
+			_hashTable.resize(size);
+		}
+		HashTable() = default;
+		~HashTable() = default;
+		
+		ALGOGIN_ERROR insert(Comparable key, V value) {
+			int index;
+			if constexpr (std::is_same_v<Comparable, int>) {
+				float m = 0.5f * (sqrt(5) - 1.f);
+				float s = (float)key * m;
+				float f = s - floor(s);
+				index = floor(f * _hashTable.size());
+			}
+			else if constexpr (std::is_same_v<Comparable, std::string>) {
+				int alphabetSize = 31;
+				int n = key.size();
+				int hash = 0;
+				for (int i = 0; i < n; i++) {
+					int c = key[i];
+					hash += c * std::pow(alphabetSize, n - i + 1);
+				}
+				index = hash % _hashTable.size();
+			}
+
+			_hashTable[index].push_back({ key, value });
+
+			return ALGOGIN_ERROR::OK;
+		}
+	};
+
 }
