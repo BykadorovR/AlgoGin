@@ -1028,4 +1028,49 @@ TEST(HashTable, Insert_Simple_Int) {
 	hashTable.insert(100, 2);
 	hashTable.insert(12120, 3);
 	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+	hashTable.insert(1236, 5);
+	hashTable.insert(126, 6);
+	hashTable.insert(73, 7);
+	hashTable.insert(99, 8);
+}
+
+TEST(HashTable, Insert_Simple_String) {
+	algogin::HashTable<std::string, int> hashTable(5);
+	hashTable.insert("here", 2);
+	hashTable.insert("we are", 3);
+	hashTable.insert("windows", 3);
+	hashTable.insert("friends", 4);
+	hashTable.insert("kekw", 5);
+	hashTable.insert("sure", 6);
+	hashTable.insert("who are u", 7);
+	hashTable.insert("123", 8);
+}
+
+TEST(HashTable, Remove_Simple_Int) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+	hashTable.insert(1236, 5);
+	hashTable.insert(126, 6);
+	hashTable.insert(73, 7);
+	hashTable.insert(99, 8);
+
+	hashTable.remove(12120);
+}
+
+TEST(HashTable, Remove_Simple_String) {
+	algogin::HashTable<std::string, int> hashTable(5);
+	hashTable.insert("here", 2);
+	hashTable.insert("we are", 3);
+	hashTable.insert("windows", 3);
+	hashTable.insert("friends", 4);
+	hashTable.insert("kekw", 5);
+	hashTable.insert("sure", 6);
+	hashTable.insert("who are u", 7);
+	hashTable.insert("123", 8);
+
+	hashTable.remove("sure");
 }

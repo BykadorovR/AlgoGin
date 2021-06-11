@@ -1025,15 +1025,9 @@ namespace algogin {
 	class HashTable {
 	private:
 		std::vector<std::list<std::tuple<Comparable, V>>> _hashTable;
-	public:
-		HashTable(int size) {
-			_hashTable.resize(size);
-		}
-		HashTable() = default;
-		~HashTable() = default;
-		
-		ALGOGIN_ERROR insert(Comparable key, V value) {
-			int index;
+
+		int _getIndex(Comparable key) {
+			int index = -1;
 			if constexpr (std::is_same_v<Comparable, int>) {
 				float m = 0.5f * (sqrt(5) - 1.f);
 				float s = (float)key * m;
@@ -1041,15 +1035,57 @@ namespace algogin {
 				index = floor(f * _hashTable.size());
 			}
 			else if constexpr (std::is_same_v<Comparable, std::string>) {
+				//can be used std::hash
+				//std::hash<std::string> hashFunc;
+				//size_t test = hashFunc(key);
 				int alphabetSize = 31;
 				int n = key.size();
-				int hash = 0;
+				size_t hash = 0;
 				for (int i = 0; i < n; i++) {
 					int c = key[i];
-					hash += c * std::pow(alphabetSize, n - i + 1);
+					hash += (c - 'a') * std::pow(alphabetSize, n - (i + 1));
 				}
 				index = hash % _hashTable.size();
 			}
+
+			return index;
+		}
+	public:
+		HashTable(int size) {
+			_hashTable.resize(size);
+		}
+		HashTable() = default;
+		~HashTable() = default;
+		
+		std::optional<std::tuple<Comparable, V>> find(Comparable key) {
+			int index = _getIndex(key);
+			if (index < 0)
+				return std::nullopt;
+
+			for (auto elem : _hashTable[index]) {
+				if (std::get<0>(elem) == key)
+					return std::tuple{ key, std::get<1>(elem) };
+			}
+
+			return std::nullopt;
+		}
+
+		ALGOGIN_ERROR remove(Comparable key) {
+			int index = _getIndex(key);
+			if (index < 0)
+				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+
+			_hashTable[index].remove_if([key](const std::tuple<Comparable, V>& value) {
+				return std::get<0>(value) == key;
+				});
+
+			return ALGOGIN_ERROR::OK;
+		}
+
+		ALGOGIN_ERROR insert(Comparable key, V value) {
+			int index = _getIndex(key);
+			if (index < 0)
+				return ALGOGIN_ERROR::UNKNOWN_ERROR;
 
 			_hashTable[index].push_back({ key, value });
 
