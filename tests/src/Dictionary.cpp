@@ -1033,6 +1033,23 @@ TEST(HashTable, Insert_Simple_Int) {
 	hashTable.insert(126, 6);
 	hashTable.insert(73, 7);
 	hashTable.insert(99, 8);
+
+	ASSERT_EQ(std::get<0>(hashTable.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable.find(16).value()), 4);
+	ASSERT_EQ(std::get<0>(hashTable.find(1236).value()), 1236);
+	ASSERT_EQ(std::get<1>(hashTable.find(1236).value()), 5);
+	ASSERT_EQ(std::get<0>(hashTable.find(126).value()), 126);
+	ASSERT_EQ(std::get<1>(hashTable.find(126).value()), 6);
+	ASSERT_EQ(std::get<0>(hashTable.find(73).value()), 73);
+	ASSERT_EQ(std::get<1>(hashTable.find(73).value()), 7);
+	ASSERT_EQ(std::get<0>(hashTable.find(99).value()), 99);
+	ASSERT_EQ(std::get<1>(hashTable.find(99).value()), 8);
 }
 
 TEST(HashTable, Insert_Simple_String) {
@@ -1045,6 +1062,63 @@ TEST(HashTable, Insert_Simple_String) {
 	hashTable.insert("sure", 6);
 	hashTable.insert("who are u", 7);
 	hashTable.insert("123", 8);
+
+	ASSERT_EQ(std::get<0>(hashTable.find("here").value()), "here");
+	ASSERT_EQ(std::get<1>(hashTable.find("here").value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable.find("we are").value()), "we are");
+	ASSERT_EQ(std::get<1>(hashTable.find("we are").value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find("windows").value()), "windows");
+	ASSERT_EQ(std::get<1>(hashTable.find("windows").value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find("friends").value()), "friends");
+	ASSERT_EQ(std::get<1>(hashTable.find("friends").value()), 4);
+	ASSERT_EQ(std::get<0>(hashTable.find("kekw").value()), "kekw");
+	ASSERT_EQ(std::get<1>(hashTable.find("kekw").value()), 5);
+	ASSERT_EQ(std::get<0>(hashTable.find("sure").value()), "sure");
+	ASSERT_EQ(std::get<1>(hashTable.find("sure").value()), 6);
+	ASSERT_EQ(std::get<0>(hashTable.find("who are u").value()), "who are u");
+	ASSERT_EQ(std::get<1>(hashTable.find("who are u").value()), 7);
+	ASSERT_EQ(std::get<0>(hashTable.find("123").value()), "123");
+	ASSERT_EQ(std::get<1>(hashTable.find("123").value()), 8);
+}
+
+TEST(HashTable, Find_Simple_Int) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+	hashTable.insert(1236, 5);
+	hashTable.insert(126, 6);
+	hashTable.insert(73, 7);
+	hashTable.insert(99, 8);
+
+	ASSERT_EQ(std::get<0>(hashTable.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable.find(126).value()), 126);
+	ASSERT_EQ(std::get<1>(hashTable.find(126).value()), 6);
+	ASSERT_EQ(hashTable.find(0), std::nullopt);
+}
+
+TEST(HashTable, Find_Simple_String) {
+	algogin::HashTable<std::string, int> hashTable(5);
+	hashTable.insert("here", 2);
+	hashTable.insert("we are", 3);
+	hashTable.insert("windows", 3);
+	hashTable.insert("friends", 4);
+	hashTable.insert("kekw", 5);
+	hashTable.insert("sure", 6);
+	hashTable.insert("who are u", 7);
+	hashTable.insert("123", 8);
+
+	ASSERT_EQ(std::get<0>(hashTable.find("sure").value()), "sure");
+	ASSERT_EQ(std::get<1>(hashTable.find("sure").value()), 6);
+	ASSERT_EQ(std::get<0>(hashTable.find("friends").value()), "friends");
+	ASSERT_EQ(std::get<1>(hashTable.find("friends").value()), 4);
+	ASSERT_EQ(std::get<0>(hashTable.find("we are").value()), "we are");
+	ASSERT_EQ(std::get<1>(hashTable.find("we are").value()), 3);
+	ASSERT_EQ(hashTable.find("empty"), std::nullopt);
 }
 
 TEST(HashTable, Remove_Simple_Int) {
@@ -1059,6 +1133,14 @@ TEST(HashTable, Remove_Simple_Int) {
 	hashTable.insert(99, 8);
 
 	hashTable.remove(12120);
+	ASSERT_EQ(hashTable.find(12120), std::nullopt);
+	ASSERT_EQ(hashTable.remove(12120), algogin::ALGOGIN_ERROR::UNKNOWN_ERROR);
+	hashTable.remove(99);
+	ASSERT_EQ(hashTable.find(99), std::nullopt);
+	hashTable.remove(1236);
+	ASSERT_EQ(hashTable.find(1236), std::nullopt);
+	hashTable.remove(6);
+	ASSERT_EQ(hashTable.find(6), std::nullopt);
 }
 
 TEST(HashTable, Remove_Simple_String) {
@@ -1072,5 +1154,13 @@ TEST(HashTable, Remove_Simple_String) {
 	hashTable.insert("who are u", 7);
 	hashTable.insert("123", 8);
 
+	hashTable.remove("kekw");
+	ASSERT_EQ(hashTable.find("kekw"), std::nullopt);
+	ASSERT_EQ(hashTable.remove("kekw"), algogin::ALGOGIN_ERROR::UNKNOWN_ERROR);
 	hashTable.remove("sure");
+	ASSERT_EQ(hashTable.find("sure"), std::nullopt);
+	hashTable.remove("123");
+	ASSERT_EQ(hashTable.find("123"), std::nullopt);
+	hashTable.remove("here");
+	ASSERT_EQ(hashTable.find("here"), std::nullopt);
 }

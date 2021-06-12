@@ -1074,12 +1074,13 @@ namespace algogin {
 			int index = _getIndex(key);
 			if (index < 0)
 				return ALGOGIN_ERROR::UNKNOWN_ERROR;
+			
+			//returns old size - new size
+			auto size = _hashTable[index].remove_if([key](const std::tuple<Comparable, V>& value) {	return std::get<0>(value) == key; });
+			if (size)
+				return ALGOGIN_ERROR::OK;
 
-			_hashTable[index].remove_if([key](const std::tuple<Comparable, V>& value) {
-				return std::get<0>(value) == key;
-				});
-
-			return ALGOGIN_ERROR::OK;
+			return ALGOGIN_ERROR::UNKNOWN_ERROR;
 		}
 
 		ALGOGIN_ERROR insert(Comparable key, V value) {
