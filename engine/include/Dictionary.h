@@ -1057,7 +1057,41 @@ namespace algogin {
 		}
 		HashTable() = default;
 		~HashTable() = default;
+
+		HashTable(const HashTable& object) {
+			_hashTable.resize(object._hashTable.size());
+
+			for (int i = 0; i < object._hashTable.size(); i++)
+				for (auto elem : object._hashTable[i]) {
+					_hashTable[i].push_back(elem);
+				}
+		}
 		
+		HashTable(HashTable&& object) {
+			*this = std::move(object);
+		}
+
+		HashTable& operator=(const HashTable& object) {
+			_hashTable.clear();
+
+			_hashTable.resize(object._hashTable.size());
+
+			for (int i = 0; i < object._hashTable.size(); i++)
+				for (auto elem : object._hashTable[i]) {
+					_hashTable[i].push_back(elem);
+				}
+
+			return *this;
+		}
+
+		HashTable& operator=(HashTable&& object) {
+			_hashTable = object._hashTable;
+			for (auto& item : object._hashTable)
+				item.clear();
+
+			return *this;
+		}
+
 		std::optional<std::tuple<Comparable, V>> find(Comparable key) {
 			int index = _getIndex(key);
 			if (index < 0)

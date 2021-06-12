@@ -1023,6 +1023,117 @@ TEST(DictionaryDisk, MoveAssignment) {
 	}
 }
 
+TEST(HashTable, HashTable_CopyConstructor) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+
+	algogin::HashTable<int, int> hashTable2(hashTable);
+	ASSERT_EQ(std::get<0>(hashTable.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable.find(16).value()), 4);
+	ASSERT_EQ(std::get<0>(hashTable2.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable2.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable2.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable2.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable2.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable2.find(16).value()), 4);
+}
+
+TEST(HashTable, HashTable_MoveConstructor) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+
+	algogin::HashTable<int, int> hashTable2(std::move(hashTable));
+	ASSERT_EQ(hashTable.find(100), std::nullopt);
+	ASSERT_EQ(hashTable.find(12120), std::nullopt);
+	ASSERT_EQ(hashTable.find(6), std::nullopt);
+	ASSERT_EQ(hashTable.find(16), std::nullopt);
+
+	ASSERT_EQ(std::get<0>(hashTable2.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable2.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable2.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable2.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable2.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable2.find(16).value()), 4);
+}
+
+TEST(HashTable, HashTable_CopyOperator) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+
+	algogin::HashTable<int, int> hashTable2(2);
+	hashTable2.insert(1, 0);
+	ASSERT_EQ(std::get<0>(hashTable2.find(1).value()), 1);
+	ASSERT_EQ(std::get<1>(hashTable2.find(1).value()), 0);
+
+	hashTable2 = hashTable;
+	ASSERT_EQ(hashTable2.find(1), std::nullopt);
+
+	ASSERT_EQ(std::get<0>(hashTable.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable.find(16).value()), 4);
+	ASSERT_EQ(std::get<0>(hashTable2.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable2.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable2.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable2.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable2.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable2.find(16).value()), 4);
+}
+
+TEST(HashTable, HashTable_MoveOperator) {
+	algogin::HashTable<int, int> hashTable(5);
+	hashTable.insert(100, 2);
+	hashTable.insert(12120, 3);
+	hashTable.insert(6, 3);
+	hashTable.insert(16, 4);
+
+	algogin::HashTable<int, int> hashTable2(2);
+	hashTable2.insert(1, 0);
+	ASSERT_EQ(std::get<0>(hashTable2.find(1).value()), 1);
+	ASSERT_EQ(std::get<1>(hashTable2.find(1).value()), 0);
+
+	hashTable2 = std::move(hashTable);
+	ASSERT_EQ(hashTable2.find(1), std::nullopt);
+
+	ASSERT_EQ(hashTable.find(100), std::nullopt);
+	ASSERT_EQ(hashTable.find(12120), std::nullopt);
+	ASSERT_EQ(hashTable.find(6), std::nullopt);
+	ASSERT_EQ(hashTable.find(16), std::nullopt);
+	ASSERT_EQ(std::get<0>(hashTable2.find(100).value()), 100);
+	ASSERT_EQ(std::get<1>(hashTable2.find(100).value()), 2);
+	ASSERT_EQ(std::get<0>(hashTable2.find(12120).value()), 12120);
+	ASSERT_EQ(std::get<1>(hashTable2.find(12120).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(6).value()), 6);
+	ASSERT_EQ(std::get<1>(hashTable2.find(6).value()), 3);
+	ASSERT_EQ(std::get<0>(hashTable2.find(16).value()), 16);
+	ASSERT_EQ(std::get<1>(hashTable2.find(16).value()), 4);
+}
+
 TEST(HashTable, Insert_Simple_Int) {
 	algogin::HashTable<int, int> hashTable(5);
 	hashTable.insert(100, 2);
