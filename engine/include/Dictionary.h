@@ -1058,7 +1058,7 @@ namespace algogin {
 		HashTable() = default;
 		~HashTable() = default;
 
-		HashTable(const HashTable& object) {
+		HashTable(const HashTable& object) noexcept {
 			_hashTable.resize(object._hashTable.size());
 
 			for (int i = 0; i < object._hashTable.size(); i++)
@@ -1067,11 +1067,11 @@ namespace algogin {
 				}
 		}
 		
-		HashTable(HashTable&& object) {
+		HashTable(HashTable&& object) noexcept {
 			*this = std::move(object);
 		}
 
-		HashTable& operator=(const HashTable& object) {
+		HashTable& operator=(const HashTable& object) noexcept {
 			_hashTable.clear();
 
 			_hashTable.resize(object._hashTable.size());
@@ -1084,7 +1084,7 @@ namespace algogin {
 			return *this;
 		}
 
-		HashTable& operator=(HashTable&& object) {
+		HashTable& operator=(HashTable&& object) noexcept {
 			_hashTable = object._hashTable;
 			for (auto& item : object._hashTable)
 				item.clear();
