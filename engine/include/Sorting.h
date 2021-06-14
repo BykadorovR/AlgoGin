@@ -25,4 +25,20 @@ public:
 
 		return output;
 	}
+
+	template <class T>
+	std::vector<T> selectionSort(std::vector<T> input) {
+		std::vector<T> output(input);
+
+		for (int i = 0; i < output.size() - 1; i++) {
+			T minimum = i;
+			for (int j = i + 1; j < output.size(); j++) {
+				if (output[minimum] > output[j])
+					minimum = j;
+			}
+			std::swap(output[i], output[minimum]);
+		}
+
+		return output;
+	}
 };
