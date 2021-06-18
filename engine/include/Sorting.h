@@ -50,10 +50,8 @@ public:
 		for (int i = 1; i < output.size(); i++) {
 			int j = i;
 			//swap all elements to one element right if current element less than previous one
-			while (j > 0) {
-				if (output[j] < output[j - 1]) {
-					std::swap(output[j], output[j - 1]);
-				}
+			while (j > 0 && output[j] < output[j - 1]) {
+				std::swap(output[j], output[j - 1]);
 				j--;
 			}
 		}
