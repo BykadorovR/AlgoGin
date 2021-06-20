@@ -2,6 +2,21 @@
 #include <vector>
 
 class Sorting {
+private:
+	template <class T>
+	void _merge(std::vector<T>& input, std::vector<T>& output, int 
+		start, int end) {
+	}
+
+	template <class T>
+	void _mergeSort(std::vector<T>& input, std::vector<T>& output, int start, int end) {
+		if (start < end) {
+			int midpoint = (end - start) / 2;
+			_mergeSort(input, output, start, midpoint - 1);
+			_mergeSort(input, output, midpoint, end);
+			_merge();
+		}
+	}
 public:
 	Sorting() = default;
 	~Sorting() = default;
@@ -57,5 +72,11 @@ public:
 		}
 
 		return output;
+	}
+
+	template <class T>
+	std::vector<T> mergeSort(std::vector<T> input) {
+		std::vector<T> output(input.size());
+		
 	}
 };
