@@ -4,17 +4,45 @@
 class Sorting {
 private:
 	template <class T>
-	void _merge(std::vector<T>& input, std::vector<T>& output, int 
-		start, int end) {
+	void _merge(std::vector<T>& input, int start, int midpoint, int end) {
+		std::vector<T> left(input.begin() + start, input.begin() + midpoint + 1);
+		std::vector<T> right(input.begin() + midpoint + 1, input.begin() + end + 1);
+
+		int index = 0;
+		while (left.size() > 0 && right.size() > 0) {
+			if (left[0] < right[0]) {
+				input[index] = left[0];
+				left.erase(left.begin());
+			}
+			else {
+				input[index] = right[0];
+				right.erase(right.begin());
+			}
+			index++;
+		}
+
+		if (left.size() == 0)
+			while (right.size() > 0) {
+				input[index] = right[0];
+				right.erase(right.begin());
+				index++;
+			}
+
+		if (right.size() == 0)
+			while (left.size() > 0) {
+				input[index] = left[0];
+				left.erase(left.begin());
+				index++;
+			}
 	}
 
 	template <class T>
-	void _mergeSort(std::vector<T>& input, std::vector<T>& output, int start, int end) {
+	void _mergeSort(std::vector<T>& input, int start, int end) {
 		if (start < end) {
-			int midpoint = (end - start) / 2;
-			_mergeSort(input, output, start, midpoint - 1);
-			_mergeSort(input, output, midpoint, end);
-			_merge();
+			int midpoint = (start + end) / 2;
+			_mergeSort(input, start, midpoint);
+			_mergeSort(input, midpoint+1, end);
+			_merge(input, start, midpoint, end);
 		}
 	}
 public:
@@ -76,7 +104,9 @@ public:
 
 	template <class T>
 	std::vector<T> mergeSort(std::vector<T> input) {
-		std::vector<T> output(input.size());
-		
+		std::vector<T> output(input);
+		_mergeSort(output, 0, output.size());
+
+		return output;
 	}
 };
