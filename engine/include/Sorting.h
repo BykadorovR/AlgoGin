@@ -6,34 +6,37 @@ private:
 	template <class T>
 	void _merge(std::vector<T>& input, int start, int midpoint, int end) {
 		std::vector<T> left(input.begin() + start, input.begin() + midpoint + 1);
-		std::vector<T> right(input.begin() + midpoint + 1, input.begin() + end + 1);
+		int endID = end + 1;
+		if (endID > input.size())
+			endID = input.size();
 
-		int index = 0;
-		while (left.size() > 0 && right.size() > 0) {
-			if (left[0] < right[0]) {
-				input[index] = left[0];
-				left.erase(left.begin());
+		std::vector<T> right(input.begin() + midpoint + 1, input.begin() + endID);
+		int indexLeft = 0, indexRight = 0;
+		int index = start;
+		while (indexLeft < left.size() && indexRight < right.size()) {
+			if (left[indexLeft] < right[indexRight]) {
+				input[index] = left[indexLeft];
+				indexLeft++;
 			}
 			else {
-				input[index] = right[0];
-				right.erase(right.begin());
+				input[index] = right[indexRight];
+				indexRight++;
 			}
+
 			index++;
 		}
 
-		if (left.size() == 0)
-			while (right.size() > 0) {
-				input[index] = right[0];
-				right.erase(right.begin());
-				index++;
-			}
+		while (indexRight < right.size()) {
+			input[index] = right[indexRight];
+			indexRight++;
+			index++;
+		}
 
-		if (right.size() == 0)
-			while (left.size() > 0) {
-				input[index] = left[0];
-				left.erase(left.begin());
-				index++;
-			}
+		while (indexLeft < left.size()) {
+			input[index] = left[indexLeft];
+			indexLeft++;
+			index++;
+		}
 	}
 
 	template <class T>
