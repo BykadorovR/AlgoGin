@@ -13,6 +13,8 @@ private:
 		std::vector<T> right(input.begin() + midpoint + 1, input.begin() + endID);
 		int indexLeft = 0, indexRight = 0;
 		int index = start;
+		//sorting: choose first element from left and right (they are sorted) and compare. Move least one to resulting array.
+		//do until both arrays have elements
 		while (indexLeft < left.size() && indexRight < right.size()) {
 			if (left[indexLeft] < right[indexRight]) {
 				input[index] = left[indexLeft];
@@ -26,6 +28,7 @@ private:
 			index++;
 		}
 
+		//move elements from array with size > 0 (there is only one array left with size > 0)
 		while (indexRight < right.size()) {
 			input[index] = right[indexRight];
 			indexRight++;
