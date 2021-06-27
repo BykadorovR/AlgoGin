@@ -4,6 +4,37 @@
 class Sorting {
 private:
 	template <class T>
+	int _partition(std::vector<T> input, int start, int end) {
+		int i = -1;
+		//choose anchor element
+		T anchor = input[end - 1];
+		for (int j = start; j < end; j++) {
+			//swap element i with j if element j less than anchor
+			if (input[j] < anchor) {
+				i++;
+				std::swap(input[j], input[i]);
+			}
+			//if element bigger do nothing
+		}
+		//place anchor to correct place (end of section with elements less than anchor)
+		i++;
+		std::swap(input[end - 1], input[i]);
+		return i;
+	}
+
+	template <class T>
+	void _quickSort(std::vector<T> input, int start, int end) {
+		if (start < end) {
+			int anchorIndex = _partition(input, start, end);
+
+			//elements less than anchor
+			_quickSort(input, start, anchorIndex);
+			//elements greater than anchor
+			_quickSort(input, anchorIndex + 1, end);
+		}
+	}
+
+	template <class T>
 	void _merge(std::vector<T>& input, int start, int midpoint, int end) {
 		std::vector<T> left(input.begin() + start, input.begin() + midpoint + 1);
 		int endID = end + 1;
@@ -112,6 +143,15 @@ public:
 	std::vector<T> mergeSort(std::vector<T> input) {
 		std::vector<T> output(input);
 		_mergeSort(output, 0, output.size());
+
+		return output;
+	}
+
+	template <class T>
+	std::vector<T> quickSort(std::vector<T> input) {
+		std::vector<T> output(input);
+
+		_quickSort(output, 0, output.size());
 
 		return output;
 	}
