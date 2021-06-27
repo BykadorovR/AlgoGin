@@ -4,11 +4,11 @@
 class Sorting {
 private:
 	template <class T>
-	int _partition(std::vector<T> input, int start, int end) {
-		int i = -1;
+	int _partition(std::vector<T>& input, int start, int end) {
+		int i = start - 1;
 		//choose anchor element
 		T anchor = input[end - 1];
-		for (int j = start; j < end; j++) {
+		for (int j = start; j < end - 1; j++) {
 			//swap element i with j if element j less than anchor
 			if (input[j] < anchor) {
 				i++;
@@ -23,8 +23,9 @@ private:
 	}
 
 	template <class T>
-	void _quickSort(std::vector<T> input, int start, int end) {
-		if (start < end) {
+	void _quickSort(std::vector<T>& input, int start, int end) {
+		//end exclusive
+		if (end - start > 1) {
 			int anchorIndex = _partition(input, start, end);
 
 			//elements less than anchor
