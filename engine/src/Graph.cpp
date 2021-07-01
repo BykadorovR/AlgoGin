@@ -15,8 +15,8 @@ bool GraphList::remove(int x, int y) {
 	if (_adjacencyList.size() < std::max(x, y) + 1)
 		return true;
 
-	std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](Edge edge) { return edge._y == y; });
-	std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](Edge edge) { return edge._y == x; });
+	_adjacencyList[x].erase(std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](Edge edge) { return edge._y == y; }));
+	_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](Edge edge) { return edge._y == x; }));
 
 	return false;
 }
@@ -34,10 +34,10 @@ std::vector<std::tuple<int, int, int>> GraphList::traversal() {
 
 bool GraphMatrix::insert(int x, int y, int weight) {
 	if (_adjacencyMatrix.size() < std::max(x, y) + 1) {
+		_adjacencyMatrix.resize(std::max(x, y) + 1);
 		for (int i = 0; i < _adjacencyMatrix.size(); i++) {
 			_adjacencyMatrix[i].resize(std::max(x, y) + 1);
 		}
-		_adjacencyMatrix.resize(std::max(x, y) + 1);
 	}
 	
 	if (_adjacencyMatrix[x][y].has_value() == false)
