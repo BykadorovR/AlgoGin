@@ -14,8 +14,12 @@ private:
 public:
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
+	//find the shortest path from x to y
+	std::vector<int> breadthFirstSearch(int x, int y);
+	//traverse all nodes
+	bool breadthFirstTraversal();
 
-	std::vector<std::tuple<int, int, int>> traversal();
+	std::vector<std::tuple<int, int, int>> getGraph();
 };
 
 class GraphMatrix {
@@ -29,5 +33,5 @@ public:
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
 
-	std::vector<std::tuple<int, int, int>> traversal();
+	std::vector<std::tuple<int, int, int>> getGraph();
 };

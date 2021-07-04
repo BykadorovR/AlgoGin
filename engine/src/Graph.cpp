@@ -1,5 +1,32 @@
 #include "Graph.h"
 
+//1. Traverse nodes or edges?
+//2. BFS searches the shortest path but what about DFS?
+//3. What about traversing in case of several connectivity components
+//4. Commivoyager task, what's the goal?
+// 
+bool GraphList::breadthFirstTraversal() {
+	if (_adjacencyList.size() == 0)
+		return true;
+
+	std::vector<int> openNodes, closedNodes;
+	openNodes.push_back(0);
+
+	while (openNodes.size() > 0) {
+		auto currentNode = openNodes.at(0);
+		for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
+			if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
+				std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
+				openNodes.push_back(_adjacencyList[currentNode][i]._y);
+			}
+		}
+		openNodes.erase(openNodes.begin());
+		closedNodes.push_back(currentNode);
+	}
+
+	return false;
+}
+
 bool GraphList::insert(int x, int y, int weight) {
 	while (_adjacencyList.size() < std::max(x, y) + 1) {
 		_adjacencyList.push_back(std::vector<Edge>());
@@ -21,7 +48,7 @@ bool GraphList::remove(int x, int y) {
 	return false;
 }
 
-std::vector<std::tuple<int, int, int>> GraphList::traversal() {
+std::vector<std::tuple<int, int, int>> GraphList::getGraph() {
 	std::vector<std::tuple<int, int, int>> result;
 	for (int i = 0; i < _adjacencyList.size(); i++) {
 		for (int j = 0; j < _adjacencyList[i].size(); j++) {
@@ -62,7 +89,7 @@ bool GraphMatrix::remove(int x, int y) {
 	return false;
 }
 
-std::vector<std::tuple<int, int, int>> GraphMatrix::traversal() {
+std::vector<std::tuple<int, int, int>> GraphMatrix::getGraph() {
 	std::vector<std::tuple<int, int, int>> result;
 	for (int i = 0; i < _adjacencyMatrix.size(); i++)
 		for (int j = 0; j < _adjacencyMatrix[i].size(); j++) {
