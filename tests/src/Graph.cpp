@@ -2,9 +2,11 @@
 #include "Graph.h"
 
 /*
-    1
-0   +   3  
-    2
+	1
+  /   \
+0   +   3
+  \   /
+	2
 	|
 	4 - 5
 */
@@ -58,8 +60,10 @@ TEST(GraphList, Remove) {
 }
 
 /*
-	1
+  	1
+  /   \
 0   +   3
+  \   /
 	2
 	|
 	4 - 5
@@ -124,5 +128,46 @@ TEST(GraphList, Traversal) {
 	graph.insert(2, 4, 3);
 	graph.insert(4, 5, 4);
 
-	graph.breadthFirstTraversal();
+	auto parents = graph.breadthFirstTraversal(0);
+	ASSERT_EQ(-1, parents[0]);
+	ASSERT_EQ(0, parents[1]);
+	ASSERT_EQ(0, parents[2]);
+	ASSERT_EQ(0, parents[3]);
+	ASSERT_EQ(2, parents[4]);
+	ASSERT_EQ(4, parents[5]);
+	parents = graph.breadthFirstTraversal(1);
+	ASSERT_EQ(1, parents[0]);
+	ASSERT_EQ(-1, parents[1]);
+	ASSERT_EQ(1, parents[2]);
+	ASSERT_EQ(1, parents[3]);
+	ASSERT_EQ(2, parents[4]);
+	ASSERT_EQ(4, parents[5]);
+	parents = graph.breadthFirstTraversal(2);
+	ASSERT_EQ(2, parents[0]);
+	ASSERT_EQ(2, parents[1]);
+	ASSERT_EQ(-1, parents[2]);
+	ASSERT_EQ(2, parents[3]);
+	ASSERT_EQ(2, parents[4]);
+	ASSERT_EQ(4, parents[5]);
+	parents = graph.breadthFirstTraversal(3);
+	ASSERT_EQ(3, parents[0]);
+	ASSERT_EQ(3, parents[1]);
+	ASSERT_EQ(3, parents[2]);
+	ASSERT_EQ(-1, parents[3]);
+	ASSERT_EQ(2, parents[4]);
+	ASSERT_EQ(4, parents[5]);
+	parents = graph.breadthFirstTraversal(4);
+	ASSERT_EQ(2, parents[0]);
+	ASSERT_EQ(2, parents[1]);
+	ASSERT_EQ(4, parents[2]);
+	ASSERT_EQ(2, parents[3]);
+	ASSERT_EQ(-1, parents[4]);
+	ASSERT_EQ(4, parents[5]);
+	parents = graph.breadthFirstTraversal(6);
+	ASSERT_EQ(-1, parents[0]);
+	ASSERT_EQ(-1, parents[1]);
+	ASSERT_EQ(-1, parents[2]);
+	ASSERT_EQ(-1, parents[3]);
+	ASSERT_EQ(-1, parents[4]);
+	ASSERT_EQ(-1, parents[5]);
 }

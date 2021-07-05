@@ -5,12 +5,13 @@
 //3. What about traversing in case of several connectivity components
 //4. Commivoyager task, what's the goal?
 // 
-bool GraphList::breadthFirstTraversal() {
-	if (_adjacencyList.size() == 0)
-		return true;
+std::vector<int> GraphList::breadthFirstTraversal(int start) {
+	std::vector<int> parentNodes(_adjacencyList.size(), -1);
+	if (start >= _adjacencyList.size())
+		return parentNodes;
 
 	std::vector<int> openNodes, closedNodes;
-	openNodes.push_back(0);
+	openNodes.push_back(start);
 
 	while (openNodes.size() > 0) {
 		auto currentNode = openNodes.at(0);
@@ -18,13 +19,14 @@ bool GraphList::breadthFirstTraversal() {
 			if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
 				std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
 				openNodes.push_back(_adjacencyList[currentNode][i]._y);
+				parentNodes[_adjacencyList[currentNode][i]._y] = currentNode;
 			}
 		}
 		openNodes.erase(openNodes.begin());
 		closedNodes.push_back(currentNode);
 	}
 
-	return false;
+	return parentNodes;
 }
 
 bool GraphList::insert(int x, int y, int weight) {

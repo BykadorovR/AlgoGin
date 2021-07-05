@@ -14,10 +14,8 @@ private:
 public:
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
-	//find the shortest path from x to y
-	std::vector<int> breadthFirstSearch(int x, int y);
-	//traverse all nodes
-	bool breadthFirstTraversal();
+	//traverse all nodes and find the shortest path from x to y
+	std::vector<int> breadthFirstTraversal(int start);
 
 	std::vector<std::tuple<int, int, int>> getGraph();
 };
