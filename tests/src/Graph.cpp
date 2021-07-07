@@ -171,3 +171,26 @@ TEST(GraphList, Traversal) {
 	ASSERT_EQ(-1, parents[4]);
 	ASSERT_EQ(-1, parents[5]);
 }
+
+/*
+	1
+  /   \
+0   +   3
+  \   /
+	2
+	
+	4 - 5
+*/
+TEST(GraphList, Connected) {
+	GraphList graph;
+	graph.insert(0, 1, 1);
+	graph.insert(0, 2, 1);
+	graph.insert(0, 3, 1);
+	graph.insert(1, 2, 2);
+	graph.insert(1, 3, 2);
+	graph.insert(2, 3, 3);
+	graph.insert(4, 5, 4);
+
+	auto connected = graph.getConnectedNumber();
+	std::cout << "qwe";
+}

@@ -16,6 +16,7 @@ public:
 	bool remove(int x, int y);
 	//traverse all nodes and find the shortest path from x to y
 	std::vector<int> breadthFirstTraversal(int start);
+	std::vector<int> getConnectedNumber();
 
 	std::vector<std::tuple<int, int, int>> getGraph();
 };

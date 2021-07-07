@@ -1,5 +1,42 @@
 #include "Graph.h"
 
+std::vector<int> GraphList::getConnectedNumber() {
+	std::vector<int> connectedNodes(_adjacencyList.size(), -1);
+	std::vector<int> openNodes, closedNodes;
+
+	int currentConnection = 0;
+	int startNode = 0;
+	while (startNode != -1) {
+		openNodes.clear();
+		openNodes.push_back(startNode);
+		while (openNodes.size() > 0) {
+			auto currentNode = openNodes.at(0);
+			for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
+				if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
+					std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
+					openNodes.push_back(_adjacencyList[currentNode][i]._y);
+				}
+			}
+			connectedNodes[currentNode] = currentConnection;
+
+			openNodes.erase(openNodes.begin());
+			closedNodes.push_back(currentNode);
+		}
+
+		currentConnection++;
+
+		startNode = -1;
+		for (int i = 0; i < connectedNodes.size(); i++) {
+			if (connectedNodes[i] == -1) {
+				startNode = i;
+				break;
+			}
+		}
+	}
+
+	return connectedNodes;
+}
+
 //1. Traverse nodes or edges?
 //2. BFS searches the shortest path but what about DFS?
 //3. What about traversing in case of several connectivity components
