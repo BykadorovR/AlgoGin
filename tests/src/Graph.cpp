@@ -181,7 +181,7 @@ TEST(GraphList, Traversal) {
 	
 	4 - 5
 */
-TEST(GraphList, Connected) {
+TEST(GraphList, Connected_Several) {
 	GraphList graph;
 	graph.insert(0, 1, 1);
 	graph.insert(0, 2, 1);
@@ -192,5 +192,30 @@ TEST(GraphList, Connected) {
 	graph.insert(4, 5, 4);
 
 	auto connected = graph.getConnectedNumber();
-	std::cout << "qwe";
+	ASSERT_EQ(connected[0], 0);
+	ASSERT_EQ(connected[1], 0);
+	ASSERT_EQ(connected[2], 0);
+	ASSERT_EQ(connected[3], 0);
+	ASSERT_EQ(connected[4], 1);
+	ASSERT_EQ(connected[5], 1);
+}
+
+TEST(GraphList, Connected_One) {
+	GraphList graph;
+	graph.insert(0, 1, 1);
+	graph.insert(0, 2, 1);
+	graph.insert(0, 3, 1);
+	graph.insert(1, 2, 2);
+	graph.insert(1, 3, 2);
+	graph.insert(2, 3, 3);
+	graph.insert(2, 4, 4);
+	graph.insert(4, 5, 5);
+
+	auto connected = graph.getConnectedNumber();
+	ASSERT_EQ(connected[0], 0);
+	ASSERT_EQ(connected[1], 0);
+	ASSERT_EQ(connected[2], 0);
+	ASSERT_EQ(connected[3], 0);
+	ASSERT_EQ(connected[4], 0);
+	ASSERT_EQ(connected[5], 0);
 }
