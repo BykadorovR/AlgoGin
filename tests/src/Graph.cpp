@@ -219,3 +219,56 @@ TEST(GraphList, Connected_One) {
 	ASSERT_EQ(connected[4], 0);
 	ASSERT_EQ(connected[5], 0);
 }
+
+/*
+	1
+  /   \
+0   +   3
+  \   /
+	2
+	|
+	4 - 5
+*/
+TEST(GraphList, Coloring_4) {
+	GraphList graph;
+	graph.insert(0, 1, 1);
+	graph.insert(0, 2, 1);
+	graph.insert(0, 3, 1);
+	graph.insert(1, 2, 2);
+	graph.insert(1, 3, 2);
+	graph.insert(2, 3, 3);
+	graph.insert(2, 4, 4);
+	graph.insert(4, 5, 5);
+
+	auto colors = graph.colorGraph();
+	ASSERT_EQ(colors[0], 0);
+	ASSERT_EQ(colors[1], 1);
+	ASSERT_EQ(colors[2], 2);
+	ASSERT_EQ(colors[3], 3);
+	ASSERT_EQ(colors[4], 0);
+	ASSERT_EQ(colors[5], 1);
+}
+
+/*
+0   -   1
+      /
+|   3   |
+  /
+2   -   4
+*/
+TEST(GraphList, Coloring_2) {
+	GraphList graph;
+	graph.insert(0, 1, 1);
+	graph.insert(0, 2, 2);
+	graph.insert(2, 3, 3);
+	graph.insert(2, 4, 4);
+	graph.insert(1, 3, 5);
+	graph.insert(1, 4, 6);
+
+	auto colors = graph.colorGraph();
+	ASSERT_EQ(colors[0], 0);
+	ASSERT_EQ(colors[1], 1);
+	ASSERT_EQ(colors[2], 1);
+	ASSERT_EQ(colors[3], 0);
+	ASSERT_EQ(colors[4], 0);
+}

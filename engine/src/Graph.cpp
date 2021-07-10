@@ -1,4 +1,41 @@
 #include "Graph.h"
+#include <algorithm>
+
+std::vector<int> GraphList::colorGraph() {
+	//maximum color = d + 1, if d = |V| - 1, then maximum color = |V|
+	std::vector<int> color(_adjacencyList.size(), _adjacencyList.size());
+	std::vector<int> openNodes, closedNodes;
+	openNodes.push_back(0);
+
+	while (openNodes.size() > 0) {
+		auto currentNode = openNodes.at(0);
+		std::vector<int> currentColors;
+		for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
+			//find all color of adjustment vertexes
+			currentColors.push_back(color[_adjacencyList[currentNode][i]._y]);
+
+			if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
+				std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
+				openNodes.push_back(_adjacencyList[currentNode][i]._y);
+			}
+		}
+		//decide color of current vertex
+		int currentColor = 0;
+		for (bool foundColor = false; foundColor == false;) {
+			if (std::find(currentColors.begin(), currentColors.end(), currentColor) == currentColors.end()) {
+				color[currentNode] = currentColor;
+				foundColor = true;
+			}
+			else
+				currentColor++;
+		}
+
+		openNodes.erase(openNodes.begin());
+		closedNodes.push_back(currentNode);
+	}
+
+	return color;
+}
 
 std::vector<int> GraphList::getConnectedNumber() {
 	std::vector<int> connectedNodes(_adjacencyList.size(), -1);
