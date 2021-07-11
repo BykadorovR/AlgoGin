@@ -11,11 +11,14 @@ private:
 	};
 
 	std::vector<std::vector<Edge>> _adjacencyList;
+	
+	bool _depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& closedNodes);
 public:
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
 	//traverse all nodes and find the shortest path from x to y
-	std::vector<int> breadthFirstTraversal(int start);
+	std::vector<int> breadthFirstSearch(int start);
+	std::vector<int> depthFirstTraversal();
 	std::vector<int> getConnectedNumber();
 	std::vector<int> colorGraph();
 

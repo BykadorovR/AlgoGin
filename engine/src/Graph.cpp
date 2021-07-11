@@ -79,7 +79,7 @@ std::vector<int> GraphList::getConnectedNumber() {
 //3. What about traversing in case of several connectivity components
 //4. Commivoyager task, what's the goal?
 // 
-std::vector<int> GraphList::breadthFirstTraversal(int start) {
+std::vector<int> GraphList::breadthFirstSearch(int start) {
 	std::vector<int> parentNodes(_adjacencyList.size(), -1);
 	if (start >= _adjacencyList.size())
 		return parentNodes;
@@ -101,6 +101,30 @@ std::vector<int> GraphList::breadthFirstTraversal(int start) {
 	}
 
 	return parentNodes;
+}
+
+bool GraphList::_depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& closedNodes) {
+	while (openNodes.size() > 0) {
+		int currentNode = openNodes.back();
+		for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
+			if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
+				std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
+				openNodes.push_back(_adjacencyList[currentNode][i]._y);
+			}
+
+
+		}
+	}
+
+	return false;
+}
+
+std::vector<int> GraphList::depthFirstTraversal() {
+	std::vector<int> openNodes;
+	std::vector<int> closedNodes;
+
+	openNodes.push_back(0);
+	_depthFirstTraversalRecursive(openNodes, closedNodes);
 }
 
 bool GraphList::insert(int x, int y, int weight) {
