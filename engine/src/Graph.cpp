@@ -103,16 +103,19 @@ std::vector<int> GraphList::breadthFirstSearch(int start) {
 	return parentNodes;
 }
 
-bool GraphList::_depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& closedNodes) {
+bool GraphList::_depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& closedNodes, std::vector<int>& time) {
 	while (openNodes.size() > 0) {
 		int currentNode = openNodes.back();
 		for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
 			if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
 				std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
 				openNodes.push_back(_adjacencyList[currentNode][i]._y);
-				_depthFirstTraversalRecursive(openNodes, closedNodes);
+				time[_adjacencyList[currentNode][i]._y] = *std::max_element(time.begin(), time.end()) + 1;
+				_depthFirstTraversalRecursive(openNodes, closedNodes, time);
 			}
 		}
+		openNodes.pop_back();
+		closedNodes.push_back(currentNode);
 	}
 
 	return false;
@@ -121,11 +124,14 @@ bool GraphList::_depthFirstTraversalRecursive(std::vector<int>& openNodes, std::
 std::vector<int> GraphList::depthFirstTraversal() {
 	std::vector<int> openNodes;
 	std::vector<int> closedNodes;
+	std::vector<int> time(_adjacencyList.size(), -1);
 
 	openNodes.push_back(0);
-	_depthFirstTraversalRecursive(openNodes, closedNodes);
+	time[0] = 0;
 
-	return openNodes;
+	_depthFirstTraversalRecursive(openNodes, closedNodes, time);
+
+	return time;
 }
 
 bool GraphList::insert(int x, int y, int weight) {

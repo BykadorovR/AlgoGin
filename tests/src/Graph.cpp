@@ -272,3 +272,16 @@ TEST(GraphList, Coloring_2) {
 	ASSERT_EQ(colors[3], 0);
 	ASSERT_EQ(colors[4], 0);
 }
+
+TEST(GraphList, DFS) {
+	GraphList graph;
+	graph.insert(0, 1, 1);
+	graph.insert(0, 2, 2);
+	graph.insert(2, 3, 3);
+	graph.insert(2, 4, 4);
+	graph.insert(1, 3, 5);
+	graph.insert(1, 4, 6);
+
+	auto time = graph.depthFirstTraversal();
+	std::cout << "here";
+}
