@@ -318,7 +318,7 @@ TEST(GraphList, DFS) {
 	ASSERT_EQ(time[0], 0);
 	ASSERT_EQ(time[1], 1);
 	ASSERT_EQ(time[2], 2);
-	ASSERT_EQ(time[3], 5);
-	ASSERT_EQ(time[4], 3);
-	ASSERT_EQ(time[5], 4);
+	ASSERT_EQ(time[3], 3);
+	ASSERT_EQ(time[4], 4);
+	ASSERT_EQ(time[5], 5);
 }

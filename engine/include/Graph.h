@@ -12,7 +12,7 @@ private:
 
 	std::vector<std::vector<Edge>> _adjacencyList;
 	
-	bool _depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& closedNodes, std::vector<int>& time);
+	bool _depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& time);
 public:
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
