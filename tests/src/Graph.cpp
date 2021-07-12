@@ -274,6 +274,13 @@ TEST(GraphList, Coloring_2) {
 }
 
 TEST(GraphList, DFS) {
+/*
+	0   -   1
+		  /
+	|   3   |
+	  /
+	2   -   4
+*/
 	GraphList graph;
 	graph.insert(0, 1, 1);
 	graph.insert(0, 2, 2);
@@ -283,5 +290,35 @@ TEST(GraphList, DFS) {
 	graph.insert(1, 4, 6);
 
 	auto time = graph.depthFirstTraversal();
-	std::cout << "here";
+	ASSERT_EQ(time[0], 0);
+	ASSERT_EQ(time[1], 1);
+	ASSERT_EQ(time[2], 3);
+	ASSERT_EQ(time[3], 2);
+	ASSERT_EQ(time[4], 4);
+/*
+	1
+  /   \
+0   +   3
+  \   /
+	2
+	|
+	4 - 5
+*/
+	GraphList graph2;
+	graph2.insert(0, 1, 1);
+	graph2.insert(0, 2, 1);
+	graph2.insert(0, 3, 1);
+	graph2.insert(1, 2, 2);
+	graph2.insert(1, 3, 2);
+	graph2.insert(2, 3, 3);
+	graph2.insert(2, 4, 3);
+	graph2.insert(4, 5, 4);
+
+	time = graph2.depthFirstTraversal();
+	ASSERT_EQ(time[0], 0);
+	ASSERT_EQ(time[1], 1);
+	ASSERT_EQ(time[2], 2);
+	ASSERT_EQ(time[3], 5);
+	ASSERT_EQ(time[4], 3);
+	ASSERT_EQ(time[5], 4);
 }

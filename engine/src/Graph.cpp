@@ -104,19 +104,17 @@ std::vector<int> GraphList::breadthFirstSearch(int start) {
 }
 
 bool GraphList::_depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& closedNodes, std::vector<int>& time) {
-	while (openNodes.size() > 0) {
-		int currentNode = openNodes.back();
-		for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
-			if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
-				std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
-				openNodes.push_back(_adjacencyList[currentNode][i]._y);
-				time[_adjacencyList[currentNode][i]._y] = *std::max_element(time.begin(), time.end()) + 1;
-				_depthFirstTraversalRecursive(openNodes, closedNodes, time);
-			}
+	int currentNode = openNodes.back();
+	for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
+		if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end() &&
+			std::find(closedNodes.begin(), closedNodes.end(), _adjacencyList[currentNode][i]._y) == closedNodes.end()) {
+			openNodes.push_back(_adjacencyList[currentNode][i]._y);
+			time[_adjacencyList[currentNode][i]._y] = *std::max_element(time.begin(), time.end()) + 1;
+			_depthFirstTraversalRecursive(openNodes, closedNodes, time);
 		}
-		openNodes.pop_back();
-		closedNodes.push_back(currentNode);
 	}
+	openNodes.pop_back();
+	closedNodes.push_back(currentNode);
 
 	return false;
 }
