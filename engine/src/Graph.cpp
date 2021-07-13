@@ -103,29 +103,29 @@ std::vector<int> GraphList::breadthFirstSearch(int start) {
 	return parentNodes;
 }
 
-bool GraphList::_depthFirstTraversalRecursive(std::vector<int>& openNodes, std::vector<int>& time) {
-	int currentNode = openNodes.back();
+bool GraphList::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal) {
 	for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
-		if (std::find(openNodes.begin(), openNodes.end(), _adjacencyList[currentNode][i]._y) == openNodes.end()) {
-			openNodes.push_back(_adjacencyList[currentNode][i]._y);
-			time[_adjacencyList[currentNode][i]._y] = *std::max_element(time.begin(), time.end()) + 1;
-			_depthFirstTraversalRecursive(openNodes, time);
+		int adjacentNode = _adjacencyList[currentNode][i]._y;
+		if (visitedNodes[adjacentNode] == false) {
+			visitedNodes[adjacentNode] = true;
+			traversal.push_back(adjacentNode);
+			_depthFirstTraversalRecursive(adjacentNode, visitedNodes, traversal);
 		}
 	}
 
 	return false;
 }
 
-std::vector<int> GraphList::depthFirstTraversal() {
-	std::vector<int> openNodes;
-	std::vector<int> time(_adjacencyList.size(), -1);
+std::vector<int> GraphList::depthFirstTraversal(int start) {
+	std::map<int, bool> visitedNodes;
+	std::vector<int> traversal;
 
-	openNodes.push_back(0);
-	time[0] = 0;
+	visitedNodes[start] = true;
+	traversal.push_back(start);
 
-	_depthFirstTraversalRecursive(openNodes, time);
+	_depthFirstTraversalRecursive(start, visitedNodes, traversal);
 
-	return time;
+	return traversal;
 }
 
 bool GraphList::insert(int x, int y, int weight) {

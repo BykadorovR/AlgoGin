@@ -273,7 +273,7 @@ TEST(GraphList, Coloring_2) {
 	ASSERT_EQ(colors[4], 0);
 }
 
-TEST(GraphList, DFS) {
+TEST(GraphList, DFS_start0) {
 /*
 	0   -   1
 		  /
@@ -289,12 +289,12 @@ TEST(GraphList, DFS) {
 	graph.insert(1, 3, 5);
 	graph.insert(1, 4, 6);
 
-	auto time = graph.depthFirstTraversal();
-	ASSERT_EQ(time[0], 0);
-	ASSERT_EQ(time[1], 1);
-	ASSERT_EQ(time[2], 3);
-	ASSERT_EQ(time[3], 2);
-	ASSERT_EQ(time[4], 4);
+	auto traversal = graph.depthFirstTraversal(0);
+	ASSERT_EQ(traversal[0], 0);
+	ASSERT_EQ(traversal[1], 1);
+	ASSERT_EQ(traversal[2], 3);
+	ASSERT_EQ(traversal[3], 2);
+	ASSERT_EQ(traversal[4], 4);
 /*
 	1
   /   \
@@ -314,11 +314,61 @@ TEST(GraphList, DFS) {
 	graph2.insert(2, 4, 3);
 	graph2.insert(4, 5, 4);
 
-	time = graph2.depthFirstTraversal();
-	ASSERT_EQ(time[0], 0);
-	ASSERT_EQ(time[1], 1);
-	ASSERT_EQ(time[2], 2);
-	ASSERT_EQ(time[3], 3);
-	ASSERT_EQ(time[4], 4);
-	ASSERT_EQ(time[5], 5);
+	traversal = graph2.depthFirstTraversal(0);
+	ASSERT_EQ(traversal[0], 0);
+	ASSERT_EQ(traversal[1], 1);
+	ASSERT_EQ(traversal[2], 2);
+	ASSERT_EQ(traversal[3], 3);
+	ASSERT_EQ(traversal[4], 4);
+	ASSERT_EQ(traversal[5], 5);
+}
+
+TEST(GraphList, DFS_startNot0) {
+	/*
+		0   -   1
+			  /
+		|   3   |
+		  /
+		2   -   4
+	*/
+	GraphList graph;
+	graph.insert(0, 1, 1);
+	graph.insert(0, 2, 2);
+	graph.insert(2, 3, 3);
+	graph.insert(2, 4, 4);
+	graph.insert(1, 3, 5);
+	graph.insert(1, 4, 6);
+
+	auto traversal = graph.depthFirstTraversal(3);
+	ASSERT_EQ(traversal[0], 3);
+	ASSERT_EQ(traversal[1], 2);
+	ASSERT_EQ(traversal[2], 0);
+	ASSERT_EQ(traversal[3], 1);
+	ASSERT_EQ(traversal[4], 4);
+	/*
+		1
+	  /   \
+	0   +   3
+	  \   /
+		2
+		|
+		4 - 5
+	*/
+	GraphList graph2;
+	graph2.insert(0, 1, 1);
+	graph2.insert(0, 2, 1);
+	graph2.insert(0, 3, 1);
+	graph2.insert(1, 2, 2);
+	graph2.insert(1, 3, 2);
+	graph2.insert(2, 3, 3);
+	graph2.insert(2, 4, 3);
+	graph2.insert(4, 5, 4);
+
+	traversal = graph2.depthFirstTraversal(3);
+	ASSERT_EQ(traversal[0], 3);
+	ASSERT_EQ(traversal[1], 0);
+	ASSERT_EQ(traversal[2], 1);
+	ASSERT_EQ(traversal[3], 2);
+	ASSERT_EQ(traversal[4], 4);
+	ASSERT_EQ(traversal[5], 5);
 }
