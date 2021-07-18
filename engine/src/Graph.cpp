@@ -108,19 +108,30 @@ bool GraphList::_depthFirstTraversalRecursive(int currentNode, std::map<int, boo
 		int adjacentNode = _adjacencyList[currentNode][i]._y;
 		if (visitedNodes[adjacentNode] == false) {
 			visitedNodes[adjacentNode] = true;
+			std::get<0>(_time[adjacentNode]) = _timeIterator;
+			_timeIterator++;
 			traversal.push_back(adjacentNode);
 			_depthFirstTraversalRecursive(adjacentNode, visitedNodes, traversal);
 		}
 	}
+	std::get<1>(_time[currentNode]) = _timeIterator;
+	_timeIterator++;
 
 	return false;
+}
+
+std::map<int, std::tuple<int, int>> GraphList::getEdgesType() {
+	return _time;
 }
 
 std::vector<int> GraphList::depthFirstTraversal(int start) {
 	std::map<int, bool> visitedNodes;
 	std::vector<int> traversal;
+	_timeIterator = 0;
 
 	visitedNodes[start] = true;
+	std::get<0>(_time[start]) = _timeIterator;
+	_timeIterator++; 
 	traversal.push_back(start);
 
 	_depthFirstTraversalRecursive(start, visitedNodes, traversal);
