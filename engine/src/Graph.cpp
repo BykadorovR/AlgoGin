@@ -103,49 +103,13 @@ std::vector<int> GraphList::breadthFirstSearch(int start) {
 	return parentNodes;
 }
 
-bool GraphList::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal) {
-	for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
-		int adjacentNode = _adjacencyList[currentNode][i]._y;
-		if (visitedNodes[adjacentNode] == false) {
-			visitedNodes[adjacentNode] = true;
-			std::get<0>(_time[adjacentNode]) = _timeIterator;
-			_timeIterator++;
-			traversal.push_back(adjacentNode);
-			_depthFirstTraversalRecursive(adjacentNode, visitedNodes, traversal);
-		}
-	}
-	std::get<1>(_time[currentNode]) = _timeIterator;
-	_timeIterator++;
-
-	return false;
-}
-
-std::map<int, std::tuple<int, int>> GraphList::getEdgesType() {
-	return _time;
-}
-
-std::vector<int> GraphList::depthFirstTraversal(int start) {
-	std::map<int, bool> visitedNodes;
-	std::vector<int> traversal;
-	_timeIterator = 0;
-
-	visitedNodes[start] = true;
-	std::get<0>(_time[start]) = _timeIterator;
-	_timeIterator++; 
-	traversal.push_back(start);
-
-	_depthFirstTraversalRecursive(start, visitedNodes, traversal);
-
-	return traversal;
-}
-
 bool GraphList::insert(int x, int y, int weight) {
 	while (_adjacencyList.size() < std::max(x, y) + 1) {
-		_adjacencyList.push_back(std::vector<Edge>());
+		_adjacencyList.push_back(std::vector<EdgeList>());
 	}
 	
-	_adjacencyList[x].push_back(Edge{ ._y = y, ._weight = weight });
-	_adjacencyList[y].push_back(Edge{ ._y = x, ._weight = weight });
+	_adjacencyList[x].push_back(EdgeList{ ._y = y, ._weight = weight });
+	_adjacencyList[y].push_back(EdgeList{ ._y = x, ._weight = weight });
 
 	return false;
 }
@@ -154,10 +118,14 @@ bool GraphList::remove(int x, int y) {
 	if (_adjacencyList.size() < std::max(x, y) + 1)
 		return true;
 
-	_adjacencyList[x].erase(std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](Edge edge) { return edge._y == y; }));
-	_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](Edge edge) { return edge._y == x; }));
+	_adjacencyList[x].erase(std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](EdgeList edge) { return edge._y == y; }));
+	_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](EdgeList edge) { return edge._y == x; }));
 
 	return false;
+}
+
+std::vector<std::vector<EdgeList>> GraphList::getAdjacencyList() {
+	return _adjacencyList;
 }
 
 std::vector<std::tuple<int, int, int>> GraphList::getGraph() {
@@ -210,4 +178,66 @@ std::vector<std::tuple<int, int, int>> GraphMatrix::getGraph() {
 		}
 
 	return result;
+}
+
+DFS::DFS(std::shared_ptr<GraphList> graph) {
+	_adjacencyList = graph->getAdjacencyList();
+
+	_parent.resize(_adjacencyList.size());
+}
+
+DFS::DFS(GraphList& graph) {
+	_adjacencyList = graph.getAdjacencyList();
+
+	_parent.resize(_adjacencyList.size());
+}
+
+bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal) {
+	for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
+		int adjacentNode = _adjacencyList[currentNode][i]._y;
+		if (visitedNodes[adjacentNode] == false) {
+			visitedNodes[adjacentNode] = true;
+			_edgesType["tree"] = { currentNode, adjacentNode };
+			_parent[adjacentNode] = currentNode;
+			_timeStart[adjacentNode] = _timeIterator;
+			_timeIterator++;
+			traversal.push_back(adjacentNode);
+			_depthFirstTraversalRecursive(adjacentNode, visitedNodes, traversal);
+		}
+		else {
+			//node isn't closed and parent of adjacent node != current node then back edge
+			if (_timeEnd.find(adjacentNode) == _timeEnd.end() && 
+				_parent[adjacentNode] != currentNode) {
+				_edgesType["back"] = { currentNode, adjacentNode };
+			}
+			//adjacent node is closed
+			else if (_timeEnd.find(adjacentNode) != _timeEnd.end() &&
+					 _parent[adjacentNode] != currentNode) {
+				_edgesType["forward"] = { currentNode, adjacentNode };
+			}
+		}
+	}
+	_timeEnd[currentNode] = _timeIterator;
+	_timeIterator++;
+
+	return false;
+}
+
+std::map<std::string, std::tuple<int, int>> DFS::getEdgesType() {
+	return _edgesType;
+}
+
+std::vector<int> DFS::depthFirstTraversal(int start) {
+	std::map<int, bool> visitedNodes;
+	std::vector<int> traversal;
+	_timeIterator = 0;
+
+	visitedNodes[start] = true;
+	_timeStart[start] = _timeIterator;
+	_timeIterator++;
+	traversal.push_back(start);
+
+	_depthFirstTraversalRecursive(start, visitedNodes, traversal);
+
+	return traversal;
 }

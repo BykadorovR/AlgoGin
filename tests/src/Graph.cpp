@@ -289,7 +289,8 @@ TEST(GraphList, DFS_start0) {
 	graph.insert(1, 3, 5);
 	graph.insert(1, 4, 6);
 
-	auto traversal = graph.depthFirstTraversal(0);
+	DFS dfs(graph);
+	auto traversal = dfs.depthFirstTraversal(0);
 	ASSERT_EQ(traversal[0], 0);
 	ASSERT_EQ(traversal[1], 1);
 	ASSERT_EQ(traversal[2], 3);
@@ -314,7 +315,8 @@ TEST(GraphList, DFS_start0) {
 	graph2.insert(2, 4, 3);
 	graph2.insert(4, 5, 4);
 
-	traversal = graph2.depthFirstTraversal(0);
+	DFS dfs2(graph);
+	traversal = dfs2.depthFirstTraversal(0);
 	ASSERT_EQ(traversal[0], 0);
 	ASSERT_EQ(traversal[1], 1);
 	ASSERT_EQ(traversal[2], 2);
@@ -339,7 +341,8 @@ TEST(GraphList, DFS_startNot0) {
 	graph.insert(1, 3, 5);
 	graph.insert(1, 4, 6);
 
-	auto traversal = graph.depthFirstTraversal(3);
+	DFS dfs(graph);
+	auto traversal = dfs.depthFirstTraversal(3);
 	ASSERT_EQ(traversal[0], 3);
 	ASSERT_EQ(traversal[1], 2);
 	ASSERT_EQ(traversal[2], 0);
@@ -364,7 +367,8 @@ TEST(GraphList, DFS_startNot0) {
 	graph2.insert(2, 4, 3);
 	graph2.insert(4, 5, 4);
 
-	traversal = graph2.depthFirstTraversal(3);
+	DFS dfs2(graph);
+	traversal = dfs2.depthFirstTraversal(3);
 	ASSERT_EQ(traversal[0], 3);
 	ASSERT_EQ(traversal[1], 0);
 	ASSERT_EQ(traversal[2], 1);
@@ -389,7 +393,8 @@ TEST(GraphList, DFS_getEdgesType) {
 	graph.insert(1, 3, 5);
 	graph.insert(1, 4, 6);
 
-	auto traversal = graph.depthFirstTraversal(3);
-	auto types = graph.getEdgesType();
+	DFS dfs(graph);
+	auto traversal = dfs.depthFirstTraversal(3);
+	auto types = dfs.getEdgesType();
 	std::cout << "here";
 }
