@@ -189,7 +189,7 @@ DFS::DFS(std::shared_ptr<GraphList> graph) {
 DFS::DFS(GraphList& graph) {
 	_adjacencyList = graph.getAdjacencyList();
 
-	_parent.resize(_adjacencyList.size());
+	_parent.resize(_adjacencyList.size(), -1);
 }
 
 bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal) {
@@ -197,7 +197,7 @@ bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& vi
 		int adjacentNode = _adjacencyList[currentNode][i]._y;
 		if (visitedNodes[adjacentNode] == false) {
 			visitedNodes[adjacentNode] = true;
-			_edgesType["tree"] = { currentNode, adjacentNode };
+			_edgesType["tree"].push_back({ currentNode, adjacentNode });
 			_parent[adjacentNode] = currentNode;
 			_timeStart[adjacentNode] = _timeIterator;
 			_timeIterator++;
@@ -207,13 +207,17 @@ bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& vi
 		else {
 			//node isn't closed and parent of adjacent node != current node then back edge
 			if (_timeEnd.find(adjacentNode) == _timeEnd.end() && 
-				_parent[adjacentNode] != currentNode) {
-				_edgesType["back"] = { currentNode, adjacentNode };
+				_parent[currentNode] != adjacentNode) {
+				_edgesType["back"].push_back({ currentNode, adjacentNode });
 			}
 			//adjacent node is closed
 			else if (_timeEnd.find(adjacentNode) != _timeEnd.end() &&
-					 _parent[adjacentNode] != currentNode) {
-				_edgesType["forward"] = { currentNode, adjacentNode };
+					 _timeStart[currentNode] < _timeStart[adjacentNode]) {
+				_edgesType["forward"].push_back({ currentNode, adjacentNode });
+			}
+			else if (_timeEnd.find(adjacentNode) != _timeEnd.end() &&
+					 _timeStart[currentNode] > _timeStart[adjacentNode]) {
+				_edgesType["cross"].push_back({ currentNode, adjacentNode });
 			}
 		}
 	}
@@ -223,7 +227,7 @@ bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& vi
 	return false;
 }
 
-std::map<std::string, std::tuple<int, int>> DFS::getEdgesType() {
+std::map<std::string, std::vector<std::tuple<int, int>>> DFS::getEdgesType() {
 	return _edgesType;
 }
 

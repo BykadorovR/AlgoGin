@@ -315,7 +315,7 @@ TEST(GraphList, DFS_start0) {
 	graph2.insert(2, 4, 3);
 	graph2.insert(4, 5, 4);
 
-	DFS dfs2(graph);
+	DFS dfs2(graph2);
 	traversal = dfs2.depthFirstTraversal(0);
 	ASSERT_EQ(traversal[0], 0);
 	ASSERT_EQ(traversal[1], 1);
@@ -367,7 +367,7 @@ TEST(GraphList, DFS_startNot0) {
 	graph2.insert(2, 4, 3);
 	graph2.insert(4, 5, 4);
 
-	DFS dfs2(graph);
+	DFS dfs2(graph2);
 	traversal = dfs2.depthFirstTraversal(3);
 	ASSERT_EQ(traversal[0], 3);
 	ASSERT_EQ(traversal[1], 0);
@@ -396,5 +396,20 @@ TEST(GraphList, DFS_getEdgesType) {
 	DFS dfs(graph);
 	auto traversal = dfs.depthFirstTraversal(3);
 	auto types = dfs.getEdgesType();
-	std::cout << "here";
+	ASSERT_EQ(std::get<0>(types["tree"][0]), 3);
+	ASSERT_EQ(std::get<1>(types["tree"][0]), 2);
+	ASSERT_EQ(std::get<0>(types["tree"][1]), 2);
+	ASSERT_EQ(std::get<1>(types["tree"][1]), 0);
+	ASSERT_EQ(std::get<0>(types["tree"][2]), 0);
+	ASSERT_EQ(std::get<1>(types["tree"][2]), 1);
+	ASSERT_EQ(std::get<0>(types["tree"][3]), 1);
+	ASSERT_EQ(std::get<1>(types["tree"][3]), 4);
+	ASSERT_EQ(std::get<0>(types["back"][0]), 1);
+	ASSERT_EQ(std::get<1>(types["back"][0]), 3);
+	ASSERT_EQ(std::get<0>(types["back"][1]), 4);
+	ASSERT_EQ(std::get<1>(types["back"][1]), 2);
+	ASSERT_EQ(std::get<0>(types["forward"][0]), 2);
+	ASSERT_EQ(std::get<1>(types["forward"][0]), 4);
+	ASSERT_EQ(std::get<0>(types["forward"][1]), 3);
+	ASSERT_EQ(std::get<1>(types["forward"][1]), 1);
 }

@@ -30,7 +30,7 @@ public:
 class DFS {
 private:
 	std::vector<std::vector<EdgeList>> _adjacencyList;
-	std::map<std::string, std::tuple<int, int>> _edgesType;
+	std::map<std::string, std::vector<std::tuple<int, int>>> _edgesType;
 	std::vector<int> _parent;
 	//edges type
 	std::map<int, int> _timeStart, _timeEnd;
@@ -41,7 +41,7 @@ public:
 	DFS(GraphList& graph);
 	DFS(std::shared_ptr<GraphList> graph);
 	std::vector<int> depthFirstTraversal(int start);
-	std::map<std::string, std::tuple<int, int>> getEdgesType();
+	std::map<std::string, std::vector<std::tuple<int, int>>> getEdgesType();
 };
 
 class GraphMatrix {
