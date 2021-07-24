@@ -192,17 +192,37 @@ DFS::DFS(GraphList& graph) {
 	_parent.resize(_adjacencyList.size(), -1);
 }
 
+std::vector<int> DFS::getArticulationPoints() {
+	return _articulationPoints;
+}
+
 bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal) {
 	for (int i = 0; i < _adjacencyList[currentNode].size(); i++) {
 		int adjacentNode = _adjacencyList[currentNode][i]._y;
 		if (visitedNodes[adjacentNode] == false) {
 			visitedNodes[adjacentNode] = true;
+			_children[currentNode].push_back(adjacentNode);
+
 			_edgesType["tree"].push_back({ currentNode, adjacentNode });
 			_parent[adjacentNode] = currentNode;
 			_timeStart[adjacentNode] = _timeIterator;
+			_low[adjacentNode] = _timeIterator;
 			_timeIterator++;
 			traversal.push_back(adjacentNode);
 			_depthFirstTraversalRecursive(adjacentNode, visitedNodes, traversal);
+
+			//analyze if node is atricular node
+			_low[currentNode] = std::min(_low[currentNode], _low[adjacentNode]);
+			//case 1: node is root and has more than 1 children
+			if (_parent[currentNode] == -1 && _children[currentNode].size() > 1) {
+				_articulationPoints.push_back(currentNode);
+			}
+
+			//case 2: for current node there is ONE adjacent node with low value greater than in current node
+			//so that's mean there is one subtree without back edge to current's ascendant node
+			if (_parent[currentNode] != -1 && _low[adjacentNode] >= _timeStart[currentNode]) {
+				_articulationPoints.push_back(currentNode);
+			}
 		}
 		else {
 			//node isn't closed and parent of adjacent node != current node then back edge
@@ -218,6 +238,11 @@ bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& vi
 			else if (_timeEnd.find(adjacentNode) != _timeEnd.end() &&
 					 _timeStart[currentNode] > _timeStart[adjacentNode]) {
 				_edgesType["cross"].push_back({ currentNode, adjacentNode });
+			}
+
+			if (_parent[currentNode] != adjacentNode) {
+				//if node has been already visited but we have edge it can be back node so update low
+				_low[currentNode] = std::min(_low[currentNode], _timeStart[adjacentNode]);
 			}
 		}
 	}
@@ -238,6 +263,7 @@ std::vector<int> DFS::depthFirstTraversal(int start) {
 
 	visitedNodes[start] = true;
 	_timeStart[start] = _timeIterator;
+	_low[start] = _timeIterator;
 	_timeIterator++;
 	traversal.push_back(start);
 

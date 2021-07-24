@@ -36,11 +36,17 @@ private:
 	std::map<int, int> _timeStart, _timeEnd;
 	int _timeIterator;
 	//
+	//articulation point
+	std::map<int, int> _low;
+	std::vector<int> _articulationPoints;
+	std::map<int, std::vector<int>> _children;
+	//
 	bool _depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal);
 public:
 	DFS(GraphList& graph);
 	DFS(std::shared_ptr<GraphList> graph);
 	std::vector<int> depthFirstTraversal(int start);
+	std::vector<int> getArticulationPoints();
 	std::map<std::string, std::vector<std::tuple<int, int>>> getEdgesType();
 };
 
