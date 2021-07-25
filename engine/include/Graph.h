@@ -13,8 +13,9 @@ struct EdgeList {
 class GraphList {
 private:
 	std::vector<std::vector<EdgeList>> _adjacencyList;
+	bool _oriented;
 public:
-	GraphList() = default;
+	GraphList(bool oriented = false);
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
 	//traverse all nodes and find the shortest path from x to y
@@ -41,12 +42,17 @@ private:
 	std::vector<int> _articulationPoints;
 	std::map<int, std::vector<int>> _children;
 	//
+	//topological sorting
+	std::vector<int> _topologicalSorted;
+	bool _DAG = true;
+	//
 	bool _depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal);
 public:
 	DFS(GraphList& graph);
 	DFS(std::shared_ptr<GraphList> graph);
 	std::vector<int> depthFirstTraversal(int start);
 	std::vector<int> getArticulationPoints();
+	std::vector<int> getTopologicalSorted();
 	std::map<std::string, std::vector<std::tuple<int, int>>> getEdgesType();
 };
 

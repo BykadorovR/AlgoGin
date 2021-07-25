@@ -455,3 +455,37 @@ TEST(GraphList, DFS_getArticularPoints) {
 	ASSERT_EQ(articulation[1], 0);
 }
 
+TEST(GraphList, DFS_topologicalSorting) {
+	/*
+	5      4
+	| \   / \
+	   * *   \
+	|   0     \
+	*          *
+	2 -* 3 --*  1
+	*/
+	GraphList graph(true);
+	graph.insert(5, 0, 1);
+	graph.insert(4, 0, 2);
+	graph.insert(5, 2, 3);
+	graph.insert(2, 3, 4);
+	graph.insert(4, 1, 5);
+	graph.insert(3, 1, 5);
+
+	DFS dfs(graph);
+	dfs.depthFirstTraversal(0);
+	auto topological = dfs.getTopologicalSorted();
+	ASSERT_EQ(topological[0], 5);
+	ASSERT_EQ(topological[1], 4);
+	ASSERT_EQ(topological[2], 2);
+	ASSERT_EQ(topological[3], 3);
+	ASSERT_EQ(topological[4], 1);
+	ASSERT_EQ(topological[5], 0);
+
+	//almost the same but with cycle 3->5
+	graph.insert(3, 5, 5);
+	dfs = DFS(graph);
+	dfs.depthFirstTraversal(0);
+	topological = dfs.getTopologicalSorted();
+	ASSERT_EQ(topological.size(), 0);
+}

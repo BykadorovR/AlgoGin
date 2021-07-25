@@ -1,6 +1,10 @@
 #include "Graph.h"
 #include <algorithm>
 
+GraphList::GraphList(bool oriented) {
+	_oriented = oriented;
+}
+
 std::vector<int> GraphList::colorGraph() {
 	//maximum color = d + 1, if d = |V| - 1, then maximum color = |V|
 	std::vector<int> color(_adjacencyList.size(), _adjacencyList.size());
@@ -109,7 +113,8 @@ bool GraphList::insert(int x, int y, int weight) {
 	}
 	
 	_adjacencyList[x].push_back(EdgeList{ ._y = y, ._weight = weight });
-	_adjacencyList[y].push_back(EdgeList{ ._y = x, ._weight = weight });
+	if (_oriented == false)
+		_adjacencyList[y].push_back(EdgeList{ ._y = x, ._weight = weight });
 
 	return false;
 }
@@ -119,7 +124,8 @@ bool GraphList::remove(int x, int y) {
 		return true;
 
 	_adjacencyList[x].erase(std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](EdgeList edge) { return edge._y == y; }));
-	_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](EdgeList edge) { return edge._y == x; }));
+	if (_oriented == false)
+		_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](EdgeList edge) { return edge._y == x; }));
 
 	return false;
 }
@@ -229,6 +235,8 @@ bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& vi
 			if (_timeEnd.find(adjacentNode) == _timeEnd.end() && 
 				_parent[currentNode] != adjacentNode) {
 				_edgesType["back"].push_back({ currentNode, adjacentNode });
+				//Graph contains cycle so it's not directed acycled graph
+				_DAG = false;
 			}
 			//adjacent node is closed
 			else if (_timeEnd.find(adjacentNode) != _timeEnd.end() &&
@@ -247,6 +255,7 @@ bool DFS::_depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& vi
 		}
 	}
 	_timeEnd[currentNode] = _timeIterator;
+	_topologicalSorted.insert(_topologicalSorted.begin(), currentNode);
 	_timeIterator++;
 
 	return false;
@@ -260,14 +269,23 @@ std::vector<int> DFS::depthFirstTraversal(int start) {
 	std::map<int, bool> visitedNodes;
 	std::vector<int> traversal;
 	_timeIterator = 0;
-
-	visitedNodes[start] = true;
-	_timeStart[start] = _timeIterator;
-	_low[start] = _timeIterator;
-	_timeIterator++;
-	traversal.push_back(start);
-
-	_depthFirstTraversalRecursive(start, visitedNodes, traversal);
-
+	for (int i = start; i < _adjacencyList.size() + start; i++) {
+		int index = i % _adjacencyList.size();
+		if (visitedNodes[index] == false) {
+			visitedNodes[index] = true;
+			_timeStart[index] = _timeIterator;
+			_low[index] = _timeIterator;
+			_timeIterator++;
+			traversal.push_back(index);
+			_depthFirstTraversalRecursive(index, visitedNodes, traversal);
+		}
+	}
 	return traversal;
+}
+
+std::vector<int> DFS::getTopologicalSorted() {
+	if (_DAG)
+		return _topologicalSorted;
+
+	return std::vector<int>();
 }
