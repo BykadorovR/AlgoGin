@@ -359,3 +359,54 @@ std::vector<std::vector<int>> DFS::getStronglyConnectedComponents() {
 
 	return _stronglyConnectedComponents;
 }
+
+MinimumSpanningTree::MinimumSpanningTree(GraphList& graph) {
+	_adjacencyList = graph.getAdjacencyList();
+}
+std::vector<std::tuple<int, int, int>> MinimumSpanningTree::prim() {
+	std::vector<int> spanningTree;
+	std::map<int, int> parent;
+	std::map<int, int> keyTree;
+	for (int i = 0; i < _adjacencyList.size(); i++)
+		keyTree[i] = INT_MAX;
+
+	std::map<int, bool> visited;
+	int current = 0;
+	keyTree[current] = 0;
+
+	while (spanningTree.size() < _adjacencyList.size()) {
+		//find node in keyTree with minimum weight
+		int minNodeValue = INT_MAX;
+		int minNode = -1;
+		for (auto [node, _] : keyTree) {
+			if (visited[node] == false) {
+				if (keyTree[node] < minNodeValue) {
+					minNode = node;
+					minNodeValue = keyTree[node];
+				}
+			}
+		}
+
+		visited[minNode] = true;
+		//insert key with minimum weight to tree
+		spanningTree.push_back(minNode);
+
+		//find adjacement nodes of spanning tree and determine node with the smallest weight
+		for (auto node : spanningTree) {
+			for (int i = 0; i < _adjacencyList[node].size(); i++) {
+				EdgeList adjacentNode = _adjacencyList[node][i];
+				if (visited[adjacentNode._y] == false && adjacentNode._weight < keyTree[adjacentNode._y]) {
+					keyTree[adjacentNode._y] = adjacentNode._weight;
+					parent[adjacentNode._y] = node;
+				}
+			}
+		}
+	}
+
+	std::vector<std::tuple<int, int, int>> result;
+	//don't need to determine parent for first node because it's just random first node
+	for (int i = 1; i < spanningTree.size(); i++) {
+		result.push_back({ parent[spanningTree[i]], spanningTree[i], keyTree[spanningTree[i]] });
+	}
+	return result;
+}

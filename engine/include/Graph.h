@@ -82,3 +82,11 @@ public:
 	std::vector<int> getTopologicalSorted();
 	std::map<std::string, std::vector<std::tuple<int, int>>> getEdgesType();
 };
+
+class MinimumSpanningTree {
+private:
+	std::vector<std::vector<EdgeList>> _adjacencyList;
+public:
+	MinimumSpanningTree(GraphList& graph);
+	std::vector<std::tuple<int, int, int>> prim();
+};
