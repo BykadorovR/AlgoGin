@@ -5,7 +5,109 @@ GraphList::GraphList(bool oriented) {
 	_oriented = oriented;
 }
 
-std::vector<int> GraphList::colorGraph() {
+bool GraphList::insert(int x, int y, int weight) {
+	while (_adjacencyList.size() < std::max(x, y) + 1) {
+		_adjacencyList.push_back(std::vector<EdgeList>());
+	}
+
+	_adjacencyList[x].push_back(EdgeList{ ._y = y, ._weight = weight });
+	if (_oriented == false)
+		_adjacencyList[y].push_back(EdgeList{ ._y = x, ._weight = weight });
+
+	return false;
+}
+
+std::vector<std::vector<EdgeList>> GraphList::reverse() {
+	std::vector<std::vector<EdgeList>> adjacencyListReversed(_adjacencyList.size());
+
+	for (int current = 0; current < _adjacencyList.size(); current++) {
+		for (int j = 0; j < _adjacencyList[current].size(); j++) {
+			int adjacementNode = _adjacencyList[current][j]._y;
+			int weight = _adjacencyList[current][j]._weight;
+
+			adjacencyListReversed[adjacementNode].push_back(EdgeList{ ._y = current, ._weight = weight });
+		}
+	}
+
+	return adjacencyListReversed;
+}
+
+bool GraphList::remove(int x, int y) {
+	if (_adjacencyList.size() < std::max(x, y) + 1)
+		return true;
+
+	_adjacencyList[x].erase(std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](EdgeList edge) { return edge._y == y; }));
+	if (_oriented == false)
+		_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](EdgeList edge) { return edge._y == x; }));
+
+	return false;
+}
+
+std::vector<std::vector<EdgeList>> GraphList::getAdjacencyList() {
+	return _adjacencyList;
+}
+
+std::vector<std::tuple<int, int, int>> GraphList::getGraph() {
+	std::vector<std::tuple<int, int, int>> result;
+	for (int i = 0; i < _adjacencyList.size(); i++) {
+		for (int j = 0; j < _adjacencyList[i].size(); j++) {
+			result.push_back({ i, _adjacencyList[i][j]._y, _adjacencyList[i][j]._weight });
+		}
+	}
+
+	return result;
+}
+
+bool GraphMatrix::insert(int x, int y, int weight) {
+	if (_adjacencyMatrix.size() < std::max(x, y) + 1) {
+		_adjacencyMatrix.resize(std::max(x, y) + 1);
+		for (int i = 0; i < _adjacencyMatrix.size(); i++) {
+			_adjacencyMatrix[i].resize(std::max(x, y) + 1);
+		}
+	}
+
+	if (_adjacencyMatrix[x][y].has_value() == false)
+		_adjacencyMatrix[x][y] = EdgeMatrix();
+	if (_adjacencyMatrix[y][x].has_value() == false)
+		_adjacencyMatrix[y][x] = EdgeMatrix();
+
+	_adjacencyMatrix[x][y].value()._weight = weight;
+	_adjacencyMatrix[y][x].value()._weight = weight;
+
+	return false;
+}
+
+bool GraphMatrix::remove(int x, int y) {
+	if (_adjacencyMatrix.size() < std::max(x, y) + 1) {
+		return true;
+	}
+
+	_adjacencyMatrix[x][y] = std::nullopt;
+	_adjacencyMatrix[y][x] = std::nullopt;
+
+	return false;
+}
+
+std::vector<std::tuple<int, int, int>> GraphMatrix::getGraph() {
+	std::vector<std::tuple<int, int, int>> result;
+	for (int i = 0; i < _adjacencyMatrix.size(); i++)
+		for (int j = 0; j < _adjacencyMatrix[i].size(); j++) {
+			if (_adjacencyMatrix[i][j].has_value())
+				result.push_back({ i, j, _adjacencyMatrix[i][j].value()._weight });
+		}
+
+	return result;
+}
+
+BFS::BFS(GraphList& graph) {
+	_adjacencyList = graph.getAdjacencyList();
+}
+
+BFS::BFS(std::shared_ptr<GraphList> graph) {
+	_adjacencyList = graph->getAdjacencyList();
+}
+
+std::vector<int> BFS::colorGraph() {
 	//maximum color = d + 1, if d = |V| - 1, then maximum color = |V|
 	std::vector<int> color(_adjacencyList.size(), _adjacencyList.size());
 	std::vector<int> openNodes, closedNodes;
@@ -41,7 +143,7 @@ std::vector<int> GraphList::colorGraph() {
 	return color;
 }
 
-std::vector<int> GraphList::getConnectedNumber() {
+std::vector<int> BFS::getConnectedNumber() {
 	std::vector<int> connectedNodes(_adjacencyList.size(), -1);
 	std::vector<int> openNodes, closedNodes;
 
@@ -83,7 +185,7 @@ std::vector<int> GraphList::getConnectedNumber() {
 //3. What about traversing in case of several connectivity components
 //4. Commivoyager task, what's the goal?
 // 
-std::vector<int> GraphList::breadthFirstSearch(int start) {
+std::vector<int> BFS::breadthFirstSearch(int start) {
 	std::vector<int> parentNodes(_adjacencyList.size(), -1);
 	if (start >= _adjacencyList.size())
 		return parentNodes;
@@ -107,93 +209,15 @@ std::vector<int> GraphList::breadthFirstSearch(int start) {
 	return parentNodes;
 }
 
-bool GraphList::insert(int x, int y, int weight) {
-	while (_adjacencyList.size() < std::max(x, y) + 1) {
-		_adjacencyList.push_back(std::vector<EdgeList>());
-	}
-	
-	_adjacencyList[x].push_back(EdgeList{ ._y = y, ._weight = weight });
-	if (_oriented == false)
-		_adjacencyList[y].push_back(EdgeList{ ._y = x, ._weight = weight });
-
-	return false;
-}
-
-bool GraphList::remove(int x, int y) {
-	if (_adjacencyList.size() < std::max(x, y) + 1)
-		return true;
-
-	_adjacencyList[x].erase(std::remove_if(_adjacencyList[x].begin(), _adjacencyList[x].end(), [y](EdgeList edge) { return edge._y == y; }));
-	if (_oriented == false)
-		_adjacencyList[y].erase(std::remove_if(_adjacencyList[y].begin(), _adjacencyList[y].end(), [x](EdgeList edge) { return edge._y == x; }));
-
-	return false;
-}
-
-std::vector<std::vector<EdgeList>> GraphList::getAdjacencyList() {
-	return _adjacencyList;
-}
-
-std::vector<std::tuple<int, int, int>> GraphList::getGraph() {
-	std::vector<std::tuple<int, int, int>> result;
-	for (int i = 0; i < _adjacencyList.size(); i++) {
-		for (int j = 0; j < _adjacencyList[i].size(); j++) {
-			result.push_back({ i, _adjacencyList[i][j]._y, _adjacencyList[i][j]._weight });
-		}
-	}
-
-	return result;
-}
-
-bool GraphMatrix::insert(int x, int y, int weight) {
-	if (_adjacencyMatrix.size() < std::max(x, y) + 1) {
-		_adjacencyMatrix.resize(std::max(x, y) + 1);
-		for (int i = 0; i < _adjacencyMatrix.size(); i++) {
-			_adjacencyMatrix[i].resize(std::max(x, y) + 1);
-		}
-	}
-	
-	if (_adjacencyMatrix[x][y].has_value() == false)
-		_adjacencyMatrix[x][y] = Edge();
-	if (_adjacencyMatrix[y][x].has_value() == false)
-		_adjacencyMatrix[y][x] = Edge();
-
-	_adjacencyMatrix[x][y].value()._weight = weight;
-	_adjacencyMatrix[y][x].value()._weight = weight;
-
-	return false;
-}
-
-bool GraphMatrix::remove(int x, int y) {
-	if (_adjacencyMatrix.size() < std::max(x, y) + 1) {
-		return true;
-	}
-
-	_adjacencyMatrix[x][y] = std::nullopt;
-	_adjacencyMatrix[y][x] = std::nullopt;
-
-	return false;
-}
-
-std::vector<std::tuple<int, int, int>> GraphMatrix::getGraph() {
-	std::vector<std::tuple<int, int, int>> result;
-	for (int i = 0; i < _adjacencyMatrix.size(); i++)
-		for (int j = 0; j < _adjacencyMatrix[i].size(); j++) {
-			if (_adjacencyMatrix[i][j].has_value())
-				result.push_back({ i, j, _adjacencyMatrix[i][j].value()._weight });
-		}
-
-	return result;
-}
-
 DFS::DFS(std::shared_ptr<GraphList> graph) {
 	_adjacencyList = graph->getAdjacencyList();
-
+	_adjacencyListReversed = graph->reverse();
 	_parent.resize(_adjacencyList.size());
 }
 
 DFS::DFS(GraphList& graph) {
 	_adjacencyList = graph.getAdjacencyList();
+	_adjacencyListReversed = graph.reverse();
 
 	_parent.resize(_adjacencyList.size(), -1);
 }
@@ -288,4 +312,50 @@ std::vector<int> DFS::getTopologicalSorted() {
 		return _topologicalSorted;
 
 	return std::vector<int>();
+}
+
+
+bool _getStronglyConnectedEdgesRecursion(int currentNode, std::vector<std::vector<EdgeList>> adjacencyList, std::map<int, bool>& visited, std::vector<int>& traversal) {
+	for (auto adjacement : adjacencyList[currentNode]) {
+		int adjacementNode = adjacement._y;
+		if (visited[adjacementNode] == false) {
+			visited[adjacementNode] = true;
+			_getStronglyConnectedEdgesRecursion(adjacementNode, adjacencyList, visited, traversal);
+		}
+	}
+
+	traversal.insert(traversal.begin(), currentNode);
+	return false;
+}
+
+std::vector<std::vector<int>> DFS::getStronglyConnectedComponents() {
+	//1. Do DFS to get something like topological sorting
+	std::map<int, bool> visited;
+	std::vector<int> traversal;
+
+	for (int i = 0; i < _adjacencyList.size(); i++) {
+		if (visited[i] == false) {
+			visited[i] = true;
+			_getStronglyConnectedEdgesRecursion(i, _adjacencyList, visited, traversal);
+		}
+	}
+
+	//2. Reverse graph
+	//_adjacencyListReversed
+
+	//3. Execute DFS with cleared visited
+	visited.clear();
+	std::vector<int> connectedComponent;
+	std::vector<std::vector<int>> _stronglyConnectedComponents;
+	for (auto node : traversal) {
+		if (visited[node] == false) {
+			visited[node] = true;
+			_getStronglyConnectedEdgesRecursion(node, _adjacencyListReversed, visited, connectedComponent);
+
+			_stronglyConnectedComponents.push_back(connectedComponent);
+			connectedComponent.clear();
+		}
+	}
+
+	return _stronglyConnectedComponents;
 }

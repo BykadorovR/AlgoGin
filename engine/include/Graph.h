@@ -10,6 +10,10 @@ struct EdgeList {
 	int _weight;
 };
 
+struct EdgeMatrix {
+	int _weight;
+};
+
 class GraphList {
 private:
 	std::vector<std::vector<EdgeList>> _adjacencyList;
@@ -18,19 +22,40 @@ public:
 	GraphList(bool oriented = false);
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
+	std::vector<std::vector<EdgeList>> reverse();
+	
+	std::vector<std::vector<EdgeList>> getAdjacencyList();
+	std::vector<std::tuple<int, int, int>> getGraph();
+};
+
+
+class GraphMatrix {
+private:
+	std::vector<std::vector<std::optional<EdgeMatrix>>> _adjacencyMatrix;
+public:
+	bool insert(int x, int y, int weight);
+	bool remove(int x, int y);
+
+	std::vector<std::tuple<int, int, int>> getGraph();
+};
+
+class BFS {
+private:
+	std::vector<std::vector<EdgeList>> _adjacencyList;
+public:
+	BFS(GraphList& graph);
+	BFS(std::shared_ptr<GraphList> graph);
 	//traverse all nodes and find the shortest path from x to y
 	std::vector<int> breadthFirstSearch(int start);
 	std::vector<int> getConnectedNumber();
 
 	std::vector<int> colorGraph();
-
-	std::vector<std::vector<EdgeList>> getAdjacencyList();
-	std::vector<std::tuple<int, int, int>> getGraph();
 };
 
 class DFS {
 private:
 	std::vector<std::vector<EdgeList>> _adjacencyList;
+	std::vector<std::vector<EdgeList>> _adjacencyListReversed;
 	std::map<std::string, std::vector<std::tuple<int, int>>> _edgesType;
 	std::vector<int> _parent;
 	//edges type
@@ -46,26 +71,14 @@ private:
 	std::vector<int> _topologicalSorted;
 	bool _DAG = true;
 	//
+
 	bool _depthFirstTraversalRecursive(int currentNode, std::map<int, bool>& visitedNodes, std::vector<int>& traversal);
 public:
 	DFS(GraphList& graph);
 	DFS(std::shared_ptr<GraphList> graph);
 	std::vector<int> depthFirstTraversal(int start);
+	std::vector<std::vector<int>> getStronglyConnectedComponents();
 	std::vector<int> getArticulationPoints();
 	std::vector<int> getTopologicalSorted();
 	std::map<std::string, std::vector<std::tuple<int, int>>> getEdgesType();
-};
-
-class GraphMatrix {
-private:
-	struct Edge {
-		int _weight;
-	};
-
-	std::vector<std::vector<std::optional<Edge>>> _adjacencyMatrix;
-public:
-	bool insert(int x, int y, int weight);
-	bool remove(int x, int y);
-
-	std::vector<std::tuple<int, int, int>> getGraph();
 };

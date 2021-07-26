@@ -128,42 +128,43 @@ TEST(GraphList, Traversal) {
 	graph.insert(2, 4, 3);
 	graph.insert(4, 5, 4);
 
-	auto parents = graph.breadthFirstSearch(0);
+	BFS bfs(graph);
+	auto parents = bfs.breadthFirstSearch(0);
 	ASSERT_EQ(-1, parents[0]);
 	ASSERT_EQ(0, parents[1]);
 	ASSERT_EQ(0, parents[2]);
 	ASSERT_EQ(0, parents[3]);
 	ASSERT_EQ(2, parents[4]);
 	ASSERT_EQ(4, parents[5]);
-	parents = graph.breadthFirstSearch(1);
+	parents = bfs.breadthFirstSearch(1);
 	ASSERT_EQ(1, parents[0]);
 	ASSERT_EQ(-1, parents[1]);
 	ASSERT_EQ(1, parents[2]);
 	ASSERT_EQ(1, parents[3]);
 	ASSERT_EQ(2, parents[4]);
 	ASSERT_EQ(4, parents[5]);
-	parents = graph.breadthFirstSearch(2);
+	parents = bfs.breadthFirstSearch(2);
 	ASSERT_EQ(2, parents[0]);
 	ASSERT_EQ(2, parents[1]);
 	ASSERT_EQ(-1, parents[2]);
 	ASSERT_EQ(2, parents[3]);
 	ASSERT_EQ(2, parents[4]);
 	ASSERT_EQ(4, parents[5]);
-	parents = graph.breadthFirstSearch(3);
+	parents = bfs.breadthFirstSearch(3);
 	ASSERT_EQ(3, parents[0]);
 	ASSERT_EQ(3, parents[1]);
 	ASSERT_EQ(3, parents[2]);
 	ASSERT_EQ(-1, parents[3]);
 	ASSERT_EQ(2, parents[4]);
 	ASSERT_EQ(4, parents[5]);
-	parents = graph.breadthFirstSearch(4);
+	parents = bfs.breadthFirstSearch(4);
 	ASSERT_EQ(2, parents[0]);
 	ASSERT_EQ(2, parents[1]);
 	ASSERT_EQ(4, parents[2]);
 	ASSERT_EQ(2, parents[3]);
 	ASSERT_EQ(-1, parents[4]);
 	ASSERT_EQ(4, parents[5]);
-	parents = graph.breadthFirstSearch(6);
+	parents = bfs.breadthFirstSearch(6);
 	ASSERT_EQ(-1, parents[0]);
 	ASSERT_EQ(-1, parents[1]);
 	ASSERT_EQ(-1, parents[2]);
@@ -191,7 +192,8 @@ TEST(GraphList, Connected_Several) {
 	graph.insert(2, 3, 3);
 	graph.insert(4, 5, 4);
 
-	auto connected = graph.getConnectedNumber();
+	BFS bfs(graph);
+	auto connected = bfs.getConnectedNumber();
 	ASSERT_EQ(connected[0], 0);
 	ASSERT_EQ(connected[1], 0);
 	ASSERT_EQ(connected[2], 0);
@@ -211,7 +213,8 @@ TEST(GraphList, Connected_One) {
 	graph.insert(2, 4, 4);
 	graph.insert(4, 5, 5);
 
-	auto connected = graph.getConnectedNumber();
+	BFS bfs(graph);
+	auto connected = bfs.getConnectedNumber();
 	ASSERT_EQ(connected[0], 0);
 	ASSERT_EQ(connected[1], 0);
 	ASSERT_EQ(connected[2], 0);
@@ -240,7 +243,8 @@ TEST(GraphList, Coloring_4) {
 	graph.insert(2, 4, 4);
 	graph.insert(4, 5, 5);
 
-	auto colors = graph.colorGraph();
+	BFS bfs(graph);
+	auto colors = bfs.colorGraph();
 	ASSERT_EQ(colors[0], 0);
 	ASSERT_EQ(colors[1], 1);
 	ASSERT_EQ(colors[2], 2);
@@ -265,7 +269,8 @@ TEST(GraphList, Coloring_2) {
 	graph.insert(1, 3, 5);
 	graph.insert(1, 4, 6);
 
-	auto colors = graph.colorGraph();
+	BFS bfs(graph);
+	auto colors = bfs.colorGraph();
 	ASSERT_EQ(colors[0], 0);
 	ASSERT_EQ(colors[1], 1);
 	ASSERT_EQ(colors[2], 1);
@@ -462,7 +467,7 @@ TEST(GraphList, DFS_topologicalSorting) {
 	   * *   \
 	|   0     \
 	*          *
-	2 -* 3 --*  1
+	2 -> 3 -->  1
 	*/
 	GraphList graph(true);
 	graph.insert(5, 0, 1);
@@ -488,4 +493,31 @@ TEST(GraphList, DFS_topologicalSorting) {
 	dfs.depthFirstTraversal(0);
 	topological = dfs.getTopologicalSorted();
 	ASSERT_EQ(topological.size(), 0);
+}
+
+TEST(GraphList, DFS_stronglyConnectedComponents) {
+	/*
+	1 -> 0 -> 3
+	*   /     |
+	| *       *
+	2         4
+	*/
+
+	GraphList graph(true);
+	graph.insert(1, 0, 1);
+	graph.insert(2, 1, 2);
+	graph.insert(0, 2, 3);
+	graph.insert(0, 3, 4);
+	graph.insert(3, 4, 5);
+
+	DFS dfs(graph);
+	auto strongly = dfs.getStronglyConnectedComponents();
+	ASSERT_EQ(strongly[0].size(), 3);
+	ASSERT_EQ(strongly[0][0], 0);
+	ASSERT_EQ(strongly[0][1], 1);
+	ASSERT_EQ(strongly[0][2], 2);
+	ASSERT_EQ(strongly[1].size(), 1);
+	ASSERT_EQ(strongly[1][0], 3);
+	ASSERT_EQ(strongly[2].size(), 1);
+	ASSERT_EQ(strongly[2][0], 4);
 }
