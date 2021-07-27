@@ -393,14 +393,12 @@ std::vector<std::tuple<int, int, int>> MinimumSpanningTree::prim() {
 		//insert key with minimum weight to tree
 		spanningTree.push_back(minNode);
 
-		//find adjacement nodes of spanning tree and determine node with the smallest weight
-		for (auto node : spanningTree) {
-			for (int i = 0; i < _adjacencyList[node].size(); i++) {
-				EdgeList adjacentNode = _adjacencyList[node][i];
-				if (visited[adjacentNode._y] == false && adjacentNode._weight < keyTree[adjacentNode._y]) {
-					keyTree[adjacentNode._y] = adjacentNode._weight;
-					parent[adjacentNode._y] = node;
-				}
+		//update weights for newly added minNode
+		for (int i = 0; i < _adjacencyList[minNode].size(); i++) {
+			EdgeList adjacentNode = _adjacencyList[minNode][i];
+			if (visited[adjacentNode._y] == false && adjacentNode._weight < keyTree[adjacentNode._y]) {
+				keyTree[adjacentNode._y] = adjacentNode._weight;
+				parent[adjacentNode._y] = minNode;
 			}
 		}
 	}
