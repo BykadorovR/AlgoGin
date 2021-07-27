@@ -365,16 +365,18 @@ MinimumSpanningTree::MinimumSpanningTree(GraphList& graph) {
 }
 std::vector<std::tuple<int, int, int>> MinimumSpanningTree::prim() {
 	std::vector<int> spanningTree;
+	//signaling if element in spanningTree, to avoid traversing vector
+	std::map<int, bool> visited;
+
 	std::map<int, int> parent;
 	std::map<int, int> keyTree;
 	for (int i = 0; i < _adjacencyList.size(); i++)
 		keyTree[i] = INT_MAX;
 
-	std::map<int, bool> visited;
+	//choose first element
 	int current = 0;
 	keyTree[current] = 0;
-
-	while (spanningTree.size() < _adjacencyList.size()) {
+	for (int i = 0; i < _adjacencyList.size(); i++) {
 		//find node in keyTree with minimum weight
 		int minNodeValue = INT_MAX;
 		int minNode = -1;
