@@ -523,6 +523,7 @@ TEST(GraphList, DFS_stronglyConnectedComponents) {
 }
 
 TEST(GraphList, Prim_algorithm) {
+	//graph from geeksforgeeks
 	GraphList graph;
 	graph.insert(0, 1, 4);
 	graph.insert(0, 7, 8);
@@ -566,6 +567,7 @@ TEST(GraphList, Prim_algorithm) {
 	ASSERT_EQ(std::get<1>(result[7]), 4);
 	ASSERT_EQ(std::get<2>(result[7]), 9);
 
+	//graph from one note
 	GraphList graph2;
 	graph2.insert(0, 1, 7);
 	graph2.insert(0, 3, 5);
@@ -599,4 +601,127 @@ TEST(GraphList, Prim_algorithm) {
 	ASSERT_EQ(std::get<0>(result[5]), 4);
 	ASSERT_EQ(std::get<1>(result[5]), 6);
 	ASSERT_EQ(std::get<2>(result[5]), 9);
+}
+
+TEST(GraphList, Kruskal_algorithm) {
+	//graph from geeksforgeeks
+	GraphList graph;
+	graph.insert(0, 1, 4);
+	graph.insert(0, 7, 8);
+	graph.insert(1, 7, 11);
+	graph.insert(1, 2, 8);
+	graph.insert(7, 6, 1);
+	graph.insert(7, 8, 7);
+	graph.insert(2, 8, 2);
+	graph.insert(8, 6, 6);
+	graph.insert(2, 3, 7);
+	graph.insert(2, 5, 4);
+	graph.insert(6, 5, 2);
+	graph.insert(3, 5, 14);
+	graph.insert(3, 4, 9);
+	graph.insert(5, 4, 10);
+
+	MinimumSpanningTree MST(graph);
+	auto result = MST.kruskal();
+	ASSERT_EQ(std::get<0>(result[0]), 6);
+	ASSERT_EQ(std::get<1>(result[0]), 7);
+	ASSERT_EQ(std::get<2>(result[0]), 1);
+	ASSERT_EQ(std::get<0>(result[1]), 2);
+	ASSERT_EQ(std::get<1>(result[1]), 8);
+	ASSERT_EQ(std::get<2>(result[1]), 2);
+	ASSERT_EQ(std::get<0>(result[2]), 5);
+	ASSERT_EQ(std::get<1>(result[2]), 6);
+	ASSERT_EQ(std::get<2>(result[2]), 2);
+	ASSERT_EQ(std::get<0>(result[3]), 0);
+	ASSERT_EQ(std::get<1>(result[3]), 1);
+	ASSERT_EQ(std::get<2>(result[3]), 4);
+	ASSERT_EQ(std::get<0>(result[4]), 2);
+	ASSERT_EQ(std::get<1>(result[4]), 5);
+	ASSERT_EQ(std::get<2>(result[4]), 4);
+	ASSERT_EQ(std::get<0>(result[5]), 2);
+	ASSERT_EQ(std::get<1>(result[5]), 3);
+	ASSERT_EQ(std::get<2>(result[5]), 7);
+	ASSERT_EQ(std::get<0>(result[6]), 0);
+	ASSERT_EQ(std::get<1>(result[6]), 7);
+	ASSERT_EQ(std::get<2>(result[6]), 8);
+	ASSERT_EQ(std::get<0>(result[7]), 3);
+	ASSERT_EQ(std::get<1>(result[7]), 4);
+	ASSERT_EQ(std::get<2>(result[7]), 9);
+
+	//graph from one note
+	GraphList graph2;
+	graph2.insert(0, 1, 7);
+	graph2.insert(0, 3, 5);
+	graph2.insert(1, 3, 9);
+	graph2.insert(1, 2, 8);
+	graph2.insert(1, 4, 7);
+	graph2.insert(2, 4, 5);
+	graph2.insert(3, 4, 15);
+	graph2.insert(3, 5, 6);
+	graph2.insert(4, 5, 8);
+	graph2.insert(4, 6, 9);
+	graph2.insert(5, 6, 11);
+
+	MinimumSpanningTree MST2(graph2);
+	result = MST2.kruskal();
+	ASSERT_EQ(std::get<0>(result[0]), 0);
+	ASSERT_EQ(std::get<1>(result[0]), 3);
+	ASSERT_EQ(std::get<2>(result[0]), 5);
+	ASSERT_EQ(std::get<0>(result[1]), 2);
+	ASSERT_EQ(std::get<1>(result[1]), 4);
+	ASSERT_EQ(std::get<2>(result[1]), 5);
+	ASSERT_EQ(std::get<0>(result[2]), 3);
+	ASSERT_EQ(std::get<1>(result[2]), 5);
+	ASSERT_EQ(std::get<2>(result[2]), 6);
+	ASSERT_EQ(std::get<0>(result[3]), 0);
+	ASSERT_EQ(std::get<1>(result[3]), 1);
+	ASSERT_EQ(std::get<2>(result[3]), 7);
+	ASSERT_EQ(std::get<0>(result[4]), 1);
+	ASSERT_EQ(std::get<1>(result[4]), 4);
+	ASSERT_EQ(std::get<2>(result[4]), 7);
+	ASSERT_EQ(std::get<0>(result[5]), 4);
+	ASSERT_EQ(std::get<1>(result[5]), 6);
+	ASSERT_EQ(std::get<2>(result[5]), 9);
+}
+
+TEST(GraphList, Dijkstra_algorithm) {
+	//graph from geeksforgeeks
+	GraphList graph;
+	graph.insert(0, 1, 4);
+	graph.insert(0, 7, 8);
+	graph.insert(1, 7, 11);
+	graph.insert(1, 2, 8);
+	graph.insert(7, 6, 1);
+	graph.insert(7, 8, 7);
+	graph.insert(2, 8, 2);
+	graph.insert(8, 6, 6);
+	graph.insert(2, 3, 7);
+	graph.insert(2, 5, 4);
+	graph.insert(6, 5, 2);
+	graph.insert(3, 5, 14);
+	graph.insert(3, 4, 9);
+	graph.insert(5, 4, 10);
+
+	ShortestPath sp(graph);
+	auto result = sp.dijkstra(0);
+	ASSERT_EQ(result[0], 0);
+	ASSERT_EQ(result[1], 4);
+	ASSERT_EQ(result[2], 12);
+	ASSERT_EQ(result[3], 19);
+	ASSERT_EQ(result[4], 21);
+	ASSERT_EQ(result[5], 11);
+	ASSERT_EQ(result[6], 9);
+	ASSERT_EQ(result[7], 8);
+	ASSERT_EQ(result[8], 14);
+
+	result = sp.dijkstra(5);
+	ASSERT_EQ(result[0], 11);
+	ASSERT_EQ(result[1], 12);
+	ASSERT_EQ(result[2], 4);
+	ASSERT_EQ(result[3], 11);
+	ASSERT_EQ(result[4], 10);
+	ASSERT_EQ(result[5], 0);
+	ASSERT_EQ(result[6], 2);
+	ASSERT_EQ(result[7], 3);
+	ASSERT_EQ(result[8], 6);
 }

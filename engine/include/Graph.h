@@ -89,4 +89,13 @@ private:
 public:
 	MinimumSpanningTree(GraphList& graph);
 	std::vector<std::tuple<int, int, int>> prim();
+	std::vector<std::tuple<int, int, int>> kruskal();
+};
+
+class ShortestPath {
+private:
+	std::vector<std::vector<EdgeList>> _adjacencyList;
+public:
+	ShortestPath(GraphList& graph);
+	std::map<int, int> dijkstra(int start);
 };

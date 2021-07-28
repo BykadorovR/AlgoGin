@@ -410,3 +410,93 @@ std::vector<std::tuple<int, int, int>> MinimumSpanningTree::prim() {
 	}
 	return result;
 }
+
+std::vector<std::tuple<int, int, int>> MinimumSpanningTree::kruskal() {
+	//form vector of trees from vertexes
+	std::map<int, int> tree;
+	//place every vertex to it's own subtree
+	for (int i = 0; i < _adjacencyList.size(); i++) {
+		tree[i] = i;
+	}
+
+	//Can be improved to ElogE instead of E*E
+	std::vector<std::tuple<int, int, int>> sortedEdges;
+	//use insertion sort algo
+	for (int i = 0; i < _adjacencyList.size(); i++)
+		for (int j = 0; j < _adjacencyList[i].size(); j++) {
+			int weight = _adjacencyList[i][j]._weight;
+			int position = 0;
+			for (int k = 0; k < sortedEdges.size(); k++) {
+				//find position
+				if (weight < std::get<2>(sortedEdges[k])) {
+					break;
+				}
+
+				position++;
+			}
+			sortedEdges.insert(sortedEdges.begin() + position, { i, _adjacencyList[i][j]._y, weight });
+		}
+
+	//take minimum edges and add them to result if they don't form loop
+	std::vector<std::tuple<int, int, int>> spanningTree;
+	for (int i = 0; i < sortedEdges.size(); i++) {
+		int first = std::get<0>(sortedEdges[i]);
+		int second = std::get<1>(sortedEdges[i]);
+		if (tree[first] != tree[second]) {
+			spanningTree.push_back(sortedEdges[i]);
+			//changed connected component for nodes
+			int changedValue = tree[second];
+			int targetValue = tree[first];
+			for (int k = 0; k < tree.size(); k++) {
+				if (tree[k] == changedValue)
+					tree[k] = targetValue;
+			}
+		}
+	}
+
+	return spanningTree;
+}
+
+ShortestPath::ShortestPath(GraphList& graph) {
+	_adjacencyList = graph.getAdjacencyList();
+}
+
+std::map<int, int> ShortestPath::dijkstra(int start) {
+	//handled vertexes
+	std::vector<int> shortestPath;
+	std::map<int, bool> visited;
+	//weight of path from start vertex till current vertex
+	std::map<int, int> key;
+	for (int i = 0; i < _adjacencyList.size(); i++) {
+		key[i] = INT_MAX;
+	}
+
+	key[start] = 0;
+	for (int i = 0; i < _adjacencyList.size(); i++) {
+		//first find the smallest node in key
+		int minWeight = INT_MAX;
+		int minNode = 0;
+		for (auto [node, weight] : key) {
+			if (visited[node] == false && weight < minWeight) {
+				minWeight = weight;
+				minNode = node;
+			}
+		}
+
+		//add smallest node to shortest path
+		shortestPath.push_back(minNode);
+		visited[minNode] = true;
+
+		//update weights in key for newly added vertex (smallest node)
+		for (int i = 0; i < _adjacencyList[minNode].size(); i++) {
+			int firstNode = minNode;
+			auto secondNode = _adjacencyList[minNode][i];
+			//update key if new route is less than current one
+			if (visited[secondNode._y] == false && key[firstNode] + secondNode._weight < key[secondNode._y]) {
+				key[secondNode._y] = key[firstNode] + secondNode._weight;
+			}
+		}
+	}
+
+	return key;
+}
