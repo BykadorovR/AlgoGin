@@ -36,6 +36,7 @@ public:
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
 
+	std::vector<std::vector<std::optional<EdgeMatrix>>> getAdjacencyMatrix();
 	std::vector<std::tuple<int, int, int>> getGraph();
 };
 
@@ -95,7 +96,11 @@ public:
 class ShortestPath {
 private:
 	std::vector<std::vector<EdgeList>> _adjacencyList;
+	std::vector<std::vector<std::optional<EdgeMatrix>>> _adjacencyMatrix;
 public:
 	ShortestPath(GraphList& graph);
+	ShortestPath(GraphMatrix& graph);
+
 	std::map<int, int> dijkstra(int start);
+	std::vector<std::vector<int>> floydWarshall();
 };

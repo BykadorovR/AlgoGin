@@ -725,3 +725,24 @@ TEST(GraphList, Dijkstra_algorithm) {
 	ASSERT_EQ(result[7], 3);
 	ASSERT_EQ(result[8], 6);
 }
+
+TEST(GraphList, FloydWarshall_algorithm) {
+	GraphMatrix graph;
+	graph.insert(0, 1, 4);
+	graph.insert(0, 7, 8);
+	graph.insert(1, 7, 11);
+	graph.insert(1, 2, 8);
+	graph.insert(7, 6, 1);
+	graph.insert(7, 8, 7);
+	graph.insert(2, 8, 2);
+	graph.insert(8, 6, 6);
+	graph.insert(2, 3, 7);
+	graph.insert(2, 5, 4);
+	graph.insert(6, 5, 2);
+	graph.insert(3, 5, 14);
+	graph.insert(3, 4, 9);
+	graph.insert(5, 4, 10);
+
+	ShortestPath sp(graph);
+	auto result = sp.floydWarshall();
+}

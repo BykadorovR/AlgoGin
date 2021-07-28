@@ -88,6 +88,10 @@ bool GraphMatrix::remove(int x, int y) {
 	return false;
 }
 
+std::vector<std::vector<std::optional<EdgeMatrix>>> GraphMatrix::getAdjacencyMatrix() {
+	return _adjacencyMatrix;
+}
+
 std::vector<std::tuple<int, int, int>> GraphMatrix::getGraph() {
 	std::vector<std::tuple<int, int, int>> result;
 	for (int i = 0; i < _adjacencyMatrix.size(); i++)
@@ -499,4 +503,40 @@ std::map<int, int> ShortestPath::dijkstra(int start) {
 	}
 
 	return key;
+}
+
+ShortestPath::ShortestPath(GraphMatrix& graph) {
+	_adjacencyMatrix = graph.getAdjacencyMatrix();
+}
+
+std::vector<std::vector<int>> ShortestPath::floydWarshall() {
+	std::vector<std::vector<int>> result(_adjacencyMatrix.size());
+	for (int i = 0; i < _adjacencyMatrix.size(); i++)
+		result[i] = std::vector<int>(_adjacencyMatrix.size(), INT_MAX);
+
+	//first of all place adjacencyMatrix to result, it contains first-order relationships between nodes (so node-node relationship)
+	for (int i = 0; i < _adjacencyMatrix.size(); i++) {
+		for (int j = 0; j < _adjacencyMatrix.size(); j++) {
+			// self-loop or a buckle
+			if (i == j)
+				result[i][j] = 0;
+			auto value = _adjacencyMatrix[i][j];
+			if (value.has_value())
+				result[i][j] = value.value()._weight;
+		}
+	}
+
+	//next we need to insert k node to any i-j path and check if i-k + j-k have less weight than i-j
+	for (int k = 0; k < _adjacencyMatrix.size(); k++) {
+		for (int i = 0; i < _adjacencyMatrix.size(); i++) {
+			for (int j = 0; j < _adjacencyMatrix.size(); j++) {
+				//check for INT_MAX to avoid INT_MAX + INT_MAX
+				if (result[i][k] < INT_MAX && result[k][j] < INT_MAX && result[i][k] + result[k][j] < result[i][j]) {
+					result[i][j] = result[i][k] + result[k][j];
+				}
+			}
+		}
+	}
+
+	return result;
 }
