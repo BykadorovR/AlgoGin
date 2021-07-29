@@ -748,7 +748,7 @@ TEST(GraphMatrix, FloydWarshall_algorithm) {
 }
 
 TEST(GraphList, EdmondKarp_algorithm) {
-	//wiki graph. Important: there is mistake in wiki (?!), result = 4 not 5
+	//wiki graph
 	GraphMatrix graph;
 	graph.insert(0, 1, 3);
 	graph.insert(0, 3, 3);
