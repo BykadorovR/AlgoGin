@@ -764,7 +764,7 @@ TEST(GraphList, EdmondKarp_algorithm) {
 
 	MaximumFlow mf(graph);
 	auto result = mf.edmondsKarp(0, 6);
-	ASSERT_EQ(result, 4);
+	ASSERT_EQ(result, 5);
 
 	//one note graph
 	GraphMatrix graph2;

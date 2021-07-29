@@ -598,6 +598,9 @@ int MaximumFlow::edmondsKarp(int source, int sink) {
 			current = sink;
 			while (current != source) {
 				_adjacencyMatrix[parent[current]][current].value()._weight -= minimumCapacity;
+				if (_adjacencyMatrix[current][parent[current]].has_value() == false)
+					_adjacencyMatrix[current][parent[current]] = EdgeMatrix(0);
+				_adjacencyMatrix[current][parent[current]].value()._weight += minimumCapacity;
 				
 				current = parent[current];
 			}
