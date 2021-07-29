@@ -540,3 +540,72 @@ std::vector<std::vector<int>> ShortestPath::floydWarshall() {
 
 	return result;
 }
+
+MaximumFlow::MaximumFlow(GraphList& graph) {
+	_adjacencyList = graph.getAdjacencyList();
+}
+
+int MaximumFlow::edmondsKarp(int source, int sink) {
+	//first of all execute BFS to find shortest augmented path
+	int result = 0;
+	std::map<int, int> parent; //array to recover shortest path after BFS
+	std::map<int, bool> visited;
+	std::vector<int> bfs;
+	do {
+		parent.clear();
+		visited.clear();
+
+		bfs.push_back(source);
+		visited[source] = true;
+		parent[source] = -1;
+
+		while (bfs.size() > 0) {
+			int current = bfs[0];
+			bfs.erase(bfs.begin());
+			for (int i = 0; i < _adjacencyList[current].size(); i++) {
+				auto node = _adjacencyList[current][i]._y;
+				//ignore paths with 0 capacity
+				if (visited[node] == false && _adjacencyList[current][i]._weight > 0) {
+					visited[node] = true;
+
+					parent[node] = current;
+					bfs.push_back(node);
+				}
+			}
+		}
+
+		//if no path found to sink vertex means no more capacity
+		if (parent.find(sink) != parent.end()) {
+			//find minimum capacity
+			int current = sink;
+			int minimumCapacity = INT_MAX;
+			while (current != source) {
+				int currentCapacity = 0;
+				for (int i = 0; i < _adjacencyList[parent[current]].size(); i++) {
+					if (_adjacencyList[parent[current]][i]._y == current)
+						currentCapacity = _adjacencyList[parent[current]][i]._weight;
+				}
+				if (currentCapacity < minimumCapacity)
+					minimumCapacity = currentCapacity;
+
+				current = parent[current];
+			}
+
+			//decrease capacity of all nodes in path by minimum capacity and add to result
+			result += minimumCapacity;
+			current = sink;
+			while (current != source) {
+				int index = 0;
+				for (int i = 0; i < _adjacencyList[parent[current]].size(); i++) {
+					if (_adjacencyList[parent[current]][i]._y == current)
+						index = i;
+				}
+				_adjacencyList[parent[current]][index]._weight -= minimumCapacity;
+				
+				current = parent[current];
+			}
+		}
+	} while (parent.find(sink) != parent.end());
+
+	return result;
+}

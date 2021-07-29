@@ -726,7 +726,7 @@ TEST(GraphList, Dijkstra_algorithm) {
 	ASSERT_EQ(result[8], 6);
 }
 
-TEST(GraphList, FloydWarshall_algorithm) {
+TEST(GraphMatrix, FloydWarshall_algorithm) {
 	GraphMatrix graph;
 	graph.insert(0, 1, 4);
 	graph.insert(0, 7, 8);
@@ -745,4 +745,41 @@ TEST(GraphList, FloydWarshall_algorithm) {
 
 	ShortestPath sp(graph);
 	auto result = sp.floydWarshall();
+}
+
+TEST(GraphList, EdmondKarp_algorithm) {
+	//wiki graph. Important: there is mistake in wiki (?!), result = 4 not 5
+	GraphList graph(true);
+	graph.insert(0, 1, 3);
+	graph.insert(0, 3, 3);
+	graph.insert(1, 2, 4);
+	graph.insert(2, 0, 3);
+	graph.insert(2, 3, 1);
+	graph.insert(4, 1, 1);
+	graph.insert(2, 4, 2);
+	graph.insert(3, 4, 2);
+	graph.insert(3, 5, 6);
+	graph.insert(4, 6, 1);
+	graph.insert(5, 6, 9);
+
+	MaximumFlow mf(graph);
+	auto result = mf.edmondsKarp(0, 6);
+	ASSERT_EQ(result, 4);
+
+	//one note graph
+	GraphList graph2(true);
+	graph2.insert(0, 1, 10);
+	graph2.insert(0, 3, 2);
+	graph2.insert(0, 4, 4);
+	graph2.insert(1, 3, 7);
+	graph2.insert(1, 2, 5);
+	graph2.insert(2, 6, 8);
+	graph2.insert(3, 2, 6);
+	graph2.insert(3, 6, 2);
+	graph2.insert(4, 5, 10);
+	graph2.insert(5, 6, 13);
+
+	mf = MaximumFlow(graph2);
+	result = mf.edmondsKarp(0, 6);
+	ASSERT_EQ(result, 14);
 }

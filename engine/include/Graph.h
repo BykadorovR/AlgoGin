@@ -104,3 +104,11 @@ public:
 	std::map<int, int> dijkstra(int start);
 	std::vector<std::vector<int>> floydWarshall();
 };
+
+class MaximumFlow {
+private:
+	std::vector<std::vector<EdgeList>> _adjacencyList;
+public:
+	MaximumFlow(GraphList& graph);
+	int edmondsKarp(int source, int sink);
+};
