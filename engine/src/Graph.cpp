@@ -58,6 +58,10 @@ std::vector<std::tuple<int, int, int>> GraphList::getGraph() {
 	return result;
 }
 
+GraphMatrix::GraphMatrix(bool oriented) {
+	_oriented = oriented;
+}
+
 bool GraphMatrix::insert(int x, int y, int weight) {
 	if (_adjacencyMatrix.size() < std::max(x, y) + 1) {
 		_adjacencyMatrix.resize(std::max(x, y) + 1);
@@ -68,11 +72,13 @@ bool GraphMatrix::insert(int x, int y, int weight) {
 
 	if (_adjacencyMatrix[x][y].has_value() == false)
 		_adjacencyMatrix[x][y] = EdgeMatrix();
-	if (_adjacencyMatrix[y][x].has_value() == false)
-		_adjacencyMatrix[y][x] = EdgeMatrix();
-
 	_adjacencyMatrix[x][y].value()._weight = weight;
-	_adjacencyMatrix[y][x].value()._weight = weight;
+	
+	if (_oriented) {
+		if (_adjacencyMatrix[y][x].has_value() == false)
+			_adjacencyMatrix[y][x] = EdgeMatrix();
+		_adjacencyMatrix[y][x].value()._weight = weight;
+	}
 
 	return false;
 }
@@ -83,7 +89,8 @@ bool GraphMatrix::remove(int x, int y) {
 	}
 
 	_adjacencyMatrix[x][y] = std::nullopt;
-	_adjacencyMatrix[y][x] = std::nullopt;
+	if (_oriented)
+		_adjacencyMatrix[y][x] = std::nullopt;
 
 	return false;
 }
@@ -541,8 +548,8 @@ std::vector<std::vector<int>> ShortestPath::floydWarshall() {
 	return result;
 }
 
-MaximumFlow::MaximumFlow(GraphList& graph) {
-	_adjacencyList = graph.getAdjacencyList();
+MaximumFlow::MaximumFlow(GraphMatrix& graph) {
+	_adjacencyMatrix = graph.getAdjacencyMatrix();
 }
 
 int MaximumFlow::edmondsKarp(int source, int sink) {
@@ -562,14 +569,13 @@ int MaximumFlow::edmondsKarp(int source, int sink) {
 		while (bfs.size() > 0) {
 			int current = bfs[0];
 			bfs.erase(bfs.begin());
-			for (int i = 0; i < _adjacencyList[current].size(); i++) {
-				auto node = _adjacencyList[current][i]._y;
+			for (int i = 0; i < _adjacencyMatrix[current].size(); i++) {
 				//ignore paths with 0 capacity
-				if (visited[node] == false && _adjacencyList[current][i]._weight > 0) {
-					visited[node] = true;
+				if (visited[i] == false && _adjacencyMatrix[current][i].has_value() && _adjacencyMatrix[current][i].value()._weight > 0) {
+					visited[i] = true;
 
-					parent[node] = current;
-					bfs.push_back(node);
+					parent[i] = current;
+					bfs.push_back(i);
 				}
 			}
 		}
@@ -580,11 +586,7 @@ int MaximumFlow::edmondsKarp(int source, int sink) {
 			int current = sink;
 			int minimumCapacity = INT_MAX;
 			while (current != source) {
-				int currentCapacity = 0;
-				for (int i = 0; i < _adjacencyList[parent[current]].size(); i++) {
-					if (_adjacencyList[parent[current]][i]._y == current)
-						currentCapacity = _adjacencyList[parent[current]][i]._weight;
-				}
+				int currentCapacity = _adjacencyMatrix[parent[current]][current].value()._weight;
 				if (currentCapacity < minimumCapacity)
 					minimumCapacity = currentCapacity;
 
@@ -595,12 +597,7 @@ int MaximumFlow::edmondsKarp(int source, int sink) {
 			result += minimumCapacity;
 			current = sink;
 			while (current != source) {
-				int index = 0;
-				for (int i = 0; i < _adjacencyList[parent[current]].size(); i++) {
-					if (_adjacencyList[parent[current]][i]._y == current)
-						index = i;
-				}
-				_adjacencyList[parent[current]][index]._weight -= minimumCapacity;
+				_adjacencyMatrix[parent[current]][current].value()._weight -= minimumCapacity;
 				
 				current = parent[current];
 			}

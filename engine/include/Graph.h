@@ -32,7 +32,10 @@ public:
 class GraphMatrix {
 private:
 	std::vector<std::vector<std::optional<EdgeMatrix>>> _adjacencyMatrix;
+	bool _oriented;
 public:
+	GraphMatrix(bool oriented = false);
+
 	bool insert(int x, int y, int weight);
 	bool remove(int x, int y);
 
@@ -107,8 +110,8 @@ public:
 
 class MaximumFlow {
 private:
-	std::vector<std::vector<EdgeList>> _adjacencyList;
+	std::vector<std::vector<std::optional<EdgeMatrix>>> _adjacencyMatrix;
 public:
-	MaximumFlow(GraphList& graph);
+	MaximumFlow(GraphMatrix& graph);
 	int edmondsKarp(int source, int sink);
 };

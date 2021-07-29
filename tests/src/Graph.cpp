@@ -749,7 +749,7 @@ TEST(GraphMatrix, FloydWarshall_algorithm) {
 
 TEST(GraphList, EdmondKarp_algorithm) {
 	//wiki graph. Important: there is mistake in wiki (?!), result = 4 not 5
-	GraphList graph(true);
+	GraphMatrix graph;
 	graph.insert(0, 1, 3);
 	graph.insert(0, 3, 3);
 	graph.insert(1, 2, 4);
@@ -767,7 +767,7 @@ TEST(GraphList, EdmondKarp_algorithm) {
 	ASSERT_EQ(result, 4);
 
 	//one note graph
-	GraphList graph2(true);
+	GraphMatrix graph2;
 	graph2.insert(0, 1, 10);
 	graph2.insert(0, 3, 2);
 	graph2.insert(0, 4, 4);
