@@ -1275,3 +1275,36 @@ TEST(HashTable, Remove_Simple_String) {
 	hashTable.remove("here");
 	ASSERT_EQ(hashTable.find("here"), std::nullopt);
 }
+
+TEST(Trie, Insert_Find) {
+	algogin::Trie<int> trie;
+	trie.insert("roma", 26);
+	trie.insert("romka", 28);
+	trie.insert("roman", 30);
+
+	ASSERT_EQ(trie.find("roma"), 26);
+	ASSERT_EQ(trie.find("rom"), std::nullopt);
+	ASSERT_EQ(trie.find("rok"), std::nullopt);
+	ASSERT_EQ(trie.find("romka"), 28);
+	ASSERT_EQ(trie.find("roman"), 30);
+	ASSERT_EQ(trie.find("romana"), std::nullopt);
+	ASSERT_EQ(trie.find("julie"), std::nullopt);
+}
+
+TEST(Trie, Remove) {
+	algogin::Trie<int> trie;
+
+	trie.insert("roma", 26);
+	trie.insert("romka", 28);
+	trie.insert("roman", 30);
+
+	ASSERT_EQ(trie.remove("roma"), false);
+	ASSERT_EQ(trie.find("roma"), std::nullopt);
+	ASSERT_EQ(trie.find("romka"), 28);
+	ASSERT_EQ(trie.find("roman"), 30);
+	ASSERT_EQ(trie.remove("julie"), true);
+	ASSERT_EQ(trie.remove("ro"), true);
+	ASSERT_EQ(trie.remove("romka"), false);
+	ASSERT_EQ(trie.find("romka"), std::nullopt);
+	ASSERT_EQ(trie.find("roman"), 30);
+}

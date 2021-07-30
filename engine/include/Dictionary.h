@@ -1129,4 +1129,70 @@ namespace algogin {
 		}
 	};
 
+	template <class V>
+	class Trie {
+	private:
+		struct Node {
+			std::map<std::string, std::shared_ptr<Node>> _children;
+			//only final nodes can have value
+			std::optional<V> _value = std::nullopt;
+		};
+
+		std::shared_ptr<Node> _head;
+	public:
+		Trie() {
+			_head = std::make_shared<Node>();
+		}
+
+		std::optional<V> find(std::string key) {
+			auto currentNode = _head;
+			for (auto c : key) {
+				if (currentNode->_children.contains(std::string(1, c))) {
+					currentNode = currentNode->_children[std::string(1, c)];
+				}
+				else {
+					return std::nullopt;
+				}
+			}
+
+			return currentNode->_value;
+		}
+
+		bool insert(std::string key, V value) {
+			auto currentNode = _head;
+			for (auto c : key) {
+				if (currentNode->_children.contains(std::string(1, c))) {
+					currentNode = currentNode->_children[std::string(1, c)];
+				}
+				else {
+					//need to insert new node
+					auto node = std::make_shared<Node>();
+					currentNode->_children.insert({ std::string(1, c), node});
+					currentNode = node;
+				}
+			}
+
+			currentNode->_value = value;
+
+			return false;
+		}
+
+		bool remove(std::string key) {
+			auto currentNode = _head;
+			for (auto c : key) {
+				if (currentNode->_children.contains(std::string(1, c))) {
+					currentNode = currentNode->_children[std::string(1, c)];
+				}
+				else {
+					return true;
+				}
+			}
+
+			if (currentNode->_value.has_value()) {
+				currentNode->_value = std::nullopt;
+				return false;
+			}
+			return true;
+		}
+	};
 }
