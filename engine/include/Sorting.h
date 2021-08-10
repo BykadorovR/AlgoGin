@@ -156,4 +156,42 @@ public:
 
 		return output;
 	}
+
+	template <class T>
+	std::vector<T> cycleSort(std::vector<T> input) {
+		for (int start = 0; start < input.size(); start++) {
+			int current = start;
+			//calculate place to insert by finding all elements current is greater than
+			for (int i = start + 1; i < input.size(); i++) {
+				if (input[start] > input[i]) {
+					current++;
+				}
+			}
+
+			if (current != start) {
+				while (input[current] == input[start])
+					current++;
+
+				std::swap(input[current], input[start]);
+			}
+
+			while (start != current) {
+				current = start;
+				//find appropriate place for rest of loop
+				for (int i = start + 1; i < input.size(); i++) {
+					if (input[start] > input[i])
+						current++;
+				}
+
+				if (current != start) {
+					while (input[current] == input[start])
+						current++;
+
+					std::swap(input[current], input[start]);
+				}
+			}
+		}
+
+		return input;
+	}
 };

@@ -74,7 +74,7 @@ bool GraphMatrix::insert(int x, int y, int weight) {
 		_adjacencyMatrix[x][y] = EdgeMatrix();
 	_adjacencyMatrix[x][y].value()._weight = weight;
 	
-	if (_oriented) {
+	if (_oriented == false) {
 		if (_adjacencyMatrix[y][x].has_value() == false)
 			_adjacencyMatrix[y][x] = EdgeMatrix();
 		_adjacencyMatrix[y][x].value()._weight = weight;
@@ -89,7 +89,7 @@ bool GraphMatrix::remove(int x, int y) {
 	}
 
 	_adjacencyMatrix[x][y] = std::nullopt;
-	if (_oriented)
+	if (_oriented == false)
 		_adjacencyMatrix[y][x] = std::nullopt;
 
 	return false;
